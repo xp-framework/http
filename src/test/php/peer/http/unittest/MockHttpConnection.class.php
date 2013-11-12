@@ -1,5 +1,8 @@
 <?php namespace peer\http\unittest;
 
+use peer\http\HttpRequest;
+use peer\http\HttpResponse;
+
 /**
  * Mock HTTP connection
  *
@@ -24,13 +27,11 @@ class MockHttpConnection extends \peer\http\HttpConnection {
    * @param   peer.http.HttpRequest
    * @return  peer.http.HttpResponse response object
    */
-  public function send(\peer\http\HttpRequest $request) {
+  public function send(HttpRequest $request) {
     $this->lastRequest= $request;
 
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
-    $response= new \peer\http\HttpResponse(
-      new \io\streams\MemoryInputStream("HTTP/1.0 200 Testing OK\r\n")
-    );
+    $response= new HttpResponse(new \io\streams\MemoryInputStream("HTTP/1.0 200 Testing OK\r\n"));
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;
   }

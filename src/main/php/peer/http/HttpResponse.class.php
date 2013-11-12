@@ -2,13 +2,12 @@
 
 use io\streams\InputStream;
 
-
 /**
  * HTTP response
  *
- * @see     xp://peer.http.HttpConnection
- * @test    xp://net.xp_framework.unittest.peer.http.HttpResponseTest
- * @test    xp://net.xp_framework.unittest.peer.http.HttpInputStreamTest
+ * @see   xp://peer.http.HttpConnection
+ * @test  xp://peer.http.unittest.HttpResponseTest
+ * @test  xp://peer.http.unittest.HttpInputStreamTest
  */
 class HttpResponse extends \lang\Object {
   public

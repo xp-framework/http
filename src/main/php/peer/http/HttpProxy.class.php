@@ -3,8 +3,7 @@
 /**
  * HTTP proxy
  *
- * @see      xp://peer.http.HttpConnection#setProxy
- * @purpose  Value object
+ * @see   xp://peer.http.HttpConnection#setProxy
  */
 class HttpProxy extends \lang\Object {
   public
@@ -15,8 +14,8 @@ class HttpProxy extends \lang\Object {
   /**
    * Constructor
    *
-   * @param   string host
-   * @param   int port default 8080
+   * @param   string $host
+   * @param   int port $default 8080
    */
   public function __construct($host, $port= 8080) {
     $this->host= $host;
@@ -26,7 +25,7 @@ class HttpProxy extends \lang\Object {
   /**
    * Add a URL pattern to exclude.
    *
-   * @param   string pattern
+   * @param   string $pattern
    */
   public function addExclude($pattern) {
     $this->excludes[]= $pattern;
@@ -36,8 +35,8 @@ class HttpProxy extends \lang\Object {
    * Add a URL pattern to exclude and return this proxy. For use with
    * chained method calls.
    *
-   * @param   string pattern
-   * @return  peer.http.HttpProxy this object
+   * @param   string $pattern
+   * @return  self this object
    */
   public function withExclude($pattern) {
     $this->excludes[]= $pattern;
@@ -47,7 +46,7 @@ class HttpProxy extends \lang\Object {
   /**
    * Check whether a given URL is excluded
    *
-   * @param   peer.URL url
+   * @param   peer.URL $url
    * @return  bool
    */
   public function isExcluded(\peer\URL $url) {

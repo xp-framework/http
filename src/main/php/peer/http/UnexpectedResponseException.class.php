@@ -3,18 +3,16 @@
 /**
  * Indicates the response was unexpected
  *
- * @see      xp://peer.http.HttpUtil
- * @purpose  Exception
+ * @see  xp://peer.http.HttpUtil
  */
 class UnexpectedResponseException extends \lang\XPException {
-  public
-    $statuscode = 0;
+  public $statuscode= 0;
 
   /**
    * Constructor
    *
-   * @param   string message
-   * @param   int statuscode
+   * @param   string $message
+   * @param   int $statuscode
    */
   public function __construct($message, $statuscode= 0) {
     parent::__construct($message);
@@ -24,7 +22,7 @@ class UnexpectedResponseException extends \lang\XPException {
   /**
    * Set statuscode
    *
-   * @param   int statuscode
+   * @param   int $statuscode
    */
   public function setStatusCode($statuscode) {
     $this->statuscode= $statuscode;

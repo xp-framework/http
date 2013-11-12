@@ -1,7 +1,5 @@
 <?php namespace peer\http;
 
-
-
 define('REDIRECT_LIMIT',      0xA);
 
 /**

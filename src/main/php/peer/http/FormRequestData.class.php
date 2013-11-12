@@ -2,7 +2,6 @@
 
 use peer\Header;
 
-
 /**
  * Build an HttpRequest w/ embedded multipart/form-data
  *
@@ -31,7 +30,7 @@ class FormRequestData extends RequestData {
   /**
    * Constructor
    *
-   * @param   peer.http.FormData[] parts default array()
+   * @param   peer.http.FormData[] $parts default array()
    */
   public function __construct($parts= array()) {
     $this->boundary= '__--boundary-'.uniqid(time()).'--__';
@@ -43,7 +42,7 @@ class FormRequestData extends RequestData {
   /**
    * Set boundary
    *
-   * @param   string boundary
+   * @param   string $boundary
    * @return  string
    */
   public function withBoundary($boundary) {
@@ -63,7 +62,7 @@ class FormRequestData extends RequestData {
   /**
    * Add form part
    *
-   * @param   peer.http.FormData item
+   * @param   peer.http.FormData $item
    * @return  peer.http.FormData
    */
   public function addPart(FormData $item) {
@@ -74,8 +73,8 @@ class FormRequestData extends RequestData {
   /**
    * Add form part - fluent interface
    *
-   * @param   peer.http.FormData item
-   * @return  peer.http.FormRequestData this
+   * @param   peer.http.FormData $item
+   * @return  self this
    */
   public function withPart(FormData $item) {
     $this->parts[]= $item;

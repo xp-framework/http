@@ -1,13 +1,13 @@
 <?php namespace peer\http;
 
 use peer\URL;
-
+use lang\XPClass;
 
 /**
  * HTTP Transports base class
  *
- * @see     xp://peer.http.HttpConnection
- * @test    xp://net.xp_framework.unittest.peer.http.HttpTransportTest
+ * @see   xp://peer.http.HttpConnection
+ * @test  xp://peer.http.unittest.HttpTransportTest
  */
 abstract class HttpTransport extends \lang\Object {
   protected static $transports= array();
@@ -15,14 +15,14 @@ abstract class HttpTransport extends \lang\Object {
   protected $cat= null;
   
   static function __static() {
-    self::$transports['http']= \lang\XPClass::forName('peer.http.SocketHttpTransport');
+    self::$transports['http']= XPClass::forName('peer.http.SocketHttpTransport');
     
     // Depending on what extension is available, choose a different implementation 
     // for SSL transport. CURL is the slower one, so favor SSLSockets.
     if (extension_loaded('openssl')) {
-      self::$transports['https']= \lang\XPClass::forName('peer.http.SSLSocketHttpTransport');
+      self::$transports['https']= XPClass::forName('peer.http.SSLSocketHttpTransport');
     } else if (extension_loaded('curl')) {
-      self::$transports['https']= \lang\XPClass::forName('peer.http.CurlHttpTransport');
+      self::$transports['https']= XPClass::forName('peer.http.CurlHttpTransport');
     }
   }
   
@@ -39,7 +39,7 @@ abstract class HttpTransport extends \lang\Object {
    *
    * @param   peer.http.HttpProxy proxy
    */
-  public function setProxy(\HttpProxy $proxy) {
+  public function setProxy(HttpProxy $proxy) {
     $this->proxy= $proxy;
   }
 
@@ -68,7 +68,7 @@ abstract class HttpTransport extends \lang\Object {
    * @param   string scheme
    * @param   lang.XPClass<peer.http.HttpTransport> class
    */
-  public static function register($scheme, \lang\XPClass $class) {
+  public static function register($scheme, XPClass $class) {
     if (!$class->isSubclassOf('peer.http.HttpTransport')) {
       throw new \lang\IllegalArgumentException(sprintf(
         'Given argument must be lang.XPClass<peer.http.HttpTransport>, %s given',

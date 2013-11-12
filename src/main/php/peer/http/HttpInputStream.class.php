@@ -1,16 +1,11 @@
-<?php namespace peer\http;/* This Http is part of the XP framework's experiments
- *
- * $Id$
- */
+<?php namespace peer\http;
 
 use io\streams\InputStream;
-
 
 /**
  * InputStream that reads from a HTTP Response
  *
- * @test     xp://net.xp_framework.unittest.peer.http.HttpInputStreamTest
- * @purpose  InputStream implementation
+ * @test  xp://peer.http.unittest.HttpInputStreamTest
  */
 class HttpInputStream extends \lang\Object implements InputStream {
   protected
@@ -21,7 +16,7 @@ class HttpInputStream extends \lang\Object implements InputStream {
   /**
    * Constructor
    *
-   * @param   peer.http.HttpResponse response
+   * @param   peer.http.HttpResponse $response
    */
   public function __construct(HttpResponse $response) {
     $this->response= $response;
@@ -47,7 +42,7 @@ class HttpInputStream extends \lang\Object implements InputStream {
   /**
    * Read a string
    *
-   * @param   int limit default 8192
+   * @param   int $limit default 8192
    * @return  string
    */
   public function read($limit= 8192) {
@@ -62,6 +57,7 @@ class HttpInputStream extends \lang\Object implements InputStream {
    * Returns the number of bytes that can be read from this stream 
    * without blocking.
    *
+   * @return  int
    */
   public function available() {
     return (-1 === $this->available) ? 0 : $this->buffer();
@@ -69,7 +65,6 @@ class HttpInputStream extends \lang\Object implements InputStream {
 
   /**
    * Close this buffer
-   *
    */
   public function close() {
     $this->response->closeStream();

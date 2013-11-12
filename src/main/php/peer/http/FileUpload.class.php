@@ -2,7 +2,6 @@
 
 use io\streams\Streams;
 
-
 /**
  * File Data; represents single parts of a multipart/form-data request
  */

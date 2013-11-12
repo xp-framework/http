@@ -20,13 +20,13 @@ class HttpTransportTest extends TestCase {
     HttpTransport::register('test', \lang\ClassLoader::defineClass('TestHttpTransport', 'peer.http.HttpTransport', array(), '{
       public $host, $port, $arg;
 
-      public function __construct(URL $url, $arg) {
+      public function __construct(\peer\URL $url, $arg) {
         $this->host= $url->getHost();
         $this->port= $url->getPort(80);
         $this->arg= $arg;
       }
       
-      public function send(HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
+      public function send(\peer\http\HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
         // Not implemented
       }
     }'));

@@ -1,39 +1,37 @@
 <?php namespace peer\http;
 
+use peer\URL;
 use peer\Socket;
 use peer\SocketInputStream;
-
 
 /**
  * Transport via sockets
  *
- * @see      xp://peer.Socket
- * @see      xp://peer.http.HttpConnection
- * @purpose  Transport
+ * @see  xp://peer.Socket
+ * @see  xp://peer.http.HttpConnection
  */
 class SocketHttpTransport extends HttpTransport {
-  protected
-    $socket      = null,
-    $proxySocket = null;
+  protected $socket= null;
+  protected $proxySocket= null;
 
   /**
    * Constructor
    *
-   * @param   peer.URL url
-   * @param   string arg
+   * @param   peer.URL $url
+   * @param   string $arg
    */
-  public function __construct(\peer\URL $url, $arg) {
+  public function __construct(URL $url, $arg) {
     $this->socket= $this->newSocket($url, $arg);
   }
 
   /**
    * Creates a socket
    *
-   * @param   peer.URL url
-   * @param   string arg
+   * @param   peer.URL $url
+   * @param   string $arg
    * @return  peer.Socket
    */
-  protected function newSocket(\peer\URL $url, $arg) {
+  protected function newSocket(URL $url, $arg) {
     return new Socket($url->getHost(), $url->getPort(80));
   }
 
@@ -42,9 +40,9 @@ class SocketHttpTransport extends HttpTransport {
    *
    * @param   peer.http.HttpProxy proxy
    */
-  public function setProxy(\HttpProxy $proxy) {
+  public function setProxy(HttpProxy $proxy) {
     parent::setProxy($proxy);
-    $this->proxySocket= $this->newSocket(create(new \peer\URL())->setHost($proxy->host)->setPort($proxy->port));
+    $this->proxySocket= $this->newSocket(create(new URL())->setHost($proxy->host)->setPort($proxy->port));
   }
   
   /**
@@ -55,7 +53,7 @@ class SocketHttpTransport extends HttpTransport {
    * @param   float connecttimeout default 2.0
    * @return  peer.http.HttpResponse response object
    */
-  public function send(\HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
+  public function send(HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
 
     // Use proxy socket and Modify target if a proxy is to be used for this request, 
     // a proxy wants "GET http://example.com/ HTTP/X.X"

@@ -1,25 +1,24 @@
 <?php namespace peer\http;
 
 use io\streams\MemoryInputStream;
-
+use peer\URL;
 
 /**
  * Transport via curl functions
  *
- * @ext     curl
- * @see     xp://peer.http.HttpConnection
+ * @ext   curl
+ * @see   xp://peer.http.HttpConnection
  */
 class CurlHttpTransport extends HttpTransport {
-  protected
-    $handle = null;
+  protected $handle = null;
 
   /**
    * Constructor
    *
-   * @param   peer.URL url
-   * @param   string arg
+   * @param   peer.URL $url
+   * @param   string $arg
    */
-  public function __construct(\peer\URL $url, $arg) {
+  public function __construct(URL $url, $arg) {
     $this->handle= curl_init();
     curl_setopt($this->handle, CURLOPT_HEADER, 1);
     curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, 1); 
@@ -33,12 +32,12 @@ class CurlHttpTransport extends HttpTransport {
   /**
    * Sends a request
    *
-   * @param   peer.http.HttpRequest request
-   * @param   int timeout default 60
-   * @param   float connecttimeout default 2.0
+   * @param   peer.http.HttpRequest $request
+   * @param   int $timeout default 60
+   * @param   float $connecttimeout default 2.0
    * @return  peer.http.HttpResponse response object
    */
-  public function send(\HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
+  public function send(HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
     $curl= curl_copy_handle($this->handle);
     curl_setopt($curl, CURLOPT_URL, $request->url->getCanonicalURL());
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $request->getRequestString());
@@ -61,7 +60,7 @@ class CurlHttpTransport extends HttpTransport {
     curl_close($curl);
 
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
-    $response= new \HttpResponse(new MemoryInputStream($response));
+    $response= new HttpResponse(new MemoryInputStream($response));
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;
   }

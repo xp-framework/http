@@ -1,19 +1,17 @@
 <?php namespace peer\http;
 
 /**
- * RequestData
+ * Use RequestData to pass request data directly to body
  *
- * @see      xp://peer.http.HttpRequest#setParameters
- * @purpose  Pass request data directly to
+ * @see   xp://peer.http.HttpRequest#setParameters
  */
 class RequestData extends \lang\Object {
-  public
-    $data = '';
+  public $data;
 
   /**
    * Constructor
    *
-   * @param   string buf
+   * @param   string $buf
    */
   public function __construct($buf) {
     $this->data= $buf;

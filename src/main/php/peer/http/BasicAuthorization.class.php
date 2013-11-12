@@ -2,9 +2,8 @@
 
 use peer\Header;
 
-
 /**
- * Basic Authorization
+ * Basic Authorization header
  *
  * <quote>
  * "HTTP/1.0", includes the specification for a Basic Access
@@ -14,20 +13,19 @@ use peer\Header;
  * password are passed over the network as cleartext.
  * </quote>
  *
- * @see      http://www.owasp.org/downloads/http_authentication.txt
- * @see      rfc://2617 
- * @purpose  Basic Authorization header
+ * @see  http://www.owasp.org/downloads/http_authentication.txt
+ * @see  rfc://2617 
  */
 class BasicAuthorization extends Header {
-  public 
+  public
     $user = '',
     $pass = '';
   
   /**
    * Constructor
    *
-   * @param   string user
-   * @param   string pass
+   * @param   string $user
+   * @param   string$ pass
    */
   public function __construct($user, $pass) {
     $this->user= $user;
@@ -57,13 +55,13 @@ class BasicAuthorization extends Header {
    * Returns a BasicAuthorization object from header value; returns
    * FALSE on error.
    *
-   * @param   stirng value The header value
+   * @param   stirng $value The header value
    * @return  peer.http.BasicAuthorization
    */    
   public static function fromValue($value) {
     if (!preg_match('/^Basic (.*)$/', $value, $matches)) return false;
     list($user, $password)= explode(':', base64_decode($matches[1]), 2);
-    return new BasicAuthorization($user, $password);
+    return new self($user, $password);
   }
   
   /**

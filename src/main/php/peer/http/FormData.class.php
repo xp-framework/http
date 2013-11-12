@@ -1,11 +1,9 @@
 <?php namespace peer\http;
 
 /**
- * Form Data; represents single parts of a
- * multipart/form-data request
+ * Form Data; represents single parts of a multipart/form-data request
  *
- * @test      xp://net.xp_framework.unittest.peer.http.FormDataRequestTest
- * @purpose   Single form data part
+ * @test   xp://peer.http.unittest.FormDataRequestTest
  */
 class FormData extends \lang\Object {
   const

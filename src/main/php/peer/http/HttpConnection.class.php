@@ -3,7 +3,6 @@
 use peer\URL;
 use util\log\Traceable;
 
-
 /**
  * HTTP connection
  *
@@ -24,9 +23,8 @@ use util\log\Traceable;
  *   }
  * </code>
  *
- * @see      rfc://2616
- * @test     xp://net.xp_framework.unittest.peer.HttpTest
- * @purpose  Provide
+ * @see   rfc://2616
+ * @test  xp://net.xp_framework.unittest.peer.HttpTest
  */
 class HttpConnection extends \lang\Object implements Traceable {
   protected
@@ -38,7 +36,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Constructor
    *
-   * @param   var url a string or a peer.URL object
+   * @param   var $url a string or a peer.URL object
    */
   public function __construct($url) {
     $this->url= $url instanceof URL ? $url : new URL($url);
@@ -48,7 +46,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Set proxy
    *
-   * @param   peer.http.HttpProxy proxy
+   * @param   peer.http.HttpProxy $proxy
    */
   public function setProxy(HttpProxy $proxy) {
     $this->transport->setProxy($proxy);
@@ -57,7 +55,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Set connect timeout
    *
-   * @param   float timeout
+   * @param   float $timeout
    */
   public function setConnectTimeout($timeout) {
     $this->_ctimeout= $timeout;
@@ -75,7 +73,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Set timeout
    *
-   * @param   int timeout
+   * @param   int $timeout
    */
   public function setTimeout($timeout) {
     $this->_timeout= $timeout;
@@ -121,7 +119,7 @@ class HttpConnection extends \lang\Object implements Traceable {
    * @param   peer.http.HttpRequest $request
    * @return  peer.http.HttpResponse response object
    */
-  public function send(\HttpRequest $request) {
+  public function send(HttpRequest $request) {
     return $this->transport->send($request, $this->_timeout, $this->_ctimeout);
   }
 
@@ -141,10 +139,10 @@ class HttpConnection extends \lang\Object implements Traceable {
    *   }
    * </code>
    *
-   * @param   peer.http.HttpRequest
+   * @param   peer.http.HttpRequest $r
    * @return  peer.http.HttpRequest request object
    */
-  public function create(\HttpRequest $r) {
+  public function create(HttpRequest $r) {
     $r->setUrl($this->url);
     return $r;
   }
@@ -152,14 +150,14 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform any request
    *
-   * @param   string method request method, e.g. HttpConstants::GET
-   * @param   var parameters
-   * @param   array headers default array()
+   * @param   string $method request method, e.g. HttpConstants::GET
+   * @param   var $parameters
+   * @param   [:string] $headers default array()
    * @return  peer.http.HttpResponse response object
    * @throws  io.IOException
    */
   public function request($method, $parameters, $headers= array()) {
-    $r= new \HttpRequest($this->url);
+    $r= new HttpRequest($this->url);
     $r->setMethod($method);
     $r->setParameters($parameters);
     $r->addHeaders($headers);
@@ -169,8 +167,8 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a GET request
    *
-   * @param   var arg default NULL
-   * @param   array headers default array()
+   * @param   string $arg default NULL
+   * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
   public function get($arg= null, $headers= array()) {
@@ -180,8 +178,8 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a HEAD request
    *
-   * @param   var arg default NULL
-   * @param   array headers default array()
+   * @param   string $arg default NULL
+   * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
   public function head($arg= null, $headers= array()) {
@@ -191,8 +189,8 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a POST request
    *
-   * @param   var arg default NULL
-   * @param   array headers default array()
+   * @param   string $arg default NULL
+   * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
   public function post($arg= null, $headers= array()) {
@@ -202,8 +200,8 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a PUT request
    *
-   * @param   string arg default NULL
-   * @param   array headers default array()
+   * @param   string $arg default NULL
+   * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
   public function put($arg= null, $headers= array()) {
@@ -213,8 +211,8 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a PATCH request
    *
-   * @param   string arg default NULL
-   * @param   array headers default array()
+   * @param   string $arg default NULL
+   * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
   public function patch($arg= null, $headers= array()) {
@@ -224,8 +222,8 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a DELETE request
    *
-   * @param   string arg default NULL
-   * @param   array headers default array()
+   * @param   string $arg default NULL
+   * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
   public function delete($arg= null, $headers= array()) {
@@ -235,8 +233,8 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform an OPTIONS request
    *
-   * @param   string arg default NULL
-   * @param   array headers default array()
+   * @param   string $arg default NULL
+   * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
   public function options($arg= null, $headers= array()) {
@@ -246,8 +244,8 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a TRACE request
    *
-   * @param   string arg default NULL
-   * @param   array headers default array()
+   * @param   string $arg default NULL
+   * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
   public function trace($arg= null, $headers= array()) {
@@ -257,7 +255,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Sets a logger category for debugging
    *
-   * @param   util.log.LogCategory cat
+   * @param   util.log.LogCategory $cat
    */
   public function setTrace($cat) {
     $this->transport->setTrace($cat);

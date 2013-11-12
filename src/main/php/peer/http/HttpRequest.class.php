@@ -1,18 +1,15 @@
 <?php namespace peer\http;
 
-use peer\Socket;
 use peer\URL;
 use peer\Header;
 
-
 /**
- * Wrap HTTP/1.0 and HTTP/1.1 requests (used internally by the 
- * HttpConnection class)
+ * Wrap HTTP/1.0 and HTTP/1.1 requests (used internally by the HttpConnection
+ * class)
  *
- * @test     xp://net.xp_framework.unittest.peer.HttpRequestTest
- * @see      xp://peer.http.HttpConnection
- * @see      rfc://2616
- * @purpose  HTTP request
+ * @test  xp://peer.http.unittest.HttpRequestTest
+ * @see   xp://peer.http.HttpConnection
+ * @see   rfc://2616
  */
 class HttpRequest extends \lang\Object {
   public

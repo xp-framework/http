@@ -3,9 +3,8 @@
 /**
  * HttpConstants defines basic HTTP names and all HTTP/1.1 protocol entity names.
  *
- * @see      http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html HTTP methods
- * @see      http://tools.ietf.org/html/rfc6585
- * @purpose  HTTP constants
+ * @see  http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html HTTP methods
+ * @see  http://tools.ietf.org/html/rfc6585
  */
 class HttpConstants extends \lang\Object {
   const 
