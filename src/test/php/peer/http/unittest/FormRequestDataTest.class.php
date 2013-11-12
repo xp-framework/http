@@ -2,54 +2,39 @@
 
 use unittest\TestCase;
 use peer\http\FormRequestData;
-
+use peer\http\FormData;
 
 /**
- * TestCase
+ * TestCase for FormRequestData and FormData classes
  *
- * @see       xp://peer.http.FormRequestData
- * @see       xp://peer.http.FormData
- * @purpose   Testcase
+ * @see  xp://peer.http.FormRequestData
+ * @see  xp://peer.http.FormData
  */
 class FormRequestDataTest extends TestCase {
-  protected
-    $fixture  = null;
+  protected $fixture  = null;
 
   /**
    * Setup test case
-   *
    */
   public function setUp() {
     $this->fixture= new FormRequestData();
   }
 
-  /**
-   * Test adding new parameters
-   *
-   */
   #[@test]
   public function addPart() {
-    $data= new \peer\http\FormData('key', 'value');
+    $data= new FormData('key', 'value');
     $this->assertEquals($data, $this->fixture->addPart($data));
   }
 
-  /**
-   * Test adding new parameters
-   *
-   */
   #[@test]
   public function withPart() {
-    $data= new \peer\http\FormData('key', 'value');
+    $data= new FormData('key', 'value');
     $this->assertEquals($this->fixture, $this->fixture->withPart($data));
   }
 
-  /**
-   * Test representation of value w/ default content-type and charset
-   *
-   */
   #[@test]
   public function simpleMimeRepresentation() {
-    $this->fixture->addPart(new \peer\http\FormData('key', 'value'));
+    $this->fixture->addPart(new FormData('key', 'value'));
 
     $this->assertEquals(
       "--".$this->fixture->getBoundary()."\r\n".
@@ -60,13 +45,9 @@ class FormRequestDataTest extends TestCase {
     );
   }
 
-  /**
-   * Test representation of value w/ non-default mime-type
-   *
-   */
   #[@test]
   public function noDefaultTypeMimeRepresentation() {
-    $this->fixture->addPart(new \peer\http\FormData('key', 'value', 'text/html'));
+    $this->fixture->addPart(new FormData('key', 'value', 'text/html'));
 
     $this->assertEquals(
       "--".$this->fixture->getBoundary()."\r\n".
@@ -78,14 +59,9 @@ class FormRequestDataTest extends TestCase {
     );
   }
 
-  /**
-   * Test representation of value w/ default content-type but
-   * non-default charset
-   *
-   */
   #[@test]
   public function noDefaultCharsetMimeRepresentation() {
-    $this->fixture->addPart(new \peer\http\FormData('key', 'value', 'text/plain', 'utf-8'));
+    $this->fixture->addPart(new FormData('key', 'value', 'text/plain', 'utf-8'));
 
     $this->assertEquals(
       "--".$this->fixture->getBoundary()."\r\n".

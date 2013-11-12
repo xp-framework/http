@@ -5,12 +5,10 @@ use peer\http\HttpInputStream;
 use peer\http\HttpResponse;
 use peer\http\HttpConstants;
 
-
 /**
  * HTTP input stream tests
  *
- * @see      xp://peer.http.HttpInputStream
- * @purpose  Unittest
+ * @see   xp://peer.http.HttpInputStream
  */
 class HttpInputStreamTest extends \unittest\TestCase {
 
@@ -64,28 +62,16 @@ class HttpInputStreamTest extends \unittest\TestCase {
     }
   }
 
-  /**
-   * Test reading an empty response
-   *
-   */
   #[@test]
   public function readEmpty() {
     $this->assertRead('');
   }
 
-  /**
-   * Test reading a non-empty response
-   *
-   */
   #[@test]
   public function readNonEmpty() {
     $this->assertRead('Hello World');
   }
 
-  /**
-   * Test reading binary data (an image part of the XP framework's design)
-   *
-   */
   #[@test]
   public function readBinaryData() {
     $this->assertRead(
@@ -95,10 +81,6 @@ class HttpInputStreamTest extends \unittest\TestCase {
     );
   }
 
-  /**
-   * Test available() method
-   *
-   */
   #[@test]
   public function available() {
     with ($s= new HttpInputStream($this->httpResponse(
@@ -117,10 +99,6 @@ class HttpInputStreamTest extends \unittest\TestCase {
     }
   }
 
-  /**
-   * Test available() method
-   *
-   */
   #[@test]
   public function availableWithChunks() {
     with ($s= new HttpInputStream($this->httpResponse(
@@ -141,10 +119,6 @@ class HttpInputStreamTest extends \unittest\TestCase {
     }
   }
  
-  /**
-   * Test available() method
-   *
-   */
   #[@test]
   public function availableAfterReadingAll() {
     with ($s= new HttpInputStream($this->httpResponse(
@@ -157,10 +131,6 @@ class HttpInputStreamTest extends \unittest\TestCase {
     }
   }
  
-  /**
-   * Test available() method
-   *
-   */
   #[@test]
   public function readAfterReadingAll() {
     with ($s= new HttpInputStream($this->httpResponse(
@@ -173,10 +143,6 @@ class HttpInputStreamTest extends \unittest\TestCase {
     }
   }
 
-  /**
-   * Test available() method
-   *
-   */
   #[@test]
   public function availableWhenBuffered() {
     with ($s= new HttpInputStream($this->httpResponse(

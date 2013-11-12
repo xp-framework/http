@@ -3,7 +3,6 @@
 use unittest\TestCase;
 use peer\http\HttpTransport;
 
-
 /**
  * TestCase
  *
@@ -13,7 +12,6 @@ class HttpTransportTest extends TestCase {
 
   /**
    * Register test transport
-   *
    */
   #[@beforeClass]
   public static function registerTransport() {
@@ -32,19 +30,11 @@ class HttpTransportTest extends TestCase {
     }'));
   }
 
-  /**
-   * Test register() method
-   *
-   */
   #[@test, @expect('lang.IllegalArgumentException')]
   public function registerIncorrectClass() {
     HttpTransport::register('irrelevant', $this->getClass());
   }
 
-  /**
-   * Test transportFor() method
-   *
-   */
   #[@test]
   public function port80IsDefaultPort() {
     $t= HttpTransport::transportFor(new \peer\URL('test://example.com'));
@@ -53,10 +43,6 @@ class HttpTransportTest extends TestCase {
     $this->assertEquals(null, $t->arg);
   }
 
-  /**
-   * Test transportFor() method
-   *
-   */
   #[@test]
   public function withPort() {
     $t= HttpTransport::transportFor(new \peer\URL('test://example.com:8080'));
@@ -65,10 +51,6 @@ class HttpTransportTest extends TestCase {
     $this->assertEquals(null, $t->arg);
   }
 
-  /**
-   * Test transportFor() method
-   *
-   */
   #[@test]
   public function withPortAndArg() {
     $t= HttpTransport::transportFor(new \peer\URL('test+v2://example.com:443'));
