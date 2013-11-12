@@ -1,45 +1,40 @@
-<?php
-/* This class is part of the XP framework
+<?php namespace peer\http;
+
+/**
+ * RequestData
  *
- * $Id$
+ * @see      xp://peer.http.HttpRequest#setParameters
+ * @purpose  Pass request data directly to
  */
+class RequestData extends \lang\Object {
+  public
+    $data = '';
 
   /**
-   * RequestData
+   * Constructor
    *
-   * @see      xp://peer.http.HttpRequest#setParameters
-   * @purpose  Pass request data directly to
+   * @param   string buf
    */
-  class RequestData extends Object {
-    public
-      $data = '';
-
-    /**
-     * Constructor
-     *
-     * @param   string buf
-     */
-    public function __construct($buf) {
-      $this->data= $buf;
-    }
-
-    /**
-     * Return list of HTTP headers to be set on
-     * behalf of the data
-     *
-     * @return  peer.Header[]
-     */
-    public function getHeaders() {
-      return array();
-    }
-    
-    /**
-     * Retrieve data
-     *
-     * @return  string
-     */
-    public function getData() {
-      return $this->data;
-    }
+  public function __construct($buf) {
+    $this->data= $buf;
   }
-?>
+
+  /**
+   * Return list of HTTP headers to be set on
+   * behalf of the data
+   *
+   * @return  peer.Header[]
+   */
+  public function getHeaders() {
+    return array();
+  }
+  
+  /**
+   * Retrieve data
+   *
+   * @return  string
+   */
+  public function getData() {
+    return $this->data;
+  }
+}

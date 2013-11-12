@@ -1,4 +1,4 @@
-<?php namespace net\xp_framework\unittest\peer\http;
+<?php namespace peer\http\unittest;
 
 use io\streams\MemoryInputStream;
 use peer\http\HttpInputStream;

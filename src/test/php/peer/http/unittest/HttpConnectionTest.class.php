@@ -1,4 +1,4 @@
-<?php namespace net\xp_framework\unittest\peer\http;
+<?php namespace peer\http\unittest;
 
 use unittest\TestCase;
 use peer\http\HttpRequest;

@@ -1,31 +1,27 @@
-<?php
-/* This class is part of the XP framework
- *
- * $Id$ 
- */
+<?php namespace peer\http;
 
-  uses('peer.http.SocketHttpTransport', 'peer.SSLSocket');
+use peer\SSLSocket;
+
+
+/**
+ * Transport via SSL sockets
+ *
+ * @ext      openssl
+ * @see      xp://peer.SSLSocket
+ * @see      xp://peer.http.HttpConnection
+ * @purpose  Transport
+ */
+class SSLSocketHttpTransport extends SocketHttpTransport {
 
   /**
-   * Transport via SSL sockets
+   * Creates a socket - overridden from parent class
    *
-   * @ext      openssl
-   * @see      xp://peer.SSLSocket
-   * @see      xp://peer.http.HttpConnection
-   * @purpose  Transport
+   * @param   peer.URL url
+   * @param   string arg
+   * @return  peer.Socket
    */
-  class SSLSocketHttpTransport extends SocketHttpTransport {
-
-    /**
-     * Creates a socket - overridden from parent class
-     *
-     * @param   peer.URL url
-     * @param   string arg
-     * @return  peer.Socket
-     */
-    protected function newSocket(URL $url, $arg) {
-      sscanf($arg, 'v%d', $version);
-      return new SSLSocket($url->getHost(), $url->getPort(443), NULL, $version);
-    }
+  protected function newSocket(\peer\URL $url, $arg) {
+    sscanf($arg, 'v%d', $version);
+    return new SSLSocket($url->getHost(), $url->getPort(443), null, $version);
   }
-?>
+}
