@@ -61,12 +61,12 @@ class FormRequestDataTest extends TestCase {
 
   #[@test]
   public function noDefaultCharsetMimeRepresentation() {
-    $this->fixture->addPart(new FormData('key', 'value', 'text/plain', 'utf-8'));
+    $this->fixture->addPart(new FormData('key', 'value', 'text/plain', 'utf-16'));
 
     $this->assertEquals(
       "--".$this->fixture->getBoundary()."\r\n".
       "Content-Disposition: form-data; name=\"key\"\r\n".
-      "Content-Type: text/plain; charset=\"utf-8\"\r\n\r\n".
+      "Content-Type: text/plain; charset=\"utf-16\"\r\n\r\n".
       "value\r\n--".$this->fixture->getBoundary()."--\r\n",
 
       $this->fixture->getData()
