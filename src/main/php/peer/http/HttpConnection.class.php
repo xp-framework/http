@@ -143,7 +143,7 @@ class HttpConnection extends \lang\Object implements Traceable {
    * @return  peer.http.HttpRequest request object
    */
   public function create(HttpRequest $r) {
-    $r->setUrl($this->url);
+    $r->setUrl(clone $this->url);
     return $r;
   }
   
