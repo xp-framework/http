@@ -81,7 +81,7 @@ class SocketHttpTransport extends HttpTransport {
     $s->write($request->getRequestString());
 
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
-    $response= new \HttpResponse(new SocketInputStream($s));
+    $response= new HttpResponse(new SocketInputStream($s));
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;
   }
