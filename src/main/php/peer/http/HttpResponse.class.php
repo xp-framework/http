@@ -25,16 +25,17 @@ class HttpResponse extends \lang\Object {
   /**
    * Constructor
    *
-   * @param   io.streams.InputStream stream
+   * @param  io.streams.InputStream $stream
+   * @param  bool $chunked Whether to check for chunked encoding.
    */
-  public function __construct(InputStream $stream) {
+  public function __construct(InputStream $stream, $chunked= true) {
     $this->stream= $stream;
     
     // Read status line and headers
     do { $this->readHeader(); } while (100 === $this->statuscode);
 
     // Check for chunked transfer encoding
-    $this->chunked= (bool)stristr($this->getHeader('Transfer-Encoding'), 'chunked');
+    $this->chunked= $chunked && (bool)stristr($this->getHeader('Transfer-Encoding'), 'chunked');
   }
   
   /**

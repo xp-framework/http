@@ -46,11 +46,23 @@ class CurlHttpTransport extends HttpTransport {
     if ($this->proxy && !$this->proxy->isExcluded($request->getUrl())) {
       curl_setopt($curl, CURLOPT_PROXY, $this->proxy->host);
       curl_setopt($curl, CURLOPT_PROXYPORT, $this->proxy->port);
+      $read= function($transfer) {
+        if (preg_match('#^HTTP/[0-9]\.[0-9] [0-9]{3} .+\r\n\r\n#', $transfer, $matches)) {
+
+          // Strip "HTTP/x.x 200 Connection established" which is followed by
+          // the real HTTP message: headers and body
+          return substr($transfer, strlen($matches[0]));
+        } else {
+          return $transfer;
+        }
+      };
+    } else {
+      $read= function($transfer) { return $transfer; };
     }
     
-    $response= curl_exec($curl);
+    $return= curl_exec($curl);
 
-    if (false === $response) {
+    if (false === $return) {
       $errno= curl_errno($curl);
       $error= curl_error($curl);
       curl_close($curl);
@@ -60,7 +72,7 @@ class CurlHttpTransport extends HttpTransport {
     curl_close($curl);
 
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
-    $response= new HttpResponse(new MemoryInputStream($response));
+    $response= new HttpResponse(new MemoryInputStream($read($return)), false);
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;
   }
