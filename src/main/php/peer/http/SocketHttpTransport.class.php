@@ -42,7 +42,7 @@ class SocketHttpTransport extends HttpTransport {
    */
   public function setProxy(HttpProxy $proxy) {
     parent::setProxy($proxy);
-    $this->proxySocket= $this->newSocket(create(new URL())->setHost($proxy->host)->setPort($proxy->port));
+    $this->proxySocket= new Socket($proxy->host, $proxy->port);
   }
   
   /**
