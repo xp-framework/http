@@ -36,19 +36,19 @@ class HttpProxyTest extends \unittest\TestCase {
   #[@test]
   public function excludes_contains_localhost_by_default() {
     $proxy= new HttpProxy('proxy.example.com', 3128);
-    $this->assertEquals(['localhost'], $proxy->excludes());
+    $this->assertEquals(['localhost'], $proxy->excludes()->patterns());
   }
 
   #[@test]
   public function localhost_always_present() {
     $proxy= new HttpProxy('proxy.example.com', 3128, ['internal.example.com']);
-    $this->assertEquals(['localhost', 'internal.example.com'], $proxy->excludes());
+    $this->assertEquals(['localhost', 'internal.example.com'], $proxy->excludes()->patterns());
   }
 
   #[@test]
   public function localhost_not_added_multiple_times() {
     $proxy= new HttpProxy('proxy.example.com', 3128);
-    $this->assertEquals(['localhost'], $proxy->excludes(['localhost']));
+    $this->assertEquals(['localhost'], $proxy->excludes(['localhost'])->patterns());
   }
 
   #[@test]
@@ -74,7 +74,7 @@ class HttpProxyTest extends \unittest\TestCase {
   #])]
   public function host_in_excludes_is_excluded($url, $expected) {
     $proxy= new HttpProxy('proxy.example.com', 3128, ['internal.example.com']);
-    $this->assertEquals($expected, $proxy->isExcluded(new URL($url)));
+    $this->assertEquals($expected, $proxy->excludes()->contains(new URL($url)));
   }
 
   #[@test, @values([
@@ -86,7 +86,7 @@ class HttpProxyTest extends \unittest\TestCase {
   #])]
   public function exclude_starting_with_dot($url, $expected) {
     $proxy= new HttpProxy('proxy.example.com', 3128, ['.example.com']);
-    $this->assertEquals($expected, $proxy->isExcluded(new URL($url)));
+    $this->assertEquals($expected, $proxy->excludes()->contains(new URL($url)));
   }
 
 
@@ -100,21 +100,22 @@ class HttpProxyTest extends \unittest\TestCase {
   #])]
   public function host_with_port_in_includes_matches_port($url, $expected) {
     $proxy= new HttpProxy('proxy.example.com', 3128, ['internal.example.com:80']);
-    $this->assertEquals($expected, $proxy->isExcluded(new URL($url)));
+    $this->assertEquals($expected, $proxy->excludes()->contains(new URL($url)));
   }
 
   #[@test]
   public function asterisk_in_excludes_for_overriding_proxy_completely() {
     $proxy= new HttpProxy('proxy.example.com', 3128, ['*']);
-    $this->assertTrue($proxy->isExcluded(new URL('http://example.com/')));
+    $this->assertTrue($proxy->excludes()->contains(new URL('http://example.com/')));
   }
 
   #[@test]
   public function exludes_also_work_localhost_special_case() {
     $proxy= new HttpProxy('proxy.example.com');
-    $this->assertTrue($proxy->isExcluded(new URL('http://127.0.0.1')));
+    $this->assertTrue($proxy->excludes()->contains(new URL('http://127.0.0.1')));
   }
 
+  /** @return string */
   protected function exampleIp() {
     static $resolved= null;
 
@@ -129,18 +130,27 @@ class HttpProxyTest extends \unittest\TestCase {
   #[@test]
   public function host_excludes_work_with_ips_in_urls() {
     $proxy= new HttpProxy('proxy.example.com', 3128, ['example.com']);
-    $this->assertTrue($proxy->isExcluded(new URL('http://'.$this->exampleIp())));
+    $this->assertTrue($proxy->excludes()->contains(new URL('http://'.$this->exampleIp())));
   }
 
   #[@test]
   public function ips_in_both_excludes_and_urls_work() {
     $proxy= new HttpProxy('proxy.example.com', 3128, [$this->exampleIp()]);
-    $this->assertTrue($proxy->isExcluded(new URL('http://'.$this->exampleIp())));
+    $this->assertTrue($proxy->excludes()->contains(new URL('http://'.$this->exampleIp())));
   }
 
   #[@test]
   public function ip_excludes_work_with_hosts_in_urls() {
     $proxy= new HttpProxy('proxy.example.com', 3128, [$this->exampleIp()]);
-    $this->assertTrue($proxy->isExcluded(new URL('http://example.com')));
+    $this->assertTrue($proxy->excludes()->contains(new URL('http://example.com')));
+  }
+
+  #[@test, @values([
+  #  ['https://192.168.2.6/', true],
+  #  ['https://192.168.3.6/', false]
+  #])]
+  public function cidr($url, $expected) {
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['192.168.2.0/24']);
+    $this->assertEquals($expected, $proxy->excludes()->contains(new URL($url)));
   }
 }
