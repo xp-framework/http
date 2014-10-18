@@ -6,20 +6,25 @@
  * @see   xp://peer.http.HttpConnection#setProxy
  */
 class HttpProxy extends \lang\Object {
-  public
-    $host     = '',
-    $port     = 0,
-    $excludes = array('localhost');
+  public $host, $port, $excludes;
   
   /**
    * Constructor
    *
    * @param   string $host
-   * @param   int port $default 8080
+   * @param   int $port default 8080
+   * @param   string[] $excludes
    */
-  public function __construct($host, $port= 8080) {
-    $this->host= $host;
-    $this->port= $port;
+  public function __construct($host, $port= 8080, $excludes= []) {
+    if (null === $port) {
+      sscanf($host, '%[^:]:%d', $this->host, $port);
+      $this->port= $port ?: 8080;
+    } else {
+      $this->host= $host;
+      $this->port= $port;
+    }
+
+    $this->excludes= array_merge(['localhost'], $excludes);
   }
 
   /**
