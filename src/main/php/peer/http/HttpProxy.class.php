@@ -50,6 +50,11 @@ class HttpProxy extends \lang\Object {
    * @return function(string): bool
    */
   protected function match($host) {
+    if ('127.0.0.1' === $host) {
+      return function($exclude) {
+        return 0 === strcasecmp('localhost', $exclude);
+      };
+    }
     if (preg_match('/^([0-9]{1,3}.)+[0-9]{1,3}$/', $host)) {
       return function($exclude) use($host) {
         $resolved= dns_get_record($exclude, DNS_A);

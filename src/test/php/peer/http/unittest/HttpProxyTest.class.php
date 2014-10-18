@@ -110,9 +110,18 @@ class HttpProxyTest extends \unittest\TestCase {
   }
 
   #[@test]
+  public function exludes_also_work_localhost_special_case() {
+    $proxy= new HttpProxy('proxy.example.com');
+    $this->assertTrue($proxy->isExcluded(new URL('http://127.0.0.1')));
+  }
+
+  #[@test]
   public function exludes_also_work_with_ip_addresses() {
+    if (!($resolved= dns_get_record('example.com', DNS_A))) {
+      $this->skip('Cannot resolve exampl.com (DNS_A)');
+    }
+
     $proxy= new HttpProxy('proxy.example.com', 3128, ['example.com']);
-    $resolved= dns_get_record('example.com', DNS_A);
-    $this->assertTrue($proxy->isExcluded(new URL('http://'.$resolved[0]['ip'])), \xp::stringOf($resolved));
+    $this->assertTrue($proxy->isExcluded(new URL('http://'.$resolved[0]['ip'])));
   }
 }
