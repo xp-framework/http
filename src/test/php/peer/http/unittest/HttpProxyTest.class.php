@@ -108,4 +108,11 @@ class HttpProxyTest extends \unittest\TestCase {
     $proxy= new HttpProxy('proxy.example.com', 3128, ['*']);
     $this->assertTrue($proxy->isExcluded(new URL('http://example.com/')));
   }
+
+  #[@test]
+  public function exludes_also_work_with_ip_addresses() {
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['example.com']);
+    $resolved= dns_get_record('example.com', DNS_A);
+    $this->assertTrue($proxy->isExcluded(new URL('http://'.$resolved[0]['ip'])), \xp::stringOf($resolved));
+  }
 }
