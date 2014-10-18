@@ -69,6 +69,30 @@ class HttpProxyTest extends \unittest\TestCase {
   }
 
   #[@test]
+  public function host_in_excludes_is_excluded_regardless_of_port() {
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['internal.example.com']);
+    $this->assertTrue($proxy->isExcluded(new URL('http://internal.example.com:8081/index.html')));
+  }
+
+  #[@test]
+  public function host_with_port_in_includes_matches_port() {
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['internal.example.com:80']);
+    $this->assertTrue($proxy->isExcluded(new URL('http://internal.example.com:80/index.html')));
+  }
+
+  #[@test]
+  public function host_with_port_in_includes_matches_default_port() {
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['internal.example.com:80']);
+    $this->assertTrue($proxy->isExcluded(new URL('http://internal.example.com/index.html')));
+  }
+
+  #[@test]
+  public function another_port_is_not_excluded() {
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['internal.example.com:80']);
+    $this->assertFalse($proxy->isExcluded(new URL('http://internal.example.com:8080/index.html')));
+  }
+
+  #[@test]
   public function another_host_is_not_excluded() {
     $proxy= new HttpProxy('proxy.example.com', 3128, ['internal.example.com']);
     $this->assertFalse($proxy->isExcluded(new URL('http://www.example.com/')));

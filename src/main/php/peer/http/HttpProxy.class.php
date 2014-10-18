@@ -50,8 +50,18 @@ class HttpProxy extends \lang\Object {
    * @return  bool
    */
   public function isExcluded(\peer\URL $url) {
+    static $ports= ['http' => 80, 'https' => 443];
+
     foreach ($this->excludes as $pattern) {
-      if (stristr($url->getHost(), $pattern)) return true;
+      if (false === ($p= strpos($pattern, ':'))) {
+        $matches= 0 === strcasecmp($url->getHost(), $pattern);
+      } else {
+        $matches= (
+          0 === strncasecmp($url->getHost(), $pattern, $p) &&
+          $url->getPort(@$ports[$url->getScheme()]) === (int)substr($pattern, $p + 1)
+        );
+      }
+      if ($matches) return true;
     }
     return false;
   }
