@@ -115,13 +115,32 @@ class HttpProxyTest extends \unittest\TestCase {
     $this->assertTrue($proxy->isExcluded(new URL('http://127.0.0.1')));
   }
 
-  #[@test]
-  public function exludes_also_work_with_ip_addresses() {
-    if (!($resolved= dns_get_record('example.com', DNS_A))) {
-      $this->skip('Cannot resolve exampl.com (DNS_A)');
-    }
+  protected function exampleIp() {
+    static $resolved= null;
 
+    if (!$resolved) {
+      if (!($resolved= dns_get_record('example.com', DNS_A))) {
+        $this->skip('Cannot resolve example.com (DNS_A)');
+      }
+    }
+    return $resolved[0]['ip'];
+  }
+
+  #[@test]
+  public function host_excludes_work_with_ips_in_urls() {
     $proxy= new HttpProxy('proxy.example.com', 3128, ['example.com']);
-    $this->assertTrue($proxy->isExcluded(new URL('http://'.$resolved[0]['ip'])));
+    $this->assertTrue($proxy->isExcluded(new URL('http://'.$this->exampleIp())));
+  }
+
+  #[@test]
+  public function ips_in_both_excludes_and_urls_work() {
+    $proxy= new HttpProxy('proxy.example.com', 3128, [$this->exampleIp()]);
+    $this->assertTrue($proxy->isExcluded(new URL('http://'.$this->exampleIp())));
+  }
+
+  #[@test]
+  public function ip_excludes_work_with_hosts_in_urls() {
+    $proxy= new HttpProxy('proxy.example.com', 3128, [$this->exampleIp()]);
+    $this->assertTrue($proxy->isExcluded(new URL('http://example.com')));
   }
 }
