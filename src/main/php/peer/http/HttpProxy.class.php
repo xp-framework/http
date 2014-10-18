@@ -1,24 +1,31 @@
 <?php namespace peer\http;
 
+use lang\IllegalArgumentException;
+
 /**
  * HTTP proxy
  *
+ * @test  xp://peer.http.unittest.HttpProxyTest
  * @see   xp://peer.http.HttpConnection#setProxy
  */
 class HttpProxy extends \lang\Object {
-  public $host, $port, $excludes;
+  const NONE = null;
+
+  protected $host, $port, $excludes;
   
   /**
    * Constructor
    *
-   * @param   string $host
-   * @param   int $port default 8080
-   * @param   string[] $excludes
+   * @param  string $host
+   * @param  int $port default 8080
+   * @param  string[] $excludes
+   * @throws lang.IllegalArgumentException
    */
   public function __construct($host, $port= 8080, $excludes= []) {
     if (null === $port) {
-      sscanf($host, '%[^:]:%d', $this->host, $port);
-      $this->port= $port ?: 8080;
+      if (2 !== sscanf($host, '%[^:]:%d', $this->host, $this->port)) {
+        throw new IllegalArgumentException('Malformed authority "'.$host.'"');
+      }
     } else {
       $this->host= $host;
       $this->port= $port;
@@ -27,26 +34,14 @@ class HttpProxy extends \lang\Object {
     $this->excludes= array_merge(['localhost'], $excludes);
   }
 
-  /**
-   * Add a URL pattern to exclude.
-   *
-   * @param   string $pattern
-   */
-  public function addExclude($pattern) {
-    $this->excludes[]= $pattern;
-  }
-  
-  /**
-   * Add a URL pattern to exclude and return this proxy. For use with
-   * chained method calls.
-   *
-   * @param   string $pattern
-   * @return  self this object
-   */
-  public function withExclude($pattern) {
-    $this->excludes[]= $pattern;
-    return $this;
-  }
+  /** @return string */
+  public function host() { return $this->host; }
+
+  /** @return int */
+  public function port() { return $this->port; }
+
+  /** @return string[] */
+  public function excludes() { return $this->excludes; }
 
   /**
    * Check whether a given URL is excluded
