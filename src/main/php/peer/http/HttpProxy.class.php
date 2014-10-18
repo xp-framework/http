@@ -53,7 +53,9 @@ class HttpProxy extends \lang\Object {
     static $ports= ['http' => 80, 'https' => 443];
 
     foreach ($this->excludes as $pattern) {
-      if (false === ($p= strpos($pattern, ':'))) {
+      if ('*' === $pattern) {
+        $matches= true;
+      } else if (false === ($p= strpos($pattern, ':'))) {
         $matches= 0 === strcasecmp($url->getHost(), $pattern);
       } else {
         $matches= (

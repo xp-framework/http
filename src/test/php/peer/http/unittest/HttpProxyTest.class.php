@@ -97,4 +97,10 @@ class HttpProxyTest extends \unittest\TestCase {
     $proxy= new HttpProxy('proxy.example.com', 3128, ['internal.example.com']);
     $this->assertFalse($proxy->isExcluded(new URL('http://www.example.com/')));
   }
+
+  #[@test]
+  public function asterisk_in_excludes_for_overriding_proxy_completely() {
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['*']);
+    $this->assertTrue($proxy->isExcluded(new URL('http://example.com/')));
+  }
 }
