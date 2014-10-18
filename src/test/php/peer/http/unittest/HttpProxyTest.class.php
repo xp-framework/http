@@ -11,6 +11,11 @@ use peer\http\HttpProxy;
 class HttpProxyTest extends \unittest\TestCase {
 
   #[@test]
+  public function no_proxy() {
+    $this->assertNull(HttpProxy::NONE);
+  }
+
+  #[@test]
   public function host() {
     $proxy= new HttpProxy('proxy.example.com', 3128);
     $this->assertEquals('proxy.example.com', $proxy->host());

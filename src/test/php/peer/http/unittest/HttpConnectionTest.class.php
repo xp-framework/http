@@ -1,6 +1,8 @@
 <?php namespace peer\http\unittest;
 
 use unittest\TestCase;
+use peer\URL;
+use peer\http\HttpProxy;
 use peer\http\HttpRequest;
 use peer\http\HttpConstants;
 use peer\http\RequestData;
@@ -20,7 +22,7 @@ class HttpConnectionTest extends TestCase {
    * Creates fixture member.
    */
   public function setUp() {
-    $this->fixture= new MockHttpConnection(new \peer\URL('http://example.com:80/path/of/file'));
+    $this->fixture= new MockHttpConnection(new URL('http://example.com:80/path/of/file'));
   }
 
   #[@test]
@@ -121,5 +123,10 @@ class HttpConnectionTest extends TestCase {
     $url= $this->fixture->getUrl();
     $this->fixture->create(new HttpRequest())->setTarget('/foo');
     $this->assertNotEquals('/foo', $url->getPath());
+  }
+
+  #[@test]
+  public function can_force_direct_connection() {
+    $this->fixture->setProxy(HttpProxy::NONE);
   }
 }
