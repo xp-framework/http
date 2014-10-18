@@ -56,10 +56,11 @@ class HttpProxy extends \lang\Object {
       if ('*' === $pattern) {
         $matches= true;
       } else if (false === ($p= strpos($pattern, ':'))) {
-        $matches= 0 === strcasecmp($url->getHost(), $pattern);
+        $matches= 0 === substr_compare($url->getHost(), $pattern, -strlen($pattern));
       } else {
+        $host= substr($pattern, 0, $p);
         $matches= (
-          0 === strncasecmp($url->getHost(), $pattern, $p) &&
+          0 === substr_compare($url->getHost(), $host, -strlen($host)) &&
           $url->getPort(@$ports[$url->getScheme()]) === (int)substr($pattern, $p + 1)
         );
       }
