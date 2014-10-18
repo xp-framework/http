@@ -47,8 +47,8 @@ class HttpProxyTest extends \unittest\TestCase {
 
   #[@test]
   public function localhost_not_added_multiple_times() {
-    $proxy= new HttpProxy('proxy.example.com', 3128);
-    $this->assertEquals(['localhost'], $proxy->excludes(['localhost'])->patterns());
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['localhost', 'localhost']);
+    $this->assertEquals(['localhost'], $proxy->excludes()->patterns());
   }
 
   #[@test]
