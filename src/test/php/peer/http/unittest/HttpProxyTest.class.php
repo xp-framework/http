@@ -69,6 +69,7 @@ class HttpProxyTest extends \unittest\TestCase {
   #  ['http://beta.internal.example.com/', true],
   #  ['http://sub.beta.internal.example.com/', true],
   #  ['https://internal.example.com:443/login', true],
+  #  ['https://SAP.INTERNAL.EXAMPLE.COM', true],
   #  ['https://example.com/', false]
   #])]
   public function host_in_excludes_is_excluded($url, $expected) {
@@ -80,6 +81,7 @@ class HttpProxyTest extends \unittest\TestCase {
   #  ['http://internal.example.com/', true],
   #  ['https://extranet.example.com/', true],
   #  ['https://www.example.com/', true],
+  #  ['https://SAP.INTERNAL.EXAMPLE.COM', true],
   #  ['https://example.com/', false]
   #])]
   public function exclude_starting_with_dot($url, $expected) {
@@ -93,6 +95,7 @@ class HttpProxyTest extends \unittest\TestCase {
   #  ['http://internal.example.com:80/index.html', true],
   #  ['http://beta.internal.example.com/', true],
   #  ['http://sub.beta.internal.example.com/', true],
+  #  ['https://SAP.INTERNAL.EXAMPLE.COM:80', true],
   #  ['http://internal.example.com:8081/api', false]
   #])]
   public function host_with_port_in_includes_matches_port($url, $expected) {
