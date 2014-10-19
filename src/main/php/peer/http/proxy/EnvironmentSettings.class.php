@@ -7,6 +7,7 @@ use peer\http\HttpProxy;
  *
  * @see    https://wiki.archlinux.org/index.php/Proxy_settings
  * @see    https://github.com/composer/composer/issues/1318#issuecomment-10328203
+ * @see    https://bugs.ruby-lang.org/issues/6546#note-9
  * @test   xp://peer.http.unittest.EnvironmentSettingsTest
  */
 class EnvironmentSettings extends ProxySettings {
@@ -17,6 +18,12 @@ class EnvironmentSettings extends ProxySettings {
     'HTTPS_PROXY' => 'https',
     'all_proxy'   => '*'
   ];
+
+  static function __static() {
+    if (getenv('SERVER_PROTOCOL')) {
+      unset(self::$variables['HTTP_PROXY']);
+    }
+  }
 
   /** @return bool */
   protected function infer() {
