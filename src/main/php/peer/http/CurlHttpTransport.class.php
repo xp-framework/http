@@ -45,9 +45,9 @@ class CurlHttpTransport extends HttpTransport {
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $request->getRequestString());
     curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
     
-    if ($this->proxy && !$this->proxy->isExcluded($request->getUrl())) {
-      curl_setopt($curl, CURLOPT_PROXY, $this->proxy->host);
-      curl_setopt($curl, CURLOPT_PROXYPORT, $this->proxy->port);
+    if ($this->proxy && !$this->proxy->excludes()->contains($request->getUrl())) {
+      curl_setopt($curl, CURLOPT_PROXY, $this->proxy->host());
+      curl_setopt($curl, CURLOPT_PROXYPORT, $this->proxy->port());
       $read= function($transfer) {
         if (preg_match('#^HTTP/[0-9]\.[0-9] [0-9]{3} .+\r\n\r\n#', $transfer, $matches)) {
 

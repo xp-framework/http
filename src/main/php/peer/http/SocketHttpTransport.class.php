@@ -44,7 +44,41 @@ class SocketHttpTransport extends HttpTransport {
    */
   public function setProxy(HttpProxy $proxy= null) {
     parent::setProxy($proxy);
-    $this->proxySocket= $proxy ? new Socket($proxy->host, $proxy->port) : null;
+    $this->proxySocket= $proxy ? new Socket($proxy->host(), $proxy->port()) : null;
+  }
+
+  /**
+   * Connect to a socket. If socket still open from last request (which
+   * is the case when unread data is left on it by not reading the body,
+   * e.g.), use the quick & dirty way: Close and reopen!
+   *
+   * @param  peer.Socket $s
+   * @param  double $read Read timeout
+   * @param  double $connect Connect timeout
+   * @return peer.Socket
+   */
+  protected function connect($s, $read, $connect) {
+    $s->isConnected() && $s->close();
+    $s->setTimeout($read);
+    $s->connect($connect);
+    return $s;
+  }
+
+  /**
+   * Send proxy request
+   *
+   * @param  peer.Socket $s Connection to proxy
+   * @param  peer.http.HttpRequest $request
+   * @param  peer.URL $url
+   */
+  protected function proxy($s, $request, $url) {
+    $request->setTarget(sprintf(
+      '%s://%s%s%s',
+      $url->getScheme(),
+      $url->getHost(),
+      $url->getPort() ? ':'.$url->getPort() : '',
+      $url->getPath('/')
+    ));
   }
   
   /**
@@ -58,31 +92,16 @@ class SocketHttpTransport extends HttpTransport {
   public function send(HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
 
     // Use proxy socket and Modify target if a proxy is to be used for this request, 
-    // a proxy wants "GET http://example.com/ HTTP/X.X"
-    if ($this->proxy && !$this->proxy->isExcluded($url= $request->getUrl())) {
-      $request->setTarget(sprintf(
-        '%s://%s%s%s',
-        $url->getScheme(),
-        $url->getHost(),
-        $url->getPort() ? ':'.$url->getPort() : '',
-        $url->getPath('/')
-      ));
-
-      $s= $this->proxySocket;
+    // a proxy wants "GET http://example.com/ HTTP/X.X" for (and "CONNECT" for HTTPs).
+    if ($this->proxy && !$this->proxy->excludes()->contains($url= $request->getUrl())) {
+      $s= $this->connect($this->proxySocket, $timeout, $connecttimeout);
+      $this->proxy($s, $request, $url);
     } else {
-      $s= $this->socket;
+      $s= $this->connect($this->socket, $timeout, $connecttimeout);
     }
-    
-    // Socket still open from last request. This is the case when unread
-    // data is left on the socket (by not reading the body, e.g.), so do
-    // it the quick & dirty way: Close and reopen!
-    $s->isConnected() && $s->close();
-  
-    $s->setTimeout($timeout);
-    $s->connect($connecttimeout);
-    $s->write($request->getRequestString());
 
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
+    $s->write($request->getRequestString());
     $response= new HttpResponse(new SocketInputStream($s));
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;
