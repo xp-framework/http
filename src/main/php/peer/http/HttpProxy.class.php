@@ -1,12 +1,22 @@
 <?php namespace peer\http;
 
 use lang\IllegalArgumentException;
+use peer\http\proxy\Excludes;
 
 /**
  * HTTP proxy
  *
- * @test  xp://peer.http.unittest.HttpProxyTest
+ * ```php
+ * // Create using host and port
+ * $proxy= new HttpProxy('proxy.example.com', 3128, $excludes);
+ *
+ * // Create using authority.
+ * $proxy= new HttpProxy('proxy.example.com:3128', null, $excludes);
+ * ```
+ *
  * @see   xp://peer.http.HttpConnection#setProxy
+ * @see   xp://peer.http.proxy.Excludes
+ * @test  xp://peer.http.unittest.HttpProxyTest
  */
 class HttpProxy extends \lang\Object {
   const NONE = null;
@@ -40,6 +50,6 @@ class HttpProxy extends \lang\Object {
   /** @return int */
   public function port() { return $this->port; }
 
-  /** @return peer.http.Excludes */
+  /** @return peer.http.proxy.Excludes */
   public function excludes() { return $this->excludes; }
 }

@@ -1,4 +1,6 @@
-<?php namespace peer\http;
+<?php namespace peer\http\proxy;
+
+use peer\http\HttpProxy;
 
 abstract class ProxySettings extends \lang\Object {
   protected $proxies;

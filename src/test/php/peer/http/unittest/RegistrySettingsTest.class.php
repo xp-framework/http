@@ -1,13 +1,13 @@
 <?php namespace peer\http\unittest;
 
-use peer\http\RegistrySettings;
 use peer\http\HttpProxy;
+use peer\http\proxy\RegistrySettings;
 use lang\ClassLoader;
 
 /**
  * Verifies inferring proxy settings from the environment
  *
- * @see    xp://peer.http.RegistrySettings
+ * @see    xp://peer.http.proxy.RegistrySettings
  */
 class RegistrySettingsTest extends \unittest\TestCase {
   protected static $shell;

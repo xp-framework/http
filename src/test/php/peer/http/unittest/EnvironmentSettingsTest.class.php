@@ -1,12 +1,12 @@
 <?php namespace peer\http\unittest;
 
-use peer\http\EnvironmentSettings;
 use peer\http\HttpProxy;
+use peer\http\proxy\EnvironmentSettings;
 
 /**
  * Verifies inferring proxy settings from the environment
  *
- * @see    xp://peer.http.EnvironmentSettings
+ * @see    xp://peer.http.proxy.EnvironmentSettings
  */
 class EnvironmentSettingsTest extends \unittest\TestCase {
 

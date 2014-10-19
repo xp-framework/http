@@ -1,7 +1,17 @@
-<?php namespace peer\http;
+<?php namespace peer\http\proxy;
 
 use peer\URL;
 
+/**
+ * Excludes for a proxy may consist of the following:
+ *
+ * - A hostname, e.g. `example.com`. Matches all domains and subdomains.
+ * - Same, but with leading dot: `.example.com`.
+ * - An IPv4 address, e.g. `127.0.0.1`.
+ * - An IPv4 netmask, e.g. `192.168.2.0/24`.
+ *
+ * @see   xp://peer.http.HttpProxy
+ */
 class Excludes extends \lang\Object {
   protected $patterns;
 
