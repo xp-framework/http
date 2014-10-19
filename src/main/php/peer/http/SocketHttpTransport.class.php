@@ -63,21 +63,20 @@ class SocketHttpTransport extends HttpTransport {
   }
 
   /**
-   * Enable cryptography on a given socket
+   * Send proxy request
    *
-   * @param  peer.Socket $s
-   * @param  [:int] $methods
-   * @return void
-   * @throws io.IOException
+   * @param  peer.Socket $s Connection to proxy
+   * @param  peer.http.HttpRequest $request
+   * @param  peer.URL $url
    */
-  protected function enable($s, $methods) {
-    foreach ($methods as $name => $method) {
-      if (stream_socket_enable_crypto($s->getHandle(), true, $method)) {
-        $this->cat && $this->cat->info('@@@ Enabling', $name, 'cryptography');
-        return;
-      }
-    }
-    throw new \io\IOException('Cannot establish secure connection, tried '.\xp::stringOf($methods));
+  protected function proxy($s, $request, $url) {
+    $request->setTarget(sprintf(
+      '%s://%s%s%s',
+      $url->getScheme(),
+      $url->getHost(),
+      $url->getPort() ? ':'.$url->getPort() : '',
+      $url->getPath('/')
+    ));
   }
   
   /**
@@ -94,45 +93,13 @@ class SocketHttpTransport extends HttpTransport {
     // a proxy wants "GET http://example.com/ HTTP/X.X" for (and "CONNECT" for HTTPs).
     if ($this->proxy && !$this->proxy->isExcluded($url= $request->getUrl())) {
       $s= $this->connect($this->proxySocket, $timeout, $connecttimeout);
-      if ('http' === $url->getScheme()) {
-        $request->setTarget(sprintf(
-          '%s://%s%s%s',
-          $url->getScheme(),
-          $url->getHost(),
-          $url->getPort() ? ':'.$url->getPort() : '',
-          $url->getPath('/')
-        ));
-      } else {
-        $connect= sprintf(
-          "CONNECT %1\$s:%2\$d HTTP/1.1\r\nHost: %1\$s:%2\$d\r\nProxy-Connection: Keep-Alive\r\n\r\n",
-          $url->getHost(),
-          $url->getPort(443)
-        );
-        $this->cat && $this->cat->info('>>>', $connect);
-        $s->write($connect);
-        $handshake= $s->read();
-        $this->cat && $this->cat->info('<<<', trim($handshake));
-        sscanf($handshake, "HTTP/%*d.%*d %d %[^\r]", $status, $message);
-        if (200 === $status) {
-          $s->read();
-          stream_context_set_option($s->getHandle(), 'ssl', 'peer_name', $url->getHost());
-          $this->enable($s, [
-            'TLS'    => STREAM_CRYPTO_METHOD_TLS_CLIENT,
-            'SSLv3'  => STREAM_CRYPTO_METHOD_SSLv3_CLIENT,
-            'SSLv23' => STREAM_CRYPTO_METHOD_SSLv23_CLIENT,
-            'SSLv2'  => STREAM_CRYPTO_METHOD_SSLv2_CLIENT,
-          ]);
-        } else {
-          return new HttpResponse(new \io\streams\MemoryInputStream($handshake));
-        }
-      }
+      $this->proxy($s, $request, $url);
     } else {
       $s= $this->connect($this->socket, $timeout, $connecttimeout);
     }
 
-    $s->write($request->getRequestString());
-
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
+    $s->write($request->getRequestString());
     $response= new HttpResponse(new SocketInputStream($s));
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;
