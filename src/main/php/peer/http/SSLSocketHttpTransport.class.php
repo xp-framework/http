@@ -39,7 +39,7 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
   protected function enable($s, $methods) {
     foreach ($methods as $name => $method) {
       if (stream_socket_enable_crypto($s->getHandle(), true, $method)) {
-        $this->cat && $this->cat->info('@@@ Enabling', $name, 'cryptography');
+        $this->cat && $this->cat->debug('@@@ Enabling', $name, 'cryptography');
         return;
       }
     }
