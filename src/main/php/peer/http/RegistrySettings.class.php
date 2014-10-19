@@ -19,7 +19,7 @@ class RegistrySettings extends ProxySettings {
   }
 
   /** @return bool */
-  public function infer() {
+  protected function infer() {
     if ($this->shell->regRead(self::SETTINGS.'\ProxyEnable')) {
       $proxy= $this->shell->regRead(self::SETTINGS.'\ProxyServer');
 

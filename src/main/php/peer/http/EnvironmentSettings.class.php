@@ -17,7 +17,7 @@ class EnvironmentSettings extends ProxySettings {
   ];
 
   /** @return bool */
-  public function infer() {
+  protected function infer() {
     if ($no= getenv('no_proxy')) {
       $this->excludes= explode(',', $no);
     } else {

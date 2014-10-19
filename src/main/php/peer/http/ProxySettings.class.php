@@ -3,16 +3,20 @@
 abstract class ProxySettings extends \lang\Object {
   protected $proxies;
   protected $excludes;
+  protected $detected;
 
   /**
    * Creates a new instance
    */
   public function __construct() {
-    $this->infer();
+    $this->detected= $this->infer();
   }
 
   /** @return bool Whether settings were found */
-  public abstract function infer();
+  protected abstract function infer();
+
+  /** @return bool */
+  public function detected() { return $this->detected; }
 
   /** @return string[] */
   public function excludes() { return $this->excludes; }
