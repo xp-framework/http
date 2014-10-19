@@ -14,6 +14,8 @@ class SocketHttpTransport extends HttpTransport {
   protected $socket= null;
   protected $proxySocket= null;
 
+  static function __static() { }
+
   /**
    * Constructor
    *
@@ -40,9 +42,9 @@ class SocketHttpTransport extends HttpTransport {
    *
    * @param   peer.http.HttpProxy proxy
    */
-  public function setProxy(HttpProxy $proxy) {
+  public function setProxy(HttpProxy $proxy= null) {
     parent::setProxy($proxy);
-    $this->proxySocket= new Socket($proxy->host, $proxy->port);
+    $this->proxySocket= $proxy ? new Socket($proxy->host, $proxy->port) : null;
   }
 
   /**

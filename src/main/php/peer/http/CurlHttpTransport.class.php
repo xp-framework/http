@@ -12,6 +12,8 @@ use peer\URL;
 class CurlHttpTransport extends HttpTransport {
   protected $handle = null;
 
+  static function __static() { }
+
   /**
    * Constructor
    *

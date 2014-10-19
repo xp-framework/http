@@ -12,14 +12,8 @@ class MockHttpConnection extends \peer\http\HttpConnection {
   protected $lastRequest= null;
   protected $cat= null;
 
-  /**
-   * Returns last request
-   *
-   * @return peer.http.HttpRequest
-   */
-  public function getLastRequest() {
-    return $this->lastRequest;
-  }
+  /** @return peer.http.HttpRequest */
+  public function lastRequest() { return $this->lastRequest; }
 
   /**
    * Send a HTTP request
