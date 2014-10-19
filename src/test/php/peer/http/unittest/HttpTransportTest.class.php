@@ -69,34 +69,4 @@ class HttpTransportTest extends \unittest\TestCase {
     $t= HttpTransport::transportFor(new URL('test://example.com:443'));
     $this->assertNull($t->arg);
   }
-
-  #[@test]
-  public function scheme_proxy_is_used() {
-    with ($proxy= new HttpProxy('proxy', 3128)); {
-      HttpTransport::$PROXIES['test']= $proxy;
-      $t= HttpTransport::transportFor(new URL('test://example.com'));
-      unset(HttpTransport::$PROXIES['test']);
-      $this->assertEquals($proxy, $t->proxy);
-    }
-  }
-
-  #[@test]
-  public function all_proxy_is_used() {
-    with ($proxy= new HttpProxy('proxy', 3128)); {
-      HttpTransport::$PROXIES['*']= $proxy;
-      $t= HttpTransport::transportFor(new URL('test://example.com'));
-      unset(HttpTransport::$PROXIES['*']);
-      $this->assertEquals($proxy, $t->proxy);
-    }
-  }
-
-  #[@test]
-  public function no_proxy_is_used_if_scheme_does_not_match() {
-    with ($proxy= new HttpProxy('proxy', 3128)); {
-      HttpTransport::$PROXIES['anonther-scheme']= $proxy;
-      $t= HttpTransport::transportFor(new URL('test://example.com'));
-      unset(HttpTransport::$PROXIES['anonther-scheme']);
-      $this->assertNull($t->proxy);
-    }
-  }
 }

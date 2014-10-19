@@ -11,20 +11,11 @@ use lang\XPClass;
  */
 abstract class HttpTransport extends \lang\Object {
   protected static $transports= [];
+  protected static $settings;
   protected $proxy= null;
   protected $cat= null;
 
-  public static $PROXIES= [];
-  
   static function __static() {
-    static $settings= 'HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings';
-    static $environment= [
-      'http_proxy'  => 'http',
-      'https_proxy' => 'https',
-      'HTTP_PROXY'  => 'http',
-      'HTTPS_PROXY' => 'https',
-      'all_proxy'   => '*'
-    ];
 
     // Depending on what extension is available, choose a different implementation 
     // for SSL transport. CURL is the slower one, so favor SSLSockets.
@@ -35,43 +26,11 @@ abstract class HttpTransport extends \lang\Object {
       self::$transports['https']= XPClass::forName('peer.http.CurlHttpTransport');
     }
 
-    // Detect system proxy via environment variables
-    if ($no= getenv('no_proxy')) {
-      $excludes= explode(',', $no);
+    // Detect system proxy
+    if (strncasecmp(PHP_OS, 'Win', 3) === 0) {
+      self::$settings= new RegistrySettings();
     } else {
-      $excludes= [];
-    }
-    foreach ($environment as $var => $proto) {
-      if ($env= getenv($var)) {
-        if (false === ($p= strpos($env, '://'))) {
-          self::$PROXIES[$proto]= new HttpProxy($env, null, $excludes);
-        } else {
-          self::$PROXIES[$proto]= new HttpProxy(rtrim(substr($env, $p + 3), '/'), null, $excludes);
-        }
-      }
-    }
-
-    // Detect system proxy via IE settings on Windows
-    if (!self::$PROXIES && strncasecmp(PHP_OS, 'Win', 3) === 0) {
-      $c= new \Com('WScript.Shell');
-      if ($c->regRead($settings.'\ProxyEnable')) {
-        $proxy= $c->regRead($settings.'\ProxyServer');
-
-        try {
-          $excludes= explode(';', $c->regRead($settings.'\ProxyOverride'));
-        } catch (\Exception $ignored) {
-          $excludes= [];
-        }
-
-        if (strstr($proxy, ';')) {
-          foreach (explode(';', $proxy) as $setting) {
-            sscanf($setting, '%[^=]=%[^:]:%d', $proto, $host, $port);
-            self::$PROXIES[$proto]= new HttpProxy($host, $port, $excludes);
-          }
-        } else {
-          self::$PROXIES['*']= new HttpProxy($proxy, null, $excludes);
-        }
-      }
+      self::$settings= new EnvironmentSettings();
     }
   }
   
@@ -141,11 +100,7 @@ abstract class HttpTransport extends \lang\Object {
     }
 
     $transport= self::$transports[$scheme]->newInstance($url, $arg);
-    if (isset(self::$PROXIES[$scheme])) {
-      $transport->setProxy(self::$PROXIES[$scheme]);
-    } else if (isset(self::$PROXIES['*'])) {
-      $transport->setProxy(self::$PROXIES['*']);
-    }
+    $transport->setProxy(self::$settings->proxy($scheme));
     return $transport;
   }
 
