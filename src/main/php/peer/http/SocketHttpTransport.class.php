@@ -93,7 +93,7 @@ class SocketHttpTransport extends HttpTransport {
 
     // Use proxy socket and Modify target if a proxy is to be used for this request, 
     // a proxy wants "GET http://example.com/ HTTP/X.X" for (and "CONNECT" for HTTPs).
-    if ($this->proxy && !$this->proxy->isExcluded($url= $request->getUrl())) {
+    if ($this->proxy && !$this->proxy->excludes()->contains($url= $request->getUrl())) {
       $s= $this->connect($this->proxySocket, $timeout, $connecttimeout);
       $this->proxy($s, $request, $url);
     } else {
