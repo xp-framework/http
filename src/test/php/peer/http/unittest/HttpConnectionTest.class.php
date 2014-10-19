@@ -1,6 +1,8 @@
 <?php namespace peer\http\unittest;
 
 use unittest\TestCase;
+use peer\URL;
+use peer\http\HttpProxy;
 use peer\http\HttpRequest;
 use peer\http\HttpConstants;
 use peer\http\RequestData;
@@ -20,7 +22,7 @@ class HttpConnectionTest extends TestCase {
    * Creates fixture member.
    */
   public function setUp() {
-    $this->fixture= new MockHttpConnection(new \peer\URL('http://example.com:80/path/of/file'));
+    $this->fixture= new MockHttpConnection(new URL('http://example.com:80/path/of/file'));
   }
 
   #[@test]
@@ -28,7 +30,7 @@ class HttpConnectionTest extends TestCase {
     $this->fixture->get(array('var1' => 1, 'var2' => 2));
     $this->assertEquals(
       "GET /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->getLastRequest()->getRequestString()
+      $this->fixture->lastRequest()->getRequestString()
     );
   }
   
@@ -37,7 +39,7 @@ class HttpConnectionTest extends TestCase {
     $this->fixture->head(array('var1' => 1, 'var2' => 2));
     $this->assertEquals(
       "HEAD /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->getLastRequest()->getRequestString()
+      $this->fixture->lastRequest()->getRequestString()
     );
   }
 
@@ -46,7 +48,7 @@ class HttpConnectionTest extends TestCase {
     $this->fixture->post(array('var1' => 1, 'var2' => 2));
     $this->assertEquals(
       "POST /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 13\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nvar1=1&var2=2",
-      $this->fixture->getLastRequest()->getRequestString()
+      $this->fixture->lastRequest()->getRequestString()
     );
   }
 
@@ -55,7 +57,7 @@ class HttpConnectionTest extends TestCase {
     $this->fixture->put(new RequestData('THIS IS A DATA STRING'));
     $this->assertEquals(
       "PUT /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTHIS IS A DATA STRING",
-      $this->fixture->getLastRequest()->getRequestString()
+      $this->fixture->lastRequest()->getRequestString()
     );
   }
 
@@ -64,7 +66,7 @@ class HttpConnectionTest extends TestCase {
     $this->fixture->patch(new RequestData('THIS IS A DATA STRING'));
     $this->assertEquals(
       "PATCH /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTHIS IS A DATA STRING",
-      $this->fixture->getLastRequest()->getRequestString()
+      $this->fixture->lastRequest()->getRequestString()
     );
   }
 
@@ -73,7 +75,7 @@ class HttpConnectionTest extends TestCase {
     $this->fixture->delete(array('var1' => 1, 'var2' => 2));
     $this->assertEquals(
       "DELETE /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->getLastRequest()->getRequestString()
+      $this->fixture->lastRequest()->getRequestString()
     );
   }
 
@@ -82,7 +84,7 @@ class HttpConnectionTest extends TestCase {
     $this->fixture->options(array('var1' => 1, 'var2' => 2));
     $this->assertEquals(
       "OPTIONS /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->getLastRequest()->getRequestString()
+      $this->fixture->lastRequest()->getRequestString()
     );
   }
 
@@ -95,7 +97,7 @@ class HttpConnectionTest extends TestCase {
     }
     $this->assertEquals(
       "PROPPATCH / HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 0\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
-      $this->fixture->getLastRequest()->getRequestString()
+      $this->fixture->lastRequest()->getRequestString()
     );
   }
 
@@ -121,5 +123,10 @@ class HttpConnectionTest extends TestCase {
     $url= $this->fixture->getUrl();
     $this->fixture->create(new HttpRequest())->setTarget('/foo');
     $this->assertNotEquals('/foo', $url->getPath());
+  }
+
+  #[@test]
+  public function can_force_direct_connection() {
+    $this->fixture->setProxy(HttpProxy::NONE);
   }
 }

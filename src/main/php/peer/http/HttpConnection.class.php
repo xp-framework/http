@@ -48,7 +48,7 @@ class HttpConnection extends \lang\Object implements Traceable {
    *
    * @param   peer.http.HttpProxy $proxy
    */
-  public function setProxy(HttpProxy $proxy) {
+  public function setProxy(HttpProxy $proxy= null) {
     $this->transport->setProxy($proxy);
   }
 

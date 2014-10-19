@@ -2,6 +2,8 @@
 
 use peer\URL;
 use lang\XPClass;
+use peer\http\proxy\EnvironmentSettings;
+use peer\http\proxy\RegistrySettings;
 
 /**
  * HTTP Transports base class
@@ -10,19 +12,26 @@ use lang\XPClass;
  * @test  xp://peer.http.unittest.HttpTransportTest
  */
 abstract class HttpTransport extends \lang\Object {
-  protected static $transports= array();
+  protected static $transports= [];
+  protected static $settings;
   protected $proxy= null;
   protected $cat= null;
-  
+
   static function __static() {
-    self::$transports['http']= XPClass::forName('peer.http.SocketHttpTransport');
-    
+
     // Depending on what extension is available, choose a different implementation 
     // for SSL transport. CURL is the slower one, so favor SSLSockets.
+    self::$transports['http']= XPClass::forName('peer.http.SocketHttpTransport');
     if (extension_loaded('openssl')) {
       self::$transports['https']= XPClass::forName('peer.http.SSLSocketHttpTransport');
     } else if (extension_loaded('curl')) {
       self::$transports['https']= XPClass::forName('peer.http.CurlHttpTransport');
+    }
+
+    // Detect system proxy
+    self::$settings= new EnvironmentSettings();
+    if (!self::$settings->detected() && strncasecmp(PHP_OS, 'Win', 3) === 0) {
+      self::$settings= new RegistrySettings();
     }
   }
   
@@ -39,7 +48,7 @@ abstract class HttpTransport extends \lang\Object {
    *
    * @param   peer.http.HttpProxy proxy
    */
-  public function setProxy(HttpProxy $proxy) {
+  public function setProxy(HttpProxy $proxy= null) {
     $this->proxy= $proxy;
   }
 
@@ -77,7 +86,7 @@ abstract class HttpTransport extends \lang\Object {
     }
     self::$transports[$scheme]= $class;
   }
-  
+
   /**
    * Get transport implementation for a specific URL
    *
@@ -90,7 +99,10 @@ abstract class HttpTransport extends \lang\Object {
     if (!isset(self::$transports[$scheme])) {
       throw new \lang\IllegalArgumentException('Scheme "'.$scheme.'" unsupported');
     }
-    return self::$transports[$scheme]->newInstance($url, $arg);
+
+    $transport= self::$transports[$scheme]->newInstance($url, $arg);
+    $transport->setProxy(self::$settings->proxy($scheme));
+    return $transport;
   }
 
   /**
