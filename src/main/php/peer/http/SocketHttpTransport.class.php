@@ -104,22 +104,23 @@ class SocketHttpTransport extends HttpTransport {
         ));
       } else {
         $connect= sprintf(
-          "CONNECT %1\$s:%2\$d HTTP/1.1\r\nHost: %1\$s:%2\$d\r\n\r\n",
+          "CONNECT %1\$s:%2\$d HTTP/1.1\r\nHost: %1\$s:%2\$d\r\nProxy-Connection: Keep-Alive\r\n\r\n",
           $url->getHost(),
           $url->getPort(443)
         );
         $this->cat && $this->cat->info('>>>', $connect);
         $s->write($connect);
         $handshake= $s->read();
-        $this->cat && $this->cat->info('<<<', $handshake);
+        $this->cat && $this->cat->info('<<<', trim($handshake));
         sscanf($handshake, "HTTP/%*d.%*d %d %[^\r]", $status, $message);
         if (200 === $status) {
           $s->read();
+          stream_context_set_option($s->getHandle(), 'ssl', 'peer_name', $url->getHost());
           $this->enable($s, [
             'TLS'    => STREAM_CRYPTO_METHOD_TLS_CLIENT,
             'SSLv3'  => STREAM_CRYPTO_METHOD_SSLv3_CLIENT,
-            'SSLv23' > STREAM_CRYPTO_METHOD_SSLv23_CLIENT,
-            'SSLv2'  => STREAM_CRYPTO_METHOD_SSLv2_CLIENT
+            'SSLv23' => STREAM_CRYPTO_METHOD_SSLv23_CLIENT,
+            'SSLv2'  => STREAM_CRYPTO_METHOD_SSLv2_CLIENT,
           ]);
         } else {
           return new HttpResponse(new \io\streams\MemoryInputStream($handshake));
