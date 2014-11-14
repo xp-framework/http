@@ -2,6 +2,8 @@
 
 use peer\URL;
 use peer\Header;
+use io\streams\Seekable;
+use io\streams\InputStream;
 use io\streams\MemoryInputStream;
 
 /**
@@ -13,7 +15,8 @@ use io\streams\MemoryInputStream;
  * @see   rfc://2616
  */
 class HttpRequest extends \lang\Object {
-  private $in;
+  private $in= null;
+
   public
     $url        = null,
     $method     = HttpConstants::GET,
@@ -37,12 +40,22 @@ class HttpRequest extends \lang\Object {
    * @param  var $in Either a string or an InputStream
    */
   public function useStream($in) {
-    if ($in instanceof InputStream) {
+    if ($in instanceof Seekable) {
+      $this->in= $in;
+      $pos= $this->in->tell();
+      $this->in->seek(0, SEEK_END);
+      $this->headers['Content-Length']= [$this->in->tell()];
+      $this->in->seek($pos, SEEK_SET);
+    } else if ($in instanceof InputStream) {
       $this->in= $in;
     } else {
       $this->in= new MemoryInputStream($in);
+      $this->headers['Content-Length']= [strlen($in)];
     }
   }
+
+  /** @return io.streams.InputStream */
+  public function in() { return $this->in; }
 
   /**
    * Set URL
@@ -128,7 +141,7 @@ class HttpRequest extends \lang\Object {
     if (is_array($v)) {
       $this->headers[$k]= $v;
     } else {
-      $this->headers[$k]= array($v);
+      $this->headers[$k]= [$v];
     }
   }
 
@@ -167,25 +180,28 @@ class HttpRequest extends \lang\Object {
     $target= $this->target;
     $body= '';
 
-    // Which HTTP method? GET and HEAD use query string, POST etc. use
-    // body for passing parameters
-    switch ($this->method) {
-      case HttpConstants::HEAD: case HttpConstants::GET: case HttpConstants::DELETE: case HttpConstants::OPTIONS:
-        if (null !== $this->url->getQuery()) {
-          $target.= '?'.$this->url->getQuery().(empty($query) ? '' : $query);
-        } else {
-          $target.= empty($query) ? '' : '?'.substr($query, 1);
-        }
-        break;
+    if (null === $this->in) {
 
-      case HttpConstants::POST: case HttpConstants::PUT: case HttpConstants::TRACE: default:
-        if ($withBody) $body= substr($query, 1);
-        if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
-        $this->headers['Content-Length']= array(max(0, strlen($query)- 1));
-        if (empty($this->headers['Content-Type'])) {
-          $this->headers['Content-Type']= array('application/x-www-form-urlencoded');
-        }
-        break;
+      // Which HTTP method? GET and HEAD use query string, POST etc. use
+      // body for passing parameters
+      switch ($this->method) {
+        case HttpConstants::HEAD: case HttpConstants::GET: case HttpConstants::DELETE: case HttpConstants::OPTIONS:
+          if (null !== $this->url->getQuery()) {
+            $target.= '?'.$this->url->getQuery().(empty($query) ? '' : $query);
+          } else {
+            $target.= empty($query) ? '' : '?'.substr($query, 1);
+          }
+          break;
+
+        case HttpConstants::POST: case HttpConstants::PUT: case HttpConstants::TRACE: default:
+          if ($withBody) $body= substr($query, 1);
+          if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
+          $this->headers['Content-Length']= array(max(0, strlen($query)- 1));
+          if (empty($this->headers['Content-Type'])) {
+            $this->headers['Content-Type']= ['application/x-www-form-urlencoded'];
+          }
+          break;
+      }
     }
 
     $request= sprintf(

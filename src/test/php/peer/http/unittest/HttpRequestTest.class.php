@@ -456,7 +456,7 @@ class HttpRequestTest extends TestCase {
     $r->setMethod(HttpConstants::POST);
     $r->useStream($body);
     $this->assertEquals(
-      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 1\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 1\r\n\r\n",
       $r->getHeaderString()
     );
   }
