@@ -7,6 +7,7 @@ use peer\http\FileUpload;
 use peer\http\FormData;
 use peer\http\HttpRequest;
 use peer\http\HttpConstants;
+use io\streams\MemoryInputStream;
 
 /**
  * TestCase for HTTP request construction
@@ -436,10 +437,24 @@ class HttpRequestTest extends TestCase {
   }
 
   #[@test]
-  public function with_1byte_body() {
+  public function with_1byte_body_via_setParameters() {
     $r= new HttpRequest(new \peer\URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
     $r->setParameters(new RequestData('1'));
+    $this->assertEquals(
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 1\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
+      $r->getHeaderString()
+    );
+  }
+
+  #[@test, @values([
+  #  ['1'],
+  #  [new MemoryInputStream('1')]
+  #])]
+  public function with_1byte_body($body) {
+    $r= new HttpRequest(new \peer\URL('http://example.com/'));
+    $r->setMethod(HttpConstants::POST);
+    $r->useStream($body);
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 1\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $r->getHeaderString()

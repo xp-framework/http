@@ -2,6 +2,7 @@
 
 use peer\URL;
 use peer\Header;
+use io\streams\MemoryInputStream;
 
 /**
  * Wrap HTTP/1.0 and HTTP/1.1 requests (used internally by the HttpConnection
@@ -12,14 +13,15 @@ use peer\Header;
  * @see   rfc://2616
  */
 class HttpRequest extends \lang\Object {
+  private $in;
   public
     $url        = null,
     $method     = HttpConstants::GET,
     $target     = '',
     $version    = HttpConstants::VERSION_1_1,
-    $headers    = array('Connection' => array('close')),
-    $parameters = array();
-    
+    $headers    = ['Connection' => ['close']],
+    $parameters = [];
+
   /**
    * Constructor
    *
@@ -27,6 +29,19 @@ class HttpRequest extends \lang\Object {
    */
   public function __construct(URL $url= null) {
     if (null !== $url) $this->setUrl($url);
+  }
+
+  /**
+   * Use an input stream to upload from
+   *
+   * @param  var $in Either a string or an InputStream
+   */
+  public function useStream($in) {
+    if ($in instanceof InputStream) {
+      $this->in= $in;
+    } else {
+      $this->in= new MemoryInputStream($in);
+    }
   }
 
   /**
