@@ -35,7 +35,7 @@ class HttpRequestTest extends TestCase {
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com:".$port."\r\n\r\n",
       $r->getRequestString()
     );
-  }
+  } 
 
   #[@test]
   public function get_url_with_path() {
@@ -437,7 +437,7 @@ class HttpRequestTest extends TestCase {
   }
 
   #[@test]
-  public function with_1byte_body_via_setParameters() {
+  public function with_1byte_body() {
     $r= new HttpRequest(new \peer\URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
     $r->setParameters(new RequestData('1'));
@@ -448,15 +448,15 @@ class HttpRequestTest extends TestCase {
   }
 
   #[@test, @values([
-  #  ['1'],
-  #  [new MemoryInputStream('1')]
+  #  ['Test'],
+  #  [new MemoryInputStream('Test')]
   #])]
-  public function with_1byte_body($body) {
+  public function using_stream($body) {
     $r= new HttpRequest(new \peer\URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
     $r->useStream($body);
     $this->assertEquals(
-      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 1\r\n\r\n",
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 4\r\n\r\n",
       $r->getHeaderString()
     );
   }
