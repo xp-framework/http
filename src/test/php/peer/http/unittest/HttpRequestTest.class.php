@@ -460,4 +460,19 @@ class HttpRequestTest extends TestCase {
       $r->getHeaderString()
     );
   }
+
+  #[@test]
+  public function using_non_seekable_stream() {
+    $r= new HttpRequest(new \peer\URL('http://example.com/'));
+    $r->setMethod(HttpConstants::POST);
+    $r->useStream(newinstance('io.streams.InputStream', [], [
+      'available' => function() { /* Empty */ },
+      'read'      => function($bytes= 8192) { /* Empty */ },
+      'close'     => function() { /* Empty */ }
+    ]));
+    $this->assertEquals(
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Transfer-Encoding: chunked\r\n\r\n",
+      $r->getHeaderString()
+    );
+  }
 }
