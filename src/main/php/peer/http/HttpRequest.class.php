@@ -6,6 +6,7 @@ use io\streams\Seekable;
 use io\streams\InputStream;
 use io\streams\MemoryInputStream;
 use peer\http\io\To;
+use peer\http\io\ToString;
 
 /**
  * Wrap HTTP/1.0 and HTTP/1.1 requests (used internally by the HttpConnection
@@ -192,5 +193,25 @@ class HttpRequest extends \lang\Object {
       $out->body($this->in);
     }
     return $out;
+  }
+
+  /**
+   * Returns HTTP request headers as being written to server
+   *
+   * @deprecated Use write() instead
+   * @return  string
+   */
+  public function getHeaderString() {
+    return $this->write(new ToString(false))->bytes();
+  }
+
+  /**
+   * Returns HTTP request headers and body as being written to server
+   *
+   * @deprecated Use write() instead
+   * @return  string
+   */
+  public function getRequestString() {
+    return $this->write(new ToString(true))->bytes();
   }
 }
