@@ -7,6 +7,7 @@ use peer\http\FileUpload;
 use peer\http\FormData;
 use peer\http\HttpRequest;
 use peer\http\HttpConstants;
+use peer\http\io\ToString;
 use io\streams\MemoryInputStream;
 
 /**
@@ -23,7 +24,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -33,7 +34,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com:".$port."\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   } 
 
@@ -43,7 +44,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET /path/to/images/index.html HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -53,7 +54,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nAuthorization: Basic dXNlcjpwYXNz\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -63,7 +64,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET /index.html HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -73,7 +74,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -83,7 +84,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET /?".$params." HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -94,7 +95,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters($params);
     $this->assertEquals(
       "GET /?".$params." HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -105,7 +106,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters(array());
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -116,7 +117,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters($input);
     $this->assertEquals(
       "GET /?".$representation." HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -126,7 +127,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET /?data[color]=green&data[size]=S HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -152,7 +153,7 @@ class HttpRequestTest extends \unittest\TestCase {
       "Content-Type: text/xml\r\n".
       "\r\n<foo/>\r\n".
       "--".$boundary."--\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -177,7 +178,7 @@ class HttpRequestTest extends \unittest\TestCase {
       "Content-Disposition: form-data; name=\"file\"; filename=\"attach.txt\"\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n".
       "\r\nTest\r\n".
       "--".$boundary."--\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -188,7 +189,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters($params);
     $this->assertEquals(
       "GET /?a=b HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -199,7 +200,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters(['params' => ['target' => 'home', 'ssl' => 'true']]);
     $this->assertEquals(
       "GET /?params[target]=home&params[ssl]=true HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -234,7 +235,7 @@ class HttpRequestTest extends \unittest\TestCase {
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Length: 7\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
       "a=b&c=d",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -250,7 +251,7 @@ class HttpRequestTest extends \unittest\TestCase {
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Length: 30\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
       "data[color]=green&data[size]=S",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -261,7 +262,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters('a=b&c=d');
     $this->assertEquals(
       "PUT /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -272,7 +273,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters('a=b&c=d');
     $this->assertEquals(
       "TRACE /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -283,7 +284,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters('a=b&c=d');
     $this->assertEquals(
       "HEAD /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -294,7 +295,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters('a=b&c=d');
     $this->assertEquals(
       "DELETE /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -305,7 +306,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters('a=b&c=d');
     $this->assertEquals(
       "OPTIONS /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -315,7 +316,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setHeader('X-Binford', 6100);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -325,7 +326,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setHeader('X-Binford', new \peer\Header('X-Binford', 6100));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -335,7 +336,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setHeader('X-Binford', array(6100, 'More Power'));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\nX-Binford: More Power\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -345,7 +346,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->addHeaders(array('X-Binford' => 6100));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -355,7 +356,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->addHeaders(array('X-Binford' => new \peer\Header('X-Binford', 6100)));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -365,7 +366,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->addHeaders(array(new \peer\Header('X-Binford', 6100)));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -375,7 +376,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->addHeaders(array('X-Binford' => array(6100, 'Even more power')));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\nX-Binford: Even more power\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -386,7 +387,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setHeader('X-Binford', 61000);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 61000\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -397,7 +398,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters('a=b');
     $this->assertEquals(
       "GET /?a=b HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -412,7 +413,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->withBody($body);
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 4\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTest",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -423,7 +424,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->withBody(new RequestData(''));
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 0\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -438,7 +439,7 @@ class HttpRequestTest extends \unittest\TestCase {
     ]));
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Transfer-Encoding: chunked\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
-      $r->write(new ToString())->bytes()
+      $r->write(new ToString(true))->bytes()
     );
   }
 }
