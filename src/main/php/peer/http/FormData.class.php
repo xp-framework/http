@@ -31,7 +31,7 @@ class FormData extends \lang\Object {
     $this->contentType= $contentType;
     $this->charset= $charset;
   }
-  
+
   /**
    * Retrieve string representation of part
    *

@@ -36,23 +36,27 @@ class HttpRequest extends \lang\Object {
   }
 
   /**
-   * Use an input stream to upload from
+   * Sets body
    *
-   * @param  var $in Either a string or an InputStream
+   * @param  var $in A Body instance, an InputStream, a string or an array
    */
-  public function useStream($in) {
-    if ($in instanceof Seekable) {
-      $this->in= $in;
-      $pos= $this->in->tell();
-      $this->in->seek(0, SEEK_END);
-      $this->headers['Content-Length']= [$this->in->tell()];
-      $this->in->seek($pos, SEEK_SET);
-    } else if ($in instanceof InputStream) {
-      $this->in= $in;
-      $this->headers['Content-Transfer-Encoding']= ['chunked'];
-    } else {
-      $this->in= new MemoryInputStream($in);
-      $this->headers['Content-Length']= [strlen($in)];
+  public function withBody($arg) {
+    if ($arg instanceof Body) {
+      $this->addHeaders($arg->headers());
+      $this->in= $arg->stream();
+    } else if ($arg instanceof InputStream) {
+      $this->headers['Content-Type']= ['application/x-www-form-urlencoded'];
+      if ($arg instanceof Seekable) {
+        $pos= $arg->tell();
+        $arg->seek(0, SEEK_END);
+        $this->headers['Content-Length']= [$arg->tell()];
+        $arg->seek($pos, SEEK_SET);
+      } else {
+        $this->headers['Content-Transfer-Encoding']= ['chunked'];
+      }
+      $this->in= $arg;
+    } else if (null !== $arg) {
+      $this->withBody(new RequestData($arg));
     }
   }
 
@@ -67,10 +71,10 @@ class HttpRequest extends \lang\Object {
   public function setUrl(URL $url) {
     $this->url= $url;
     if ($url->getUser() && $url->getPassword()) {
-      $this->headers['Authorization']= array('Basic '.base64_encode($url->getUser().':'.$url->getPassword()));
+      $this->headers['Authorization']= ['Basic '.base64_encode($url->getUser().':'.$url->getPassword())];
     }
     $port= $this->url->getPort(-1);
-    $this->headers['Host']= array($this->url->getHost().(-1 == $port ? '' : ':'.$port));
+    $this->headers['Host']= [$this->url->getHost().(-1 == $port ? '' : ':'.$port)];
     $this->target= $this->url->getPath('/');
   }
 
@@ -105,22 +109,18 @@ class HttpRequest extends \lang\Object {
   /**
    * Set request parameters
    *
-   * @param   var p either a string, a RequestData object or an associative array
+   * @param   var $arg either a string, a RequestData object or an associative array
    */
-  public function setParameters($p) {
-    if ($p instanceof RequestData) {
-      $this->parameters= $p;
+  public function setParameters($arg) {
+    if ($arg instanceof Body) {      // BC
+      $this->withBody($arg);
       return;
-    } else if (is_string($p)) {
-      parse_str($p, $out); 
-      $params= $out;
-    } else if (is_array($p)) {
-      $params= $p;
-    } else {
-      $params= array();
+    } else if (is_string($arg)) {
+      parse_str($arg, $out); 
+      $this->parameters= $out;
+    } else if (is_array($arg)) {
+      $this->parameters= $arg;
     }
-    
-    $this->parameters= array_diff($params, $this->url->getParams());
   }
   
   /**
@@ -159,79 +159,14 @@ class HttpRequest extends \lang\Object {
   }
 
   /**
-   * Returns payload
-   *
-   * @param   bool withBody
-   */
-  protected function getPayload($withBody) {
-   if ($this->parameters instanceof RequestData) {
-      $this->addHeaders($this->parameters->getHeaders());
-      $query= '&'.$this->parameters->getData();
-    } else {
-      $query= '';
-      foreach ($this->parameters as $name => $value) {
-        if (is_array($value)) {
-          foreach ($value as $k => $v) {
-            $query.= '&'.$name.'['.$k.']='.urlencode($v);
-          }
-        } else {
-          $query.= '&'.$name.'='.urlencode($value);
-        }
-      }
-    }
-    $target= $this->target;
-    $body= '';
-
-    if (null === $this->in) {
-
-      // Which HTTP method? GET and HEAD use query string, POST etc. use
-      // body for passing parameters
-      switch ($this->method) {
-        case HttpConstants::HEAD: case HttpConstants::GET: case HttpConstants::DELETE: case HttpConstants::OPTIONS:
-          if (null !== $this->url->getQuery()) {
-            $target.= '?'.$this->url->getQuery().(empty($query) ? '' : $query);
-          } else {
-            $target.= empty($query) ? '' : '?'.substr($query, 1);
-          }
-          break;
-
-        case HttpConstants::POST: case HttpConstants::PUT: case HttpConstants::TRACE: default:
-          if ($withBody) $body= substr($query, 1);
-          if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
-          $this->headers['Content-Length']= array(max(0, strlen($query)- 1));
-          if (empty($this->headers['Content-Type'])) {
-            $this->headers['Content-Type']= ['application/x-www-form-urlencoded'];
-          }
-          break;
-      }
-    }
-
-    $request= sprintf(
-      "%s %s HTTP/%s\r\n",
-      $this->method,
-      $target,
-      $this->version
-    );
-
-    // Add request headers
-    foreach ($this->headers as $k => $v) {
-      foreach ($v as $value) {
-        $request.= ($value instanceof Header ? $value->toString() : $k.': '.$value)."\r\n";
-      }
-    }
-
-    return $request."\r\n".$body;
-  }
-
-  /**
    * Writes this request
    *
    * @param  peer.http.io.To $out
    * @return peer.http.io.To The given $out
    */
   public function write(To $out) {
-    $query= $this->url->getQuery('');
-    foreach ($this->parameters as $name => $value) {
+    $query= '';
+    foreach (array_merge($this->url->getParams(), $this->parameters) as $name => $value) {
       if (is_array($value)) {
         foreach ($value as $k => $v) {
           $query.= '&'.$name.'['.$k.']='.urlencode($v);
@@ -240,7 +175,6 @@ class HttpRequest extends \lang\Object {
         $query.= '&'.$name.'='.urlencode($value);
       }
     }
-
     $out->request($this->method, $this->target.(empty($query) ? '' : '?'.substr($query, 1)), $this->version);
 
     foreach ($this->headers as $name => $values) {
@@ -258,23 +192,5 @@ class HttpRequest extends \lang\Object {
       $out->body($this->in);
     }
     return $out;
-  }
-
-  /**
-   * Returns HTTP request headers as being written to server
-   *
-   * @return  string
-   */
-  public function getHeaderString() {
-    return $this->getPayload(false);
-  }
-  
-  /**
-   * Get request string
-   *
-   * @return  string
-   */
-  public function getRequestString() {
-    return $this->getPayload(true);
   }
 }

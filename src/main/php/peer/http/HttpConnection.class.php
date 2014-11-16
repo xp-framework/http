@@ -152,15 +152,17 @@ class HttpConnection extends \lang\Object implements Traceable {
    *
    * @param   string $method request method, e.g. HttpConstants::GET
    * @param   var $parameters
-   * @param   [:string] $headers default array()
+   * @param   [:string] $headers default []
+   * @param   var $body default null
    * @return  peer.http.HttpResponse response object
    * @throws  io.IOException
    */
-  public function request($method, $parameters, $headers= array()) {
+  public function request($method, $parameters, $headers= [], $body= null) {
     $r= new HttpRequest($this->url);
     $r->setMethod($method);
     $r->setParameters($parameters);
     $r->addHeaders($headers);
+    $r->withBody($body);
     return $this->send($r);
   }
 
@@ -168,10 +170,10 @@ class HttpConnection extends \lang\Object implements Traceable {
    * Perform a GET request
    *
    * @param   string $arg default NULL
-   * @param   [:var] $headers default array()
+   * @param   [:var] $headers default []
    * @return  peer.http.HttpResponse response object
    */
-  public function get($arg= null, $headers= array()) {
+  public function get($arg= null, $headers= []) {
     return $this->request(HttpConstants::GET, $arg, $headers);
   }
   
@@ -179,10 +181,10 @@ class HttpConnection extends \lang\Object implements Traceable {
    * Perform a HEAD request
    *
    * @param   string $arg default NULL
-   * @param   [:var] $headers default array()
+   * @param   [:var] $headers default []
    * @return  peer.http.HttpResponse response object
    */
-  public function head($arg= null, $headers= array()) {
+  public function head($arg= null, $headers= []) {
     return $this->request(HttpConstants::HEAD, $arg, $headers);
   }
   
@@ -190,43 +192,43 @@ class HttpConnection extends \lang\Object implements Traceable {
    * Perform a POST request
    *
    * @param   string $arg default NULL
-   * @param   [:var] $headers default array()
+   * @param   [:var] $headers default []
    * @return  peer.http.HttpResponse response object
    */
-  public function post($arg= null, $headers= array()) {
-    return $this->request(HttpConstants::POST, $arg, $headers);
+  public function post($arg= null, $headers= []) {
+    return $this->request(HttpConstants::POST, [], $headers, $arg);
   }
   
   /**
    * Perform a PUT request
    *
    * @param   string $arg default NULL
-   * @param   [:var] $headers default array()
+   * @param   [:var] $headers default []
    * @return  peer.http.HttpResponse response object
    */
-  public function put($arg= null, $headers= array()) {
-    return $this->request(HttpConstants::PUT, $arg, $headers);
+  public function put($arg= null, $headers= []) {
+    return $this->request(HttpConstants::PUT, [], $headers, $arg);
   }
 
   /**
    * Perform a PATCH request
    *
    * @param   string $arg default NULL
-   * @param   [:var] $headers default array()
+   * @param   [:var] $headers default []
    * @return  peer.http.HttpResponse response object
    */
-  public function patch($arg= null, $headers= array()) {
-    return $this->request(HttpConstants::PATCH, $arg, $headers);
+  public function patch($arg= null, $headers= []) {
+    return $this->request(HttpConstants::PATCH, [], $headers, $arg);
   }
 
   /**
    * Perform a DELETE request
    *
    * @param   string $arg default NULL
-   * @param   [:var] $headers default array()
+   * @param   [:var] $headers default []
    * @return  peer.http.HttpResponse response object
    */
-  public function delete($arg= null, $headers= array()) {
+  public function delete($arg= null, $headers= []) {
     return $this->request(HttpConstants::DELETE, $arg, $headers);
   }
 
@@ -234,10 +236,10 @@ class HttpConnection extends \lang\Object implements Traceable {
    * Perform an OPTIONS request
    *
    * @param   string $arg default NULL
-   * @param   [:var] $headers default array()
+   * @param   [:var] $headers default []
    * @return  peer.http.HttpResponse response object
    */
-  public function options($arg= null, $headers= array()) {
+  public function options($arg= null, $headers= []) {
     return $this->request(HttpConstants::OPTIONS, $arg, $headers);
   }
 
@@ -245,10 +247,10 @@ class HttpConnection extends \lang\Object implements Traceable {
    * Perform a TRACE request
    *
    * @param   string $arg default NULL
-   * @param   [:var] $headers default array()
+   * @param   [:var] $headers default []
    * @return  peer.http.HttpResponse response object
    */
-  public function trace($arg= null, $headers= array()) {
+  public function trace($arg= null, $headers= []) {
     return $this->request(HttpConstants::TRACE, $arg, $headers);
   }
 

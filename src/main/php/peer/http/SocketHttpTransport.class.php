@@ -102,7 +102,7 @@ class SocketHttpTransport extends HttpTransport {
       $s= $this->connect($this->socket, $timeout, $connecttimeout);
     }
 
-    $this->cat && $request->write(new ToLog($this->cat,  '>>>'));
+    $this->cat && $request->write(new ToLog($this->cat, '>>>'));
     $request->write(new ToStream($s->out()));
 
     $response= new HttpResponse(new SocketInputStream($s));

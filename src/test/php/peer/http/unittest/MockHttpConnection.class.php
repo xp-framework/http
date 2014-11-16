@@ -2,6 +2,7 @@
 
 use peer\http\HttpRequest;
 use peer\http\HttpResponse;
+use peer\http\io\ToLog;
 
 /**
  * Mock HTTP connection
@@ -24,7 +25,7 @@ class MockHttpConnection extends \peer\http\HttpConnection {
   public function send(HttpRequest $request) {
     $this->lastRequest= $request;
 
-    $this->cat && $this->cat->info('>>>', $request->getHeaderString());
+    $this->cat && $request->write(new ToLog($this->cat, '>>>'));
     $response= new HttpResponse(new \io\streams\MemoryInputStream("HTTP/1.0 200 Testing OK\r\n"));
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;

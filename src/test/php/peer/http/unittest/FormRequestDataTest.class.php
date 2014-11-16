@@ -1,6 +1,6 @@
 <?php namespace peer\http\unittest;
 
-use unittest\TestCase;
+use io\streams\Streams;
 use peer\http\FormRequestData;
 use peer\http\FormData;
 
@@ -10,7 +10,7 @@ use peer\http\FormData;
  * @see  xp://peer.http.FormRequestData
  * @see  xp://peer.http.FormData
  */
-class FormRequestDataTest extends TestCase {
+class FormRequestDataTest extends \unittest\TestCase {
   protected $fixture  = null;
 
   /**
@@ -37,11 +37,10 @@ class FormRequestDataTest extends TestCase {
     $this->fixture->addPart(new FormData('key', 'value'));
 
     $this->assertEquals(
-      "--".$this->fixture->getBoundary()."\r\n".
+      "--".$this->fixture->boundary()."\r\n".
       "Content-Disposition: form-data; name=\"key\"\r\n\r\n".
-      "value\r\n--".$this->fixture->getBoundary()."--\r\n",
-
-      $this->fixture->getData()
+      "value\r\n--".$this->fixture->boundary()."--\r\n",
+      Streams::readAll($this->fixture->stream())
     );
   }
 
@@ -50,12 +49,11 @@ class FormRequestDataTest extends TestCase {
     $this->fixture->addPart(new FormData('key', 'value', 'text/html'));
 
     $this->assertEquals(
-      "--".$this->fixture->getBoundary()."\r\n".
+      "--".$this->fixture->boundary()."\r\n".
       "Content-Disposition: form-data; name=\"key\"\r\n".
       "Content-Type: text/html\r\n\r\n".
-      "value\r\n--".$this->fixture->getBoundary()."--\r\n",
-
-      $this->fixture->getData()
+      "value\r\n--".$this->fixture->boundary()."--\r\n",
+      Streams::readAll($this->fixture->stream())
     );
   }
 
@@ -64,12 +62,11 @@ class FormRequestDataTest extends TestCase {
     $this->fixture->addPart(new FormData('key', 'value', 'text/plain', 'utf-16'));
 
     $this->assertEquals(
-      "--".$this->fixture->getBoundary()."\r\n".
+      "--".$this->fixture->boundary()."\r\n".
       "Content-Disposition: form-data; name=\"key\"\r\n".
       "Content-Type: text/plain; charset=\"utf-16\"\r\n\r\n".
-      "value\r\n--".$this->fixture->getBoundary()."--\r\n",
-
-      $this->fixture->getData()
+      "value\r\n--".$this->fixture->boundary()."--\r\n",
+      Streams::readAll($this->fixture->stream())
     );
   }
 }

@@ -27,28 +27,28 @@ class HttpConnectionTest extends TestCase {
 
   #[@test]
   public function get() {
-    $this->fixture->get(array('var1' => 1, 'var2' => 2));
+    $this->fixture->get(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "GET /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }
   
   #[@test]
   public function head() {
-    $this->fixture->head(array('var1' => 1, 'var2' => 2));
+    $this->fixture->head(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "HEAD /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }
 
   #[@test]
   public function post() {
-    $this->fixture->post(array('var1' => 1, 'var2' => 2));
+    $this->fixture->post(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
-      "POST /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 13\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nvar1=1&var2=2",
-      $this->fixture->lastRequest()->getRequestString()
+      "POST /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 13\r\n\r\nvar1=1&var2=2",
+      $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }
 
@@ -56,8 +56,8 @@ class HttpConnectionTest extends TestCase {
   public function put() {
     $this->fixture->put(new RequestData('THIS IS A DATA STRING'));
     $this->assertEquals(
-      "PUT /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTHIS IS A DATA STRING",
-      $this->fixture->lastRequest()->getRequestString()
+      "PUT /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 21\r\n\r\nTHIS IS A DATA STRING",
+      $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }
 
@@ -65,26 +65,26 @@ class HttpConnectionTest extends TestCase {
   public function patch() {
     $this->fixture->patch(new RequestData('THIS IS A DATA STRING'));
     $this->assertEquals(
-      "PATCH /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTHIS IS A DATA STRING",
-      $this->fixture->lastRequest()->getRequestString()
+      "PATCH /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 21\r\n\r\nTHIS IS A DATA STRING",
+      $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }
 
   #[@test]
   public function delete() {
-    $this->fixture->delete(array('var1' => 1, 'var2' => 2));
+    $this->fixture->delete(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "DELETE /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }
 
   #[@test]
   public function options() {
-    $this->fixture->options(array('var1' => 1, 'var2' => 2));
+    $this->fixture->options(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "OPTIONS /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }
 
@@ -96,8 +96,8 @@ class HttpConnectionTest extends TestCase {
       $this->fixture->send($request);
     }
     $this->assertEquals(
-      "PROPPATCH / HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 0\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
-      $this->fixture->lastRequest()->getRequestString()
+      "PROPPATCH / HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
+      $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }
 
@@ -112,7 +112,7 @@ class HttpConnectionTest extends TestCase {
     $this->fixture->setTrace(create(new LogCategory('trace'))->withAppender($appender));
     $this->fixture->get();
     $this->assertEquals(
-      ">>> GET /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n".
+      ">>> GET /path/of/file HTTP/1.1\nConnection: close\nHost: example.com:80\n".
       "<<< HTTP/1.0 200 Testing OK\r\n\r\n",
       $appender->getBuffer()
     );
