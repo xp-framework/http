@@ -27,7 +27,7 @@ class HttpConnectionTest extends TestCase {
 
   #[@test]
   public function get() {
-    $this->fixture->get(array('var1' => 1, 'var2' => 2));
+    $this->fixture->get(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "GET /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
       $this->fixture->lastRequest()->getRequestString()
@@ -36,7 +36,7 @@ class HttpConnectionTest extends TestCase {
   
   #[@test]
   public function head() {
-    $this->fixture->head(array('var1' => 1, 'var2' => 2));
+    $this->fixture->head(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "HEAD /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
       $this->fixture->lastRequest()->getRequestString()
@@ -45,7 +45,7 @@ class HttpConnectionTest extends TestCase {
 
   #[@test]
   public function post() {
-    $this->fixture->post(array('var1' => 1, 'var2' => 2));
+    $this->fixture->post(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "POST /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 13\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nvar1=1&var2=2",
       $this->fixture->lastRequest()->getRequestString()
@@ -72,7 +72,7 @@ class HttpConnectionTest extends TestCase {
 
   #[@test]
   public function delete() {
-    $this->fixture->delete(array('var1' => 1, 'var2' => 2));
+    $this->fixture->delete(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "DELETE /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
       $this->fixture->lastRequest()->getRequestString()
@@ -81,7 +81,7 @@ class HttpConnectionTest extends TestCase {
 
   #[@test]
   public function options() {
-    $this->fixture->options(array('var1' => 1, 'var2' => 2));
+    $this->fixture->options(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "OPTIONS /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
       $this->fixture->lastRequest()->getRequestString()
