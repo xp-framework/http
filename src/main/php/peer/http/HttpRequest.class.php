@@ -48,7 +48,7 @@ class HttpRequest extends \lang\Object {
       $this->headers['Content-Length']= [$this->in->tell()];
       $this->in->seek($pos, SEEK_SET);
     } else if ($in instanceof InputStream) {
-      $this->in= new ChunkedTransferEncoding($in);
+      $this->in= $in;
       $this->headers['Content-Transfer-Encoding']= ['chunked'];
     } else {
       $this->in= new MemoryInputStream($in);

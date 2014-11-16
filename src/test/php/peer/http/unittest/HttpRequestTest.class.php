@@ -456,8 +456,8 @@ class HttpRequestTest extends TestCase {
     $r->setMethod(HttpConstants::POST);
     $r->useStream($body);
     $this->assertEquals(
-      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 4\r\n\r\n",
-      $r->getHeaderString()
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 4\r\n\r\nTest",
+      $r->write(new ToString())->bytes()
     );
   }
 
@@ -466,13 +466,13 @@ class HttpRequestTest extends TestCase {
     $r= new HttpRequest(new \peer\URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
     $r->useStream(newinstance('io.streams.InputStream', [], [
-      'available' => function() { /* Empty */ },
+      'available' => function() { return false; },
       'read'      => function($bytes= 8192) { /* Empty */ },
       'close'     => function() { /* Empty */ }
     ]));
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Transfer-Encoding: chunked\r\n\r\n",
-      $r->getHeaderString()
+      $r->write(new ToString())->bytes()
     );
   }
 }
