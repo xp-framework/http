@@ -19,6 +19,15 @@ use io\streams\MemoryInputStream;
 class HttpRequestTest extends \unittest\TestCase {
 
   #[@test]
+  public function verb_omitted() {
+    $r= new HttpRequest(new URL('http://example.com'));
+    $this->assertEquals(
+      "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
+      $r->write(new ToString(true))->bytes()
+    );
+  }
+
+  #[@test]
   public function get() {
     $r= new HttpRequest(new URL('http://example.com'));
     $r->setMethod(HttpConstants::GET);
@@ -440,6 +449,28 @@ class HttpRequestTest extends \unittest\TestCase {
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Transfer-Encoding: chunked\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $r->write(new ToString(true))->bytes()
+    );
+  }
+
+  #[@test]
+  public function deprecated_getHeaderString() {
+    $r= new HttpRequest(new URL('http://example.com'));
+    $r->setMethod(HttpConstants::POST);
+    $r->withBody('Test');
+    $this->assertEquals(
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 4\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
+      $r->getHeaderString()
+    );
+  }
+
+  #[@test]
+  public function deprecated_getRequestString() {
+    $r= new HttpRequest(new URL('http://example.com'));
+    $r->setMethod(HttpConstants::POST);
+    $r->withBody('Test');
+    $this->assertEquals(
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 4\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTest",
+      $r->getRequestString()
     );
   }
 }
