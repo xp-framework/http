@@ -5,6 +5,7 @@ use peer\Header;
 use io\streams\Seekable;
 use io\streams\InputStream;
 use io\streams\MemoryInputStream;
+use peer\http\io\To;
 
 /**
  * Wrap HTTP/1.0 and HTTP/1.1 requests (used internally by the HttpConnection
@@ -47,7 +48,7 @@ class HttpRequest extends \lang\Object {
       $this->headers['Content-Length']= [$this->in->tell()];
       $this->in->seek($pos, SEEK_SET);
     } else if ($in instanceof InputStream) {
-      $this->in= $in;
+      $this->in= new ChunkedTransferEncoding($in);
       $this->headers['Content-Transfer-Encoding']= ['chunked'];
     } else {
       $this->in= new MemoryInputStream($in);
@@ -220,6 +221,43 @@ class HttpRequest extends \lang\Object {
     }
 
     return $request."\r\n".$body;
+  }
+
+  /**
+   * Writes this request
+   *
+   * @param  peer.http.io.To $out
+   * @return peer.http.io.To The given $out
+   */
+  public function write(To $out) {
+    $query= $this->url->getQuery('');
+    foreach ($this->parameters as $name => $value) {
+      if (is_array($value)) {
+        foreach ($value as $k => $v) {
+          $query.= '&'.$name.'['.$k.']='.urlencode($v);
+        }
+      } else {
+        $query.= '&'.$name.'='.urlencode($value);
+      }
+    }
+
+    $out->request($this->method, $this->target.(empty($query) ? '' : '?'.substr($query, 1)), $this->version);
+
+    foreach ($this->headers as $name => $values) {
+      foreach ($values as $arg) {
+        if ($arg instanceof Header) {
+          $out->header($arg->getName(), $arg->getValueRepresentation());
+        } else {
+          $out->header($name, $arg);
+        }
+      }
+    }
+
+    $out->commit();
+    if (null !== $this->in) {
+      $out->body($this->in);
+    }
+    return $out;
   }
 
   /**
