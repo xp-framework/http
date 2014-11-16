@@ -38,8 +38,8 @@ class RequestData extends \lang\Object implements Body {
   /** @return [:var] */
   public function headers() {
     return [
-      'Content-Type'   => [$this->contentType],
-      'Content-Length' => [strlen($this->payload)]
+      'Content-Length' => [strlen($this->payload)],
+      'Content-Type'   => [$this->contentType]
     ];
   }
 

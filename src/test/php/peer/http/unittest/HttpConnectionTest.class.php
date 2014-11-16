@@ -47,7 +47,7 @@ class HttpConnectionTest extends TestCase {
   public function post() {
     $this->fixture->post(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
-      "POST /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 13\r\n\r\nvar1=1&var2=2",
+      "POST /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 13\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nvar1=1&var2=2",
       $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }
@@ -56,7 +56,7 @@ class HttpConnectionTest extends TestCase {
   public function put() {
     $this->fixture->put(new RequestData('THIS IS A DATA STRING'));
     $this->assertEquals(
-      "PUT /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 21\r\n\r\nTHIS IS A DATA STRING",
+      "PUT /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTHIS IS A DATA STRING",
       $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }
@@ -65,7 +65,7 @@ class HttpConnectionTest extends TestCase {
   public function patch() {
     $this->fixture->patch(new RequestData('THIS IS A DATA STRING'));
     $this->assertEquals(
-      "PATCH /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 21\r\n\r\nTHIS IS A DATA STRING",
+      "PATCH /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTHIS IS A DATA STRING",
       $this->fixture->lastRequest()->write(new ToString())->bytes()
     );
   }

@@ -196,7 +196,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function get_url_with_map_parameter() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
-    $r->setParameters(array('params' => array('target' => 'home', 'ssl' => 'true')));
+    $r->setParameters(['params' => ['target' => 'home', 'ssl' => 'true']]);
     $this->assertEquals(
       "GET /?params[target]=home&params[ssl]=true HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->write(new ToString())->bytes()
@@ -232,7 +232,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->withBody('a=b&c=d');
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
-      "Content-Type: application/x-www-form-urlencoded\r\nContent-Length: 7\r\n\r\n".
+      "Content-Length: 7\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
       "a=b&c=d",
       $r->write(new ToString())->bytes()
     );
@@ -248,7 +248,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::POST);
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
-      "Content-Type: application/x-www-form-urlencoded\r\nContent-Length: 30\r\n\r\n".
+      "Content-Length: 30\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
       "data[color]=green&data[size]=S",
       $r->write(new ToString())->bytes()
     );
@@ -411,7 +411,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::POST);
     $r->withBody($body);
     $this->assertEquals(
-      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 4\r\n\r\nTest",
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 4\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTest",
       $r->write(new ToString())->bytes()
     );
   }
@@ -422,7 +422,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::POST);
     $r->withBody(new RequestData(''));
     $this->assertEquals(
-      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: 0\r\n\r\n",
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 0\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $r->write(new ToString())->bytes()
     );
   }
@@ -437,7 +437,7 @@ class HttpRequestTest extends \unittest\TestCase {
       'close'     => function() { /* Empty */ }
     ]));
     $this->assertEquals(
-      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Transfer-Encoding: chunked\r\n\r\n",
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Transfer-Encoding: chunked\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $r->write(new ToString())->bytes()
     );
   }

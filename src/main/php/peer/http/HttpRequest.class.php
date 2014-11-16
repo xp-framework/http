@@ -45,7 +45,6 @@ class HttpRequest extends \lang\Object {
       $this->addHeaders($arg->headers());
       $this->in= $arg->stream();
     } else if ($arg instanceof InputStream) {
-      $this->headers['Content-Type']= ['application/x-www-form-urlencoded'];
       if ($arg instanceof Seekable) {
         $pos= $arg->tell();
         $arg->seek(0, SEEK_END);
@@ -54,6 +53,7 @@ class HttpRequest extends \lang\Object {
       } else {
         $this->headers['Content-Transfer-Encoding']= ['chunked'];
       }
+      $this->headers['Content-Type']= ['application/x-www-form-urlencoded'];
       $this->in= $arg;
     } else if (null !== $arg) {
       $this->withBody(new RequestData($arg));
