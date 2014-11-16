@@ -3,6 +3,7 @@
 use peer\http\HttpRequest;
 use peer\http\HttpResponse;
 use peer\http\io\ToLog;
+use peer\http\io\ToString;
 
 /**
  * Mock HTTP connection
@@ -13,8 +14,8 @@ class MockHttpConnection extends \peer\http\HttpConnection {
   protected $lastRequest= null;
   protected $cat= null;
 
-  /** @return peer.http.HttpRequest */
-  public function lastRequest() { return $this->lastRequest; }
+  /** @return string */
+  public function lastRequest() { return $this->lastRequest->write(new ToString(true))->bytes(); }
 
   /**
    * Send a HTTP request
