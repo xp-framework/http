@@ -27,7 +27,7 @@ class ToStreamTest extends \unittest\TestCase {
   #[@test]
   public function request() {
     $fixture= new ToStream($this->out);
-    $fixture->request('GET', '/', 'HTTP/1.0');
+    $fixture->request('GET', '/', '1.0');
     $fixture->commit();
     $this->assertEquals("GET / HTTP/1.0\r\n\r\n", $this->out->getBytes());
   }
@@ -35,7 +35,7 @@ class ToStreamTest extends \unittest\TestCase {
   #[@test]
   public function header() {
     $fixture= new ToStream($this->out);
-    $fixture->request('GET', '/', 'HTTP/1.0');
+    $fixture->request('GET', '/', '1.0');
     $fixture->header('Connection', 'close');
     $fixture->commit();
     $this->assertEquals("GET / HTTP/1.0\r\nConnection: close\r\n\r\n", $this->out->getBytes());
@@ -44,7 +44,7 @@ class ToStreamTest extends \unittest\TestCase {
   #[@test]
   public function headers() {
     $fixture= new ToStream($this->out);
-    $fixture->request('GET', '/', 'HTTP/1.0');
+    $fixture->request('GET', '/', '1.0');
     $fixture->header('Connection', 'close');
     $fixture->header('Host', 'example.com');
     $fixture->commit();
@@ -54,7 +54,7 @@ class ToStreamTest extends \unittest\TestCase {
   #[@test]
   public function body() {
     $fixture= new ToStream($this->out);
-    $fixture->request('POST', '/', 'HTTP/1.0');
+    $fixture->request('POST', '/', '1.0');
     $fixture->header('Content-Length', '4');
     $fixture->commit();
     $fixture->body(new MemoryInputStream('Test'));

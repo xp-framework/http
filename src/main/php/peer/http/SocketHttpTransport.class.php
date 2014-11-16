@@ -4,7 +4,7 @@ use peer\URL;
 use peer\Socket;
 use peer\SocketInputStream;
 use peer\http\io\ToStream;
-use peer\http\io\ToDebug;
+use peer\http\io\ToLog;
 
 /**
  * Transport via sockets
@@ -102,7 +102,7 @@ class SocketHttpTransport extends HttpTransport {
       $s= $this->connect($this->socket, $timeout, $connecttimeout);
     }
 
-    $this->cat && $this->cat->info('>>>', $request->write(new ToDebug())->bytes());
+    $this->cat && $request->write(new ToLog($this->cat,  '>>>'));
     $request->write(new ToStream($s->out()));
 
     $response= new HttpResponse(new SocketInputStream($s));

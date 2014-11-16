@@ -29,7 +29,7 @@ class ToStream extends \lang\Object implements To {
    * @return void
    */
   public function request($verb, $target, $version) {
-    $this->out->write($verb.' '.$target.' '.$version."\r\n");
+    $this->out->write($verb.' '.$target.' HTTP/'.$version."\r\n");
   }
 
   /**
@@ -50,6 +50,7 @@ class ToStream extends \lang\Object implements To {
    */
   public function commit() {
     $this->out->write("\r\n");
+    $this->out->flush();
   }
 
   /**

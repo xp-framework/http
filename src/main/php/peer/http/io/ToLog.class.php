@@ -29,7 +29,7 @@ class ToLog extends \lang\Object implements To {
    * @return void
    */
   public function request($verb, $target, $version) {
-    $this->header.= $verb.' '.$target.' '.$version."\n";
+    $this->header.= $verb.' '.$target.' HTTP/'.$version."\n";
   }
 
   /**
