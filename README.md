@@ -29,9 +29,10 @@ Headers
 The following code will show the response headers for a HEAD request:
 
 ```php
-with ($c= new HttpConnection('http://xp-framework.net/')); {
-  Console::writeLine($c->head()->toString());
-}
+use peer\http\HttpConnection;
+
+$c= new HttpConnection('http://xp-framework.net/');
+Console::writeLine($c->head());
 ```
 
 Getting data
@@ -42,18 +43,16 @@ with ($c= new HttpConnection('http://xp-framework.net/')); {
   $response= $c->get();
   Console::writeLine('Response: ', $response);
   
-  while ($chunk= $response->readData()) {
-    // ...
+  $in= $response->in();
+  while ($in->available()) {
+    $bytes= $in->read();
   }
 }
 ```
 
 SSL support
 -----------
-This API also supports SSL connections - based on the scheme given to
-`HttpConnection`'s constructor the `HttpRequestFactory` class will create 
-an SSL connection. This is transparent from the outside, the rest of the
-calls are the same!
+This API also supports SSL connections - based on the scheme given to `HttpConnection`'s constructor the `HttpRequestFactory` class will create an SSL connection. This is transparent from the outside, the rest of the calls are the same!
 
 Example:
 
