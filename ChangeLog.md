@@ -3,6 +3,8 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 6.0.0 / 2015-10-01
+
 * Added new method `HttpResponse::in()` as replacement for `getInputStream()`
   being consistent with core framework (peer.Socket and io.File classes)
   (@thekid)
