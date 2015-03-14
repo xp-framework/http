@@ -7,6 +7,8 @@ use peer\http\FileUpload;
 use peer\http\FormData;
 use peer\http\HttpRequest;
 use peer\http\HttpConstants;
+use peer\http\io\ToString;
+use io\streams\MemoryInputStream;
 
 /**
  * TestCase for HTTP request construction
@@ -17,12 +19,21 @@ use peer\http\HttpConstants;
 class HttpRequestTest extends \unittest\TestCase {
 
   #[@test]
+  public function verb_omitted() {
+    $r= new HttpRequest(new URL('http://example.com'));
+    $this->assertEquals(
+      "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
+      $r->write(new ToString(true))->bytes()
+    );
+  }
+
+  #[@test]
   public function get() {
     $r= new HttpRequest(new URL('http://example.com'));
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -32,9 +43,9 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com:".$port."\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
-  }
+  } 
 
   #[@test]
   public function get_url_with_path() {
@@ -42,7 +53,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET /path/to/images/index.html HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -52,7 +63,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nAuthorization: Basic dXNlcjpwYXNz\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -62,7 +73,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET /index.html HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -72,7 +83,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -82,7 +93,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET /?".$params." HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -93,7 +104,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters($params);
     $this->assertEquals(
       "GET /?".$params." HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -104,7 +115,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters(array());
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -115,7 +126,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters($input);
     $this->assertEquals(
       "GET /?".$representation." HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -125,32 +136,22 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $this->assertEquals(
       "GET /?data[color]=green&data[size]=S HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
   #[@test]
-  public function get_url_with_RequestData_parameters() {
-    $r= new HttpRequest(new URL('http://example.com/'));
-    $r->setMethod(HttpConstants::GET);
-    $r->setParameters(new RequestData('a=b&c=d'));
-    $this->assertEquals(
-      "GET /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
-    );
-  }
-
-  #[@test]
-  public function post_url_with_RequestData_parameters() {
+  public function post_url_with_FormRequestData() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
-    $r->setParameters(new FormRequestData(array(
+    $formData= new FormRequestData([
       new FormData('key', 'value'),
       new FormData('xml', '<foo/>', 'text/xml')
-    )));
+    ]);
+    $r->withBody($formData);
 
     // Fetch randomly generated boundary
-    $boundary= $r->parameters->getBoundary();
+    $boundary= $formData->boundary();
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Type: multipart/form-data; boundary=".$boundary."\r\nContent-Length: 265\r\n\r\n".
@@ -161,7 +162,7 @@ class HttpRequestTest extends \unittest\TestCase {
       "Content-Type: text/xml\r\n".
       "\r\n<foo/>\r\n".
       "--".$boundary."--\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -169,13 +170,14 @@ class HttpRequestTest extends \unittest\TestCase {
   public function post_url_with_FileUpload_parameters() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
-    $r->setParameters(new FormRequestData(array(
+    $formData= new FormRequestData([
       new FileUpload('file', 'image.jpeg', new \io\streams\MemoryInputStream('JFIF...'), 'image/jpeg'),
       new FileUpload('file', 'attach.txt', new \io\streams\MemoryInputStream('Test'), 'text/plain')
-    )));
+    ]);
+    $r->setParameters($formData);
 
     // Fetch randomly generated boundary
-    $boundary= $r->parameters->getBoundary();
+    $boundary= $formData->boundary();
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Type: multipart/form-data; boundary=".$boundary."\r\nContent-Length: 379\r\n\r\n".
@@ -185,7 +187,7 @@ class HttpRequestTest extends \unittest\TestCase {
       "Content-Disposition: form-data; name=\"file\"; filename=\"attach.txt\"\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n".
       "\r\nTest\r\n".
       "--".$boundary."--\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -196,7 +198,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters($params);
     $this->assertEquals(
       "GET /?a=b HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -204,10 +206,10 @@ class HttpRequestTest extends \unittest\TestCase {
   public function get_url_with_map_parameter() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
-    $r->setParameters(array('params' => array('target' => 'home', 'ssl' => 'true')));
+    $r->setParameters(['params' => ['target' => 'home', 'ssl' => 'true']]);
     $this->assertEquals(
       "GET /?params[target]=home&params[ssl]=true HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -237,12 +239,12 @@ class HttpRequestTest extends \unittest\TestCase {
   public function post() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
-    $r->setParameters('a=b&c=d');
+    $r->withBody('a=b&c=d');
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Length: 7\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
       "a=b&c=d",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -252,13 +254,13 @@ class HttpRequestTest extends \unittest\TestCase {
   #])]
   public function post_url_with_map_parameter($params) {
     $r= new HttpRequest(new URL('http://example.com/'));
-    $r->setParameters($params);
+    $r->withBody($params);
     $r->setMethod(HttpConstants::POST);
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Length: 30\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
       "data[color]=green&data[size]=S",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -268,10 +270,8 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::PUT);
     $r->setParameters('a=b&c=d');
     $this->assertEquals(
-      "PUT / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
-      "Content-Length: 7\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
-      "a=b&c=d",
-      $r->getRequestString()
+      "PUT /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -281,10 +281,8 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::TRACE);
     $r->setParameters('a=b&c=d');
     $this->assertEquals(
-      "TRACE / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
-      "Content-Length: 7\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
-      "a=b&c=d",
-      $r->getRequestString()
+      "TRACE /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -295,7 +293,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters('a=b&c=d');
     $this->assertEquals(
       "HEAD /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -306,7 +304,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters('a=b&c=d');
     $this->assertEquals(
       "DELETE /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -317,7 +315,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters('a=b&c=d');
     $this->assertEquals(
       "OPTIONS /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -327,7 +325,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setHeader('X-Binford', 6100);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -337,7 +335,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setHeader('X-Binford', new \peer\Header('X-Binford', 6100));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -347,7 +345,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setHeader('X-Binford', array(6100, 'More Power'));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\nX-Binford: More Power\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -357,7 +355,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->addHeaders(array('X-Binford' => 6100));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -367,7 +365,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->addHeaders(array('X-Binford' => new \peer\Header('X-Binford', 6100)));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -377,7 +375,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->addHeaders(array(new \peer\Header('X-Binford', 6100)));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -387,7 +385,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->addHeaders(array('X-Binford' => array(6100, 'Even more power')));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\nX-Binford: Even more power\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -398,7 +396,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setHeader('X-Binford', 61000);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 61000\r\n\r\n",
-      $r->getRequestString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
@@ -409,40 +407,70 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setParameters('a=b');
     $this->assertEquals(
       "GET /?a=b HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getHeaderString()
+      $r->write(new ToString(true))->bytes()
     );
   }
 
-  #[@test]
-  public function header_string_does_not_include_content() {
+  #[@test, @values([
+  #  ['Test'],
+  #  [new RequestData('Test')],
+  #  [new MemoryInputStream('Test')]
+  #])]
+  public function with_body($body) {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
-    $r->setParameters('a=b');
+    $r->withBody($body);
     $this->assertEquals(
-      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 3\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
-      $r->getHeaderString()
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 4\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTest",
+      $r->write(new ToString(true))->bytes()
     );
   }
 
   #[@test]
-  public function with_empty_post_body() {
+  public function with_empty_body() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
-    $r->setParameters('');
+    $r->withBody(new RequestData(''));
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 0\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
+      $r->write(new ToString(true))->bytes()
+    );
+  }
+
+  #[@test]
+  public function using_non_seekable_stream() {
+    $r= new HttpRequest(new URL('http://example.com/'));
+    $r->setMethod(HttpConstants::POST);
+    $r->withBody(newinstance('io.streams.InputStream', [], [
+      'available' => function() { return false; },
+      'read'      => function($bytes= 8192) { /* Empty */ },
+      'close'     => function() { /* Empty */ }
+    ]));
+    $this->assertEquals(
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Transfer-Encoding: chunked\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
+      $r->write(new ToString(true))->bytes()
+    );
+  }
+
+  #[@test]
+  public function deprecated_getHeaderString() {
+    $r= new HttpRequest(new URL('http://example.com'));
+    $r->setMethod(HttpConstants::POST);
+    $r->withBody('Test');
+    $this->assertEquals(
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 4\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $r->getHeaderString()
     );
   }
 
   #[@test]
-  public function with_1byte_body() {
-    $r= new HttpRequest(new URL('http://example.com/'));
+  public function deprecated_getRequestString() {
+    $r= new HttpRequest(new URL('http://example.com'));
     $r->setMethod(HttpConstants::POST);
-    $r->setParameters(new RequestData('1'));
+    $r->withBody('Test');
     $this->assertEquals(
-      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 1\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
-      $r->getHeaderString()
+      "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 4\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTest",
+      $r->getRequestString()
     );
   }
 }

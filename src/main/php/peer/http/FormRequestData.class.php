@@ -1,6 +1,6 @@
 <?php namespace peer\http;
 
-use peer\Header;
+use io\streams\MemoryInputStream;
 
 /**
  * Build an HttpRequest w/ embedded multipart/form-data
@@ -9,7 +9,7 @@ use peer\Header;
  * <code>
  *   $request= $conn->create(new HttpRequest());
  *   $request->setMethod(HttpConstants::POST);
- *   $request->setParameters(create(new FormRequestData())
+ *   $request->setParameters((new FormRequestData())
  *     ->withPart(new FormData('key', 'value'))
  *     ->withPart(new FormData('comment.txt', $contents, 'text/plain', 'utf-8'))
  *   );
@@ -20,88 +20,59 @@ use peer\Header;
  * @see   xp://peer.http.FormData
  * @test  xp://net.xp_framework.unittest.peer.http.FormRequestDataTest
  */
-class FormRequestData extends RequestData {
-  const CRLF    = "\r\n";
-
-  protected
-    $parts      = array(),
-    $boundary   = null;
+class FormRequestData extends \lang\Object implements Body {
+  const CRLF= "\r\n";
+  private $payload, $boundary;
 
   /**
    * Constructor
    *
-   * @param   peer.http.FormData[] $parts default array()
+   * @param   peer.http.FormData[] $parts
    */
-  public function __construct($parts= array()) {
+  public function __construct($parts= []) {
     $this->boundary= '__--boundary-'.uniqid(time()).'--__';
+    $this->payload= '';
     foreach ($parts as $part) {
       $this->addPart($part);
     }
   }
-
-  /**
-   * Set boundary
-   *
-   * @param   string $boundary
-   * @return  string
-   */
-  public function withBoundary($boundary) {
-    $this->boundary= $boundary;
-    return $this;
-  }    
   
-  /**
-   * Retrieve boundary
-   *
-   * @return  string
-   */
-  public function getBoundary() {
-    return $this->boundary;
-  }    
+  /** @return string */
+  public function boundary() { return $this->boundary; }
   
   /**
    * Add form part
    *
-   * @param   peer.http.FormData $item
+   * @param   peer.http.FormData $part
    * @return  peer.http.FormData
    */
-  public function addPart(FormData $item) {
-    $this->parts[]= $item;
-    return $item;
+  public function addPart(FormData $part) {
+    $this->payload.= '--'.$this->boundary.self::CRLF.$part->getData().self::CRLF;
+    return $part;
   }
 
   /**
    * Add form part - fluent interface
    *
-   * @param   peer.http.FormData $item
+   * @param   peer.http.FormData $part
    * @return  self this
    */
-  public function withPart(FormData $item) {
-    $this->parts[]= $item;
+  public function withPart(FormData $part) {
+    $this->payload.= '--'.$this->boundary.self::CRLF.$part->getData().self::CRLF;
     return $this;
   }
-  
-  /**
-   * Retrieve headers to be set
-   *
-   * @return  peer.Header[]
-   */
-  public function getHeaders() {
-    $headers= parent::getHeaders();
-    $headers[]= new Header('Content-Type', 'multipart/form-data; boundary='.$this->boundary);
-    return $headers;
+
+
+  /** @return [:var] */
+  public function headers() {
+    return [
+      'Content-Type'   => ['multipart/form-data; boundary='.$this->boundary],
+      'Content-Length' => [strlen($this->payload) + strlen($this->boundary) + 2 + 2 + 2]
+    ];
   }
   
-  /**
-   * Retrieve data for request
-   *
-   * @return  string
-   */
-  public function getData() {
-    $ret= '--'.$this->boundary;
-    foreach ($this->parts as $part) {
-      $ret.=  self::CRLF.$part->getData().self::CRLF.'--'.$this->boundary;
-    }
-    return $ret.'--'.self::CRLF;
+  /** @return io.streams.InputStream */
+  public function stream() {
+    return new MemoryInputStream($this->payload.'--'.$this->boundary.'--'.self::CRLF);
   }
 }

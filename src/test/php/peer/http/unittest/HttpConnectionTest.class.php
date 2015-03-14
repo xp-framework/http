@@ -96,7 +96,7 @@ class HttpConnectionTest extends TestCase {
       $this->fixture->send($request);
     }
     $this->assertEquals(
-      "PROPPATCH / HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 0\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
+      "PROPPATCH / HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
       $this->fixture->lastRequest()
     );
   }
@@ -108,11 +108,11 @@ class HttpConnectionTest extends TestCase {
 
   #[@test]
   public function tracing() {
-    $appender= create(new BufferedAppender())->withLayout(new PatternLayout('%m'));
-    $this->fixture->setTrace(create(new LogCategory('trace'))->withAppender($appender));
+    $appender= (new BufferedAppender())->withLayout(new PatternLayout('%m'));
+    $this->fixture->setTrace((new LogCategory('trace'))->withAppender($appender));
     $this->fixture->get();
     $this->assertEquals(
-      ">>> GET /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n".
+      ">>> GET /path/of/file HTTP/1.1\nConnection: close\nHost: example.com:80\n".
       "<<< HTTP/1.0 200 Testing OK\r\n\r\n",
       $appender->getBuffer()
     );

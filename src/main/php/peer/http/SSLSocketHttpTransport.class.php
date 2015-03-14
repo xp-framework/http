@@ -2,6 +2,7 @@
 
 use peer\SSLSocket;
 use peer\TLSSocket;
+use io\IOException;
 
 /**
  * Transport via SSL sockets
@@ -43,7 +44,7 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
         return;
       }
     }
-    throw new \io\IOException('Cannot establish secure connection, tried '.\xp::stringOf($methods));
+    throw new IOException('Cannot establish secure connection, tried '.\xp::stringOf($methods));
   }
 
   /**
@@ -82,10 +83,10 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
           $this->enable($s, $methods);
         }
       } else {
-        throw new \io\IOException('Cannot connect through proxy: #'.$status.' '.$message);
+        throw new IOException('Cannot connect through proxy: #'.$status.' '.$message);
       }
     } else {
-      throw new \io\IOException('Proxy did not answer with valid HTTP: '.$handshake);
+      throw new IOException('Proxy did not answer with valid HTTP: '.$handshake);
     }
   }
 }

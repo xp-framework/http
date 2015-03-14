@@ -1,38 +1,48 @@
 <?php namespace peer\http;
 
+use io\streams\MemoryInputStream;
+
 /**
  * Use RequestData to pass request data directly to body
  *
- * @see   xp://peer.http.HttpRequest#setParameters
+ * @see   xp://peer.http.HttpRequest#withBody
  */
-class RequestData extends \lang\Object {
-  public $data;
+class RequestData extends \lang\Object implements Body {
+  private $payload, $contentType;
 
   /**
    * Constructor
    *
-   * @param   string $buf
+   * @param   var $data Either a string or a map of key/value pairs
+   * @param   string $contentType
    */
-  public function __construct($buf) {
-    $this->data= $buf;
+  public function __construct($data, $contentType= 'application/x-www-form-urlencoded') {
+    if (is_array($data)) {
+      $string= '';
+      foreach ($data as $name => $value) {
+        if (is_array($value)) {
+          foreach ($value as $k => $v) {
+            $string.= '&'.$name.'['.$k.']='.urlencode($v);
+          }
+        } else {
+          $string.= '&'.$name.'='.urlencode($value);
+        }
+      }
+      $this->payload= substr($string, 1);
+    } else {
+      $this->payload= (string)$data;
+    }
+    $this->contentType= $contentType;
   }
 
-  /**
-   * Return list of HTTP headers to be set on
-   * behalf of the data
-   *
-   * @return  peer.Header[]
-   */
-  public function getHeaders() {
-    return array();
+  /** @return [:var] */
+  public function headers() {
+    return [
+      'Content-Length' => [strlen($this->payload)],
+      'Content-Type'   => [$this->contentType]
+    ];
   }
-  
-  /**
-   * Retrieve data
-   *
-   * @return  string
-   */
-  public function getData() {
-    return $this->data;
-  }
+
+  /** @return io.streams.InputStream */
+  public function stream() { return new MemoryInputStream($this->payload); }
 }
