@@ -17,25 +17,7 @@ class Authorizations extends \lang\Object {
     $header= $response->header('WWW-Authenticate')[0];
     switch (true) {
       case 'Digest ' === substr($header, 0, strlen('Digest ')): {
-        if (!preg_match_all('#(([a-z]+)=("[^"$]+)")#m', $header, $matches, PREG_SET_ORDER)) {
-          throw new IllegalStateException('Invalid WWW-Authenticate line');
-        }
-
-        $values= [];
-        foreach ($matches as $m) {
-          $values[$m[2]]= trim($m[3], '"');
-        }
-
-        $auth= new DigestAuthorization(
-          $values['realm'],
-          $values['qop'],
-          $values['nonce'],
-          $values['opaque']
-        );
-        $auth->username($user);
-        $auth->password($pass);
-
-        return $auth;
+        return DigestAuthorization::fromChallenge($header, $user, $pass);
       }
 
       case 'Basic ' === substr($header, 0, strlen('Basic ')): {

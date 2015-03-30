@@ -8,6 +8,7 @@ use peer\http\Authorizations;
 use peer\http\DigestAuthorization;
 use security\SecureString;
 use io\streams\MemoryInputStream;
+use lang\MethodNotImplementedException;
 
 class DigestAuthTest extends \unittest\TestCase {
   private $http= null;
@@ -23,8 +24,8 @@ class DigestAuthTest extends \unittest\TestCase {
       'WWW-Authenticate: Digest realm="testrealm@host.com", '.
       'qop="auth,auth-int", '.
       'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", '.
-      'opaque="5ccc069c403ebaf9f0171e9517f40e41"'."\r\n"))
-    );
+      'opaque="5ccc069c403ebaf9f0171e9517f40e41"'."\r\n"
+    )));
 
     $this->assertEquals(HttpConstants::STATUS_AUTHORIZATION_REQUIRED, $this->http->get('/')->getStatusCode());
   }
@@ -41,8 +42,8 @@ class DigestAuthTest extends \unittest\TestCase {
       'WWW-Authenticate: Digest realm="testrealm@host.com", '.
       'qop="auth,auth-int", '.
       'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", '.
-      'opaque="5ccc069c403ebaf9f0171e9517f40e41"'."\r\n"))
-    );
+      'opaque="5ccc069c403ebaf9f0171e9517f40e41"'."\r\n"
+    )));
 
     $this->assertEquals(
       new DigestAuthorization(
@@ -53,6 +54,20 @@ class DigestAuthTest extends \unittest\TestCase {
       ),
       Authorizations::fromResponse($this->http->get('/'), 'user', new SecureString('pass'))
     );
+  }
+
+  #[@test, @expect('lang.MethodNotImplementedException')]
+  public function only_md5_algorithm_supported() {
+    $this->http->setResponse(new HttpResponse(new MemoryInputStream(
+      "HTTP/1.0 401 Unauthorized\r\n".
+      'WWW-Authenticate: Digest realm="testrealm@host.com", '.
+      'qop="auth,auth-int", '.
+      'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", '.
+      'opaque="5ccc069c403ebaf9f0171e9517f40e41", '.
+      'algorithm="sha1"'."\r\n"
+    )));
+
+    Authorizations::fromResponse($this->http->get('/'), 'user', new SecureString('pass'));
   }
 
   #[@test]
@@ -73,6 +88,4 @@ class DigestAuthTest extends \unittest\TestCase {
       $digest->responseFor($req)
     );
   }
-
-
 }

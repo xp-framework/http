@@ -2,6 +2,8 @@
 
 use peer\Header;
 use security\SecureString;
+use lang\IllegalStateException;
+use lang\MethodNotImplementedException;
 
 class DigestAuthorization extends Header {
 
@@ -28,6 +30,33 @@ class DigestAuthorization extends Header {
     $this->opaque= $opaque;
 
     $this->cnonce();
+  }
+
+  public static function fromChallenge($header, $user, SecureString $pass) {
+    if (!preg_match_all('#(([a-z]+)=("[^"$]+)")#m', $header, $matches, PREG_SET_ORDER)) {
+      throw new IllegalStateException('Invalid WWW-Authenticate line');
+    }
+
+    $values= ['algorithm' => 'md5'];
+    foreach ($matches as $m) {
+      $values[$m[2]]= trim($m[3], '"');
+    }
+
+    if ($values['algorithm'] != 'md5') {
+      throw new MethodNotImplementedException('Digest auth only supported via algo "md5".', 'digest-md5');
+    }
+
+    $auth= new DigestAuthorization(
+      $values['realm'],
+      $values['qop'],
+      $values['nonce'],
+      $values['opaque']
+    );
+    $auth->username($user);
+    $auth->password($pass);
+
+    return $auth;
+
   }
 
   public function username($u) {
@@ -87,6 +116,4 @@ class DigestAuthorization extends Header {
     }
     return $s.="}\n";
   }
-
-
 }
