@@ -12,9 +12,20 @@ use lang\MethodNotImplementedException;
 
 class DigestAuthTest extends \unittest\TestCase {
   private $http= null;
+  private $digest= null;
 
   public function setUp() {
     $this->http= new MockHttpConnection(new URL('http://example.com:80/path/of/file'));
+    $this->digest= new DigestAuthorization(
+      'testrealm@host.com',
+      'auth,auth-int',
+      'dcd98b7102dd2f0e8b11d0f600bfb0c093',
+      '5ccc069c403ebaf9f0171e9517f40e41'
+    );
+    $this->digest->cnonce('0a4f113b');
+    $this->digest->username('Mufasa');
+    $this->digest->password(new SecureString('Circle Of Life'));
+
   }
 
   #[@test]
@@ -46,12 +57,7 @@ class DigestAuthTest extends \unittest\TestCase {
     )));
 
     $this->assertEquals(
-      new DigestAuthorization(
-        'testrealm@host.com',
-        'auth,auth-int',
-        'dcd98b7102dd2f0e8b11d0f600bfb0c093',
-        '5ccc069c403ebaf9f0171e9517f40e41'
-      ),
+      $this->digest,
       Authorizations::fromResponse($this->http->get('/'), 'user', new SecureString('pass'))
     );
   }
@@ -72,37 +78,17 @@ class DigestAuthTest extends \unittest\TestCase {
 
   #[@test]
   public function calculate_digest() {
-    $digest= new DigestAuthorization(
-      'testrealm@host.com',
-      'auth,auth-int',
-      'dcd98b7102dd2f0e8b11d0f600bfb0c093',
-      '5ccc069c403ebaf9f0171e9517f40e41'
-    );
-    $digest->cnonce('0a4f113b');
-    $digest->username('Mufasa');
-    $digest->password(new SecureString('Circle Of Life'));
-
     $req= new HttpRequest(new URL('http://example.com:80/dir/index.html'));
     $this->assertEquals(
       '6629fae49393a05397450978507c4ef1',
-      $digest->responseFor($req)
+      $this->digest->responseFor($req)
     );
   }
 
   #[@test]
   public function attach_adds_authorization_header() {
-    $digest= new DigestAuthorization(
-      'testrealm@host.com',
-      'auth,auth-int',
-      'dcd98b7102dd2f0e8b11d0f600bfb0c093',
-      '5ccc069c403ebaf9f0171e9517f40e41'
-    );
-    $digest->cnonce('0a4f113b');
-    $digest->username('Mufasa');
-    $digest->password(new SecureString('Circle Of Life'));
-
     $req= new HttpRequest(new URL('http://example.com:80/dir/index.html'));
-    $digest->authorize($req);
+    $this->digest->authorize($req);
 
     $this->assertEquals(
       "GET /dir/index.html HTTP/1.1\r\n".
