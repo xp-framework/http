@@ -48,7 +48,7 @@ class DigestAuthTest extends \unittest\TestCase {
 
     $this->assertEquals(
       new DigestAuthorization(
-        'testrealm@host',
+        'testrealm@host.com',
         'auth,auth-int',
         'dcd98b7102dd2f0e8b11d0f600bfb0c093',
         '5ccc069c403ebaf9f0171e9517f40e41'

@@ -29,7 +29,7 @@ class DigestAuthorization extends Header {
   }
 
   public function equals($o) {
-    if ($o instanceof self) return false;
+    if (!$o instanceof self) return false;
 
     return (
       $o->realm === $this->realm &&
@@ -42,7 +42,7 @@ class DigestAuthorization extends Header {
   public function toString() {
     $s= $this->getClassName().' ('.$this->hashCode().") {\n";
     foreach (['realm', 'qop', 'nonce', 'opaque', 'username'] as $attr) {
-      $s.= sprintf("  [ %8s ] %s\n", $attr, $this->{$attr});
+      $s.= sprintf("  [ %8s ] %s\n", $attr, \xp::stringOf($this->{$attr}));
     }
     return $s.="}\n";
   }
