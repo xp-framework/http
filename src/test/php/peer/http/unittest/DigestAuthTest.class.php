@@ -71,7 +71,7 @@ class DigestAuthTest extends \unittest\TestCase {
   }
 
   #[@test]
-  public function sign_request() {
+  public function calculate_digest() {
     $digest= new DigestAuthorization(
       'testrealm@host.com',
       'auth,auth-int',
@@ -86,6 +86,31 @@ class DigestAuthTest extends \unittest\TestCase {
     $this->assertEquals(
       '6629fae49393a05397450978507c4ef1',
       $digest->responseFor($req)
+    );
+  }
+
+  #[@test]
+  public function attach_adds_authorization_header() {
+    $digest= new DigestAuthorization(
+      'testrealm@host.com',
+      'auth,auth-int',
+      'dcd98b7102dd2f0e8b11d0f600bfb0c093',
+      '5ccc069c403ebaf9f0171e9517f40e41'
+    );
+    $digest->cnonce('0a4f113b');
+    $digest->username('Mufasa');
+    $digest->password(new SecureString('Circle Of Life'));
+
+    $req= new HttpRequest(new URL('http://example.com:80/dir/index.html'));
+    $digest->authorize($req);
+
+    $this->assertEquals(
+      "GET /dir/index.html HTTP/1.1\r\n".
+      "Connection: close\r\n".
+      "Host: example.com:80\r\n".
+      'Authorization: Digest username="Mufasa", realm="testrealm@host.com", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/dir/index.html", qop=auth", nc=00000001, cnonce="0a4f113b", response="6629fae49393a05397450978507c4ef1", opaque="5ccc069c403ebaf9f0171e9517f40e41"'.
+      "\r\n\r\n",
+      $req->getHeaderString()
     );
   }
 }

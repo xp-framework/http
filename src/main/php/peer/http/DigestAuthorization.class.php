@@ -5,6 +5,19 @@ use security\SecureString;
 use lang\IllegalStateException;
 use lang\MethodNotImplementedException;
 
+/**
+ * Digest Authorization header
+ *
+ * <quote>
+ * "HTTP/1.0", includes the specification for a Basic Access
+ * Authentication scheme. This scheme is not considered to be a secure
+ * method of user authentication (unless used in conjunction with some
+ * external secure system such as SSL), as the user name and
+ * password are passed over the network as cleartext.
+ * </quote>
+ *
+ * @see  rfc://2617
+ */
 class DigestAuthorization extends Header {
 
   /** server values */
@@ -46,7 +59,7 @@ class DigestAuthorization extends Header {
       throw new MethodNotImplementedException('Digest auth only supported via algo "md5".', 'digest-md5');
     }
 
-    $auth= new DigestAuthorization(
+    $auth= new self(
       $values['realm'],
       $values['qop'],
       $values['nonce'],
@@ -56,7 +69,6 @@ class DigestAuthorization extends Header {
     $auth->password($pass);
 
     return $auth;
-
   }
 
   public function username($u) {
@@ -76,6 +88,20 @@ class DigestAuthorization extends Header {
       $this->qop(),
       $this->ha2($request)
     ]));
+  }
+
+  public function authorize(HttpRequest $request) {
+    $request->setHeader('Authorization', new Header('Authorization', 'Digest '.implode(', ', [
+      'username="'.$this->username.'"',
+      'realm="'.$this->realm.'"',
+      'nonce="'.$this->nonce.'"',
+      'uri="'.$request->getUrl()->getPath().'"',
+      'qop='.$this->qop().'"',
+      'nc='.sprintf('%08x', $this->counter),
+      'cnonce="'.$this->cnonce.'"',
+      'response="'.$this->responseFor($request).'"',
+      'opaque="'.$this->opaque.'"'
+    ])));
   }
 
   private function ha1() {
