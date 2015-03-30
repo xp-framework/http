@@ -4,12 +4,20 @@ use peer\Header;
 use security\SecureString;
 
 class DigestAuthorization extends Header {
+
+  /** server values */
   private $realm;
   private $qop;
   private $nonce;
   private $opaque;
+
+  /** client credentials */
   private $username;
   private $password;
+
+  /** Internal state */
+  private $counter= 1;
+  private $cnonce;
 
   public function __construct($realm, $qop, $nonce, $opaque) {
     parent::__construct('Authorization', 'Digest');
@@ -18,6 +26,8 @@ class DigestAuthorization extends Header {
     $this->qop= $qop;
     $this->nonce= $nonce;
     $this->opaque= $opaque;
+
+    $this->cnonce();
   }
 
   public function username($u) {
@@ -26,6 +36,37 @@ class DigestAuthorization extends Header {
 
   public function password(SecureString $p) {
     $this->password= $p;
+  }
+
+  public function responseFor(HttpRequest $request) {
+    return md5(implode(':', [
+      $this->ha1(),
+      $this->nonce,
+      sprintf('%08x', $this->counter),
+      $this->cnonce,
+      $this->qop(),
+      $this->ha2($request)
+    ]));
+  }
+
+  private function ha1() {
+    return md5(implode(':', [$this->username, $this->realm, $this->password->getCharacters()]));
+  }
+
+  private function ha2($request) {
+    return md5(implode(':', [strtoupper($request->method), $request->getUrl()->getPath()]));
+  }
+
+  private function qop() {
+    return 'auth';
+  }
+
+  public function cnonce($c= null) {
+    if (null === $c) {
+      $c= substr(md5(uniqid(time())), 0, 8);
+    }
+
+    $this->cnonce= $c;
   }
 
   public function equals($o) {

@@ -44,8 +44,6 @@ class DigestAuthTest extends \unittest\TestCase {
       'opaque="5ccc069c403ebaf9f0171e9517f40e41"'."\r\n"))
     );
 
-    $da= Authorizations::fromResponse($this->http->get('/'), 'user', new SecureString('pass'));
-
     $this->assertEquals(
       new DigestAuthorization(
         'testrealm@host.com',
@@ -53,7 +51,26 @@ class DigestAuthTest extends \unittest\TestCase {
         'dcd98b7102dd2f0e8b11d0f600bfb0c093',
         '5ccc069c403ebaf9f0171e9517f40e41'
       ),
-      $da
+      Authorizations::fromResponse($this->http->get('/'), 'user', new SecureString('pass'))
+    );
+  }
+
+  #[@test]
+  public function sign_request() {
+    $digest= new DigestAuthorization(
+      'testrealm@host.com',
+      'auth,auth-int',
+      'dcd98b7102dd2f0e8b11d0f600bfb0c093',
+      '5ccc069c403ebaf9f0171e9517f40e41'
+    );
+    $digest->cnonce('0a4f113b');
+    $digest->username('Mufasa');
+    $digest->password(new SecureString('Circle Of Life'));
+
+    $req= new HttpRequest(new URL('http://example.com:80/dir/index.html'));
+    $this->assertEquals(
+      '6629fae49393a05397450978507c4ef1',
+      $digest->responseFor($req)
     );
   }
 
