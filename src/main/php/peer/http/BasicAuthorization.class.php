@@ -14,7 +14,6 @@ use security\SecureString;
  * password are passed over the network as cleartext.
  * </quote>
  *
- * @see  http://www.owasp.org/downloads/http_authentication.txt
  * @see  rfc://2617 
  */
 class BasicAuthorization extends Header {
