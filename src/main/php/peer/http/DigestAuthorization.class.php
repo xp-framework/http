@@ -131,17 +131,23 @@ class DigestAuthorization extends Header {
    * @param  peer.http.HttpRequest $request
    */
   public function sign(HttpRequest $request) {
-    $request->setHeader('Authorization', new Header('Authorization', 'Digest '.implode(', ', [
+    $url= $request->getUrl();
+    $parts= [
       'username="'.$this->username.'"',
       'realm="'.$this->realm.'"',
       'nonce="'.$this->nonce.'"',
-      'uri="'.$request->getUrl()->getPath().'"',
-      'qop='.$this->qop().'"',
+      'uri="'.$url->getPath().($url->hasParams() ? '?'.$url->getQuery() : '').'"',
+      'qop="'.$this->qop().'"',
       'nc='.sprintf('%08x', $this->counter),
       'cnonce="'.$this->cnonce.'"',
-      'response="'.$this->responseFor($request).'"',
-      'opaque="'.$this->opaque.'"'
-    ])));
+      'response="'.$this->responseFor($request).'"'
+    ];
+
+    if (sizeof($this->opaque)) {
+      $parts[]= 'opaque="'.$this->opaque.'"';
+    }
+
+    $request->setHeader('Authorization', new Header('Authorization', 'Digest '.implode(', ', $parts)));
 
     // Increase internal counter
     $this->counter++;
@@ -163,7 +169,11 @@ class DigestAuthorization extends Header {
    * @return string
    */
   private function ha2($request) {
-    return md5(implode(':', [strtoupper($request->method), $request->getUrl()->getPath()]));
+    $url= $request->getUrl();
+    return md5(implode(':', [
+      strtoupper($request->method),
+      $url->getPath().($url->hasParams() ? '?'.$url->getQuery() : '')
+    ]));
   }
 
   /**

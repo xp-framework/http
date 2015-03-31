@@ -113,4 +113,20 @@ class DigestAuthTest extends \unittest\TestCase {
       $req->getHeaderString()
     );
   }
+
+  #[@test]
+  public function digest_hashes_path() {
+    $this->assertNotEquals(
+      $this->digest->responseFor(new HttpRequest(new URL('http://example.com/dir/index.html'))),
+      $this->digest->responseFor(new HttpRequest(new URL('http://example.com/other/index.html')))
+    );
+  }
+
+  #[@test]
+  public function digest_hashes_querystring() {
+    $this->assertNotEquals(
+      $this->digest->responseFor(new HttpRequest(new URL('http://example.com/dir/index.html?one'))),
+      $this->digest->responseFor(new HttpRequest(new URL('http://example.com/dir/index.html?two')))
+    );
+  }
 }
