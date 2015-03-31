@@ -133,21 +133,29 @@ class DigestAuthorization extends Header {
   public function sign(HttpRequest $request) {
     $url= $request->getUrl();
     $parts= [
-      'username="'.$this->username.'"',
-      'realm="'.$this->realm.'"',
-      'nonce="'.$this->nonce.'"',
-      'uri="'.$url->getPath().($url->hasParams() ? '?'.$url->getQuery() : '').'"',
-      'qop="'.$this->qop().'"',
-      'nc='.sprintf('%08x', $this->counter),
-      'cnonce="'.$this->cnonce.'"',
-      'response="'.$this->responseFor($request).'"'
+      'username'  => $this->username,
+      'realm'     => $this->realm,
+      'nonce'     => $this->nonce,
+      'uri'       => $url->getPath().($url->hasParams() ? '?'.$url->getQuery() : ''),
+      'qop'       => $this->qop(),
+      'nc'        => sprintf('%08x', $this->counter),
+      'cnonce'    => $this->cnonce,
+      'response'  => $this->responseFor($request)
     ];
 
     if (sizeof($this->opaque)) {
-      $parts[]= 'opaque="'.$this->opaque.'"';
+      $parts['opaque']= $this->opaque;
     }
 
-    $request->setHeader('Authorization', new Header('Authorization', 'Digest '.implode(', ', $parts)));
+    $digest= '';
+    foreach ($parts as $n => $v) {
+      $digest.= (!ctype_digit($v)
+        ? $n.'="'.$v.'", '
+        : $n.'='.$v.', '
+      );
+    }
+
+    $request->setHeader('Authorization', new Header('Authorization', 'Digest '.rtrim($digest, ', ')));
 
     // Increase internal counter
     $this->counter++;

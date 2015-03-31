@@ -11,6 +11,10 @@ use io\streams\MemoryInputStream;
 use lang\MethodNotImplementedException;
 
 class DigestAuthTest extends \unittest\TestCase {
+  const USER = 'Mufasa';
+  const PASS = 'Circle Of Life';
+  const CNONCE = '0a4f113b';
+
   private $http= null;
   private $digest= null;
 
@@ -30,10 +34,9 @@ class DigestAuthTest extends \unittest\TestCase {
       'dcd98b7102dd2f0e8b11d0f600bfb0c093',
       '5ccc069c403ebaf9f0171e9517f40e41'
     );
-    $this->digest->cnonce('0a4f113b');
-    $this->digest->username('Mufasa');
-    $this->digest->password(new SecureString('Circle Of Life'));
-
+    $this->digest->cnonce(self::CNONCE);
+    $this->digest->username(self::USER);
+    $this->digest->password(new SecureString(self::PASS));
   }
 
   #[@test]
@@ -98,8 +101,8 @@ class DigestAuthTest extends \unittest\TestCase {
     $res= $this->http->send($req);
 
     if (HttpConstants::STATUS_AUTHORIZATION_REQUIRED === $res->getStatusCode()) {
-      $digest= Authorizations::fromResponse($res, 'Mufasa', new SecureString('Circle Of Life'));
-      $digest->cnonce('0a4f113b');
+      $digest= Authorizations::fromResponse($res, self::USER, new SecureString(self::PASS));
+      $digest->cnonce(self::CNONCE);
       $req= $this->http->create($req);
       $digest->sign($req);
     }
