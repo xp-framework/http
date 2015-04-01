@@ -1,5 +1,6 @@
 <?php namespace peer\http;
 
+use lang\Object;
 use peer\Header;
 use security\SecureString;
 use lang\IllegalStateException;
@@ -19,7 +20,7 @@ use lang\MethodNotImplementedException;
  * @see  rfc://2617
  * @see  https://en.wikipedia.org/wiki/Digest_access_authentication
  */
-class DigestAuthorization extends Header {
+class DigestAuthorization extends Object {
 
   /** server values */
   private $realm;
@@ -44,8 +45,6 @@ class DigestAuthorization extends Header {
    * @param string $opaque
    */
   public function __construct($realm, $qop, $nonce, $opaque) {
-    parent::__construct('Authorization', 'Digest');
-
     $this->realm= $realm;
     $this->qop= $qop;
     $this->nonce= $nonce;
@@ -113,34 +112,27 @@ class DigestAuthorization extends Header {
    * @param  peer.http.HttpRequest $request
    * @return string
    */
-  public function responseFor(HttpRequest $request) {
+  public function responseFor($method, $requestUri) {
     return md5(implode(':', [
       $this->ha1(),
       $this->nonce,
       sprintf('%08x', $this->counter),
       $this->cnonce,
       $this->qop(),
-      $this->ha2($request)
+      $this->ha2($method, $requestUri)
     ]));
   }
 
-  /**
-   * Sign the given request; ie. add an Authorization: Digest header
-   * and increase the internal nonce counter.
-   *
-   * @param  peer.http.HttpRequest $request
-   */
-  public function sign(HttpRequest $request) {
-    $url= $request->getUrl();
+  public function getValueRepresentation($method, $requestUri) {
     $parts= [
       'username'  => $this->username,
       'realm'     => $this->realm,
       'nonce'     => $this->nonce,
-      'uri'       => $url->getPath().($url->hasParams() ? '?'.$url->getQuery() : ''),
+      'uri'       => $requestUri,
       'qop'       => $this->qop(),
       'nc'        => sprintf('%08x', $this->counter),
       'cnonce'    => $this->cnonce,
-      'response'  => $this->responseFor($request)
+      'response'  => $this->responseFor($method, $requestUri)
     ];
 
     if (sizeof($this->opaque)) {
@@ -155,7 +147,23 @@ class DigestAuthorization extends Header {
       );
     }
 
-    $request->setHeader('Authorization', new Header('Authorization', 'Digest '.rtrim($digest, ', ')));
+    return rtrim($digest, ', ');
+  }
+
+  /**
+   * Sign the given request; ie. add an Authorization: Digest header
+   * and increase the internal nonce counter.
+   *
+   * @param  peer.http.HttpRequest $request
+   */
+  public function sign(HttpRequest $request) {
+    $url= $request->getUrl();
+    $request->setHeader('Authorization', new Header(
+      'Authorization',
+      'Digest '.$this->getValueRepresentation(
+        $request->method,
+        $url->getPath().($url->hasParams() ? '?'.$url->getQuery() : '')
+    )));
 
     // Increase internal counter
     $this->counter++;
@@ -173,15 +181,12 @@ class DigestAuthorization extends Header {
   /**
    * Create ha2 value
    *
-   * @param  peer.http.HttpRequest $request
+   * @param  string $method
+   * @param  string $requestUri
    * @return string
    */
-  private function ha2($request) {
-    $url= $request->getUrl();
-    return md5(implode(':', [
-      strtoupper($request->method),
-      $url->getPath().($url->hasParams() ? '?'.$url->getQuery() : '')
-    ]));
+  private function ha2($method, $requestUri) {
+    return md5(implode(':', [strtoupper($method), $requestUri]));
   }
 
   /**

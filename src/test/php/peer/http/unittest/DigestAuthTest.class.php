@@ -73,10 +73,9 @@ class DigestAuthTest extends \unittest\TestCase {
 
   #[@test]
   public function calculate_digest() {
-    $req= new HttpRequest(new URL('http://example.com:80/dir/index.html'));
     $this->assertEquals(
       '6629fae49393a05397450978507c4ef1',
-      $this->digest->responseFor($req)
+      $this->digest->responseFor('GET', '/dir/index.html')
     );
   }
 
@@ -120,8 +119,8 @@ class DigestAuthTest extends \unittest\TestCase {
   #[@test]
   public function digest_hashes_path() {
     $this->assertNotEquals(
-      $this->digest->responseFor(new HttpRequest(new URL('http://example.com/dir/index.html'))),
-      $this->digest->responseFor(new HttpRequest(new URL('http://example.com/other/index.html')))
+      $this->digest->responseFor('GET', '/dir/index.html'),
+      $this->digest->responseFor('GET', '/other/index.html')
     );
   }
 
