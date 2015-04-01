@@ -127,8 +127,34 @@ class DigestAuthTest extends \unittest\TestCase {
   #[@test]
   public function digest_hashes_querystring() {
     $this->assertNotEquals(
-      $this->digest->responseFor(new HttpRequest(new URL('http://example.com/dir/index.html?one'))),
-      $this->digest->responseFor(new HttpRequest(new URL('http://example.com/dir/index.html?two')))
+      $this->digest->responseFor('GET', '/dir/index.html?one'),
+      $this->digest->responseFor('GET', '/dir/index.html?two')
+    );
+  }
+
+  #[@test]
+  public function opaque_is_optional() {
+    $this->http->setResponse(new HttpResponse(new MemoryInputStream(
+      "HTTP/1.0 401 Unauthorized\r\n".
+      'WWW-Authenticate: Digest realm="testrealm@host.com", '.
+      'qop="auth,auth-int", '.
+      'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093"'."\r\n"
+    )));
+
+    $digest= DigestAuthorization::fromChallenge(
+      'WWW-Authenticate: Digest realm="testrealm@host.com", '.
+      'qop="auth,auth-int", '.
+      'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093"',
+      self::USER,
+      new SecureString(self::PASS)
+    );
+    $digest->cnonce(self::CNONCE);
+
+    $this->assertEquals(
+      sprintf('username="Mufasa", realm="testrealm@host.com", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/", qop="auth", nc=00000001, cnonce="%s", response="%s"',
+        self::CNONCE, $digest->responseFor('GET', '/')
+      ),
+      $digest->getValueRepresentation('GET', '/')
     );
   }
 }

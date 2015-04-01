@@ -67,7 +67,10 @@ class DigestAuthorization extends Object {
       throw new IllegalStateException('Invalid WWW-Authenticate line');
     }
 
-    $values= ['algorithm' => 'md5'];
+    $values= [
+      'algorithm' => 'md5',
+      'opaque'    => null
+    ];
     foreach ($matches as $m) {
       $values[$m[2]]= trim($m[3], '"');
     }
