@@ -134,13 +134,6 @@ class DigestAuthTest extends \unittest\TestCase {
 
   #[@test]
   public function opaque_is_optional() {
-    $this->http->setResponse(new HttpResponse(new MemoryInputStream(
-      "HTTP/1.0 401 Unauthorized\r\n".
-      'WWW-Authenticate: Digest realm="testrealm@host.com", '.
-      'qop="auth,auth-int", '.
-      'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093"'."\r\n"
-    )));
-
     $digest= DigestAuthorization::fromChallenge(
       'WWW-Authenticate: Digest realm="testrealm@host.com", '.
       'qop="auth,auth-int", '.
@@ -155,6 +148,31 @@ class DigestAuthTest extends \unittest\TestCase {
         self::CNONCE, $digest->responseFor('GET', '/')
       ),
       $digest->getValueRepresentation('GET', '/')
+    );
+  }
+
+  #[@test]
+  public function md5_is_supported_algorithm() {
+    $digest= DigestAuthorization::fromChallenge(
+      'WWW-Authenticate: Digest realm="testrealm@host.com", '.
+      'qop="auth,auth-int", '.
+      'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", '.
+      'algorithm="md5"',
+      self::USER,
+      new SecureString(self::PASS)
+    );
+  }
+
+
+  #[@test, @expect('lang.MethodNotImplementedException')]
+  public function only_md5_is_supported_algorithm() {
+    $digest= DigestAuthorization::fromChallenge(
+      'WWW-Authenticate: Digest realm="testrealm@host.com", '.
+      'qop="auth,auth-int", '.
+      'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", '.
+      'algorithm="sha1"',
+      self::USER,
+      new SecureString(self::PASS)
     );
   }
 }
