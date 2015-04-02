@@ -22,17 +22,17 @@ use lang\MethodNotImplementedException;
  */
 class DigestAuthorization extends Object {
 
-  /** server values */
+  /* Server values */
   private $realm;
   private $qop;
   private $nonce;
   private $opaque;
 
-  /** client credentials */
+  /* Client credentials */
   private $username;
   private $password;
 
-  /** Internal state */
+  /* Internal state */
   private $counter= 1;
   private $cnonce;
 
@@ -115,7 +115,7 @@ class DigestAuthorization extends Object {
    * @param  peer.http.HttpRequest $request
    * @return string
    */
-  public function responseFor($method, $requestUri) {
+  public function hashFor($method, $requestUri) {
     return md5(implode(':', [
       $this->ha1(),
       $this->nonce,
@@ -135,7 +135,7 @@ class DigestAuthorization extends Object {
       'qop'       => $this->qop(),
       'nc'        => sprintf('%08x', $this->counter),
       'cnonce'    => $this->cnonce,
-      'response'  => $this->responseFor($method, $requestUri)
+      'response'  => $this->hashFor($method, $requestUri)
     ];
 
     if (sizeof($this->opaque)) {

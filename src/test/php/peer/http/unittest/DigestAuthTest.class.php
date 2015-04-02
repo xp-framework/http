@@ -75,7 +75,7 @@ class DigestAuthTest extends \unittest\TestCase {
   public function calculate_digest() {
     $this->assertEquals(
       '6629fae49393a05397450978507c4ef1',
-      $this->digest->responseFor('GET', '/dir/index.html')
+      $this->digest->hashFor('GET', '/dir/index.html')
     );
   }
 
@@ -119,16 +119,16 @@ class DigestAuthTest extends \unittest\TestCase {
   #[@test]
   public function digest_hashes_path() {
     $this->assertNotEquals(
-      $this->digest->responseFor('GET', '/dir/index.html'),
-      $this->digest->responseFor('GET', '/other/index.html')
+      $this->digest->hashFor('GET', '/dir/index.html'),
+      $this->digest->hashFor('GET', '/other/index.html')
     );
   }
 
   #[@test]
   public function digest_hashes_querystring() {
     $this->assertNotEquals(
-      $this->digest->responseFor('GET', '/dir/index.html?one'),
-      $this->digest->responseFor('GET', '/dir/index.html?two')
+      $this->digest->hashFor('GET', '/dir/index.html?one'),
+      $this->digest->hashFor('GET', '/dir/index.html?two')
     );
   }
 
@@ -145,7 +145,7 @@ class DigestAuthTest extends \unittest\TestCase {
 
     $this->assertEquals(
       sprintf('username="Mufasa", realm="testrealm@host.com", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/", qop="auth", nc=00000001, cnonce="%s", response="%s"',
-        self::CNONCE, $digest->responseFor('GET', '/')
+        self::CNONCE, $digest->hashFor('GET', '/')
       ),
       $digest->getValueRepresentation('GET', '/')
     );
