@@ -1,6 +1,7 @@
 <?php namespace peer\http;
 
 use peer\Header;
+use security\SecureString;
 
 /**
  * Basic Authorization header
@@ -25,10 +26,15 @@ class BasicAuthorization extends Header {
    * Constructor
    *
    * @param   string $user
-   * @param   string$ pass
+   * @param   var $pass security.SecureString or plain string
    */
   public function __construct($user, $pass) {
     $this->user= $user;
+
+    if (!$pass instanceof SecureString) {
+      $pass= new SecureString($pass);
+    }
+
     $this->pass= $pass;
     parent::__construct('Authorization', 'Basic');
   }
@@ -61,7 +67,7 @@ class BasicAuthorization extends Header {
   public static function fromValue($value) {
     if (!preg_match('/^Basic (.*)$/', $value, $matches)) return false;
     list($user, $password)= explode(':', base64_decode($matches[1]), 2);
-    return new self($user, $password);
+    return new self($user, new SecureString($password));
   }
   
   /**
@@ -70,6 +76,6 @@ class BasicAuthorization extends Header {
    * @return  string value
    */
   public function getValueRepresentation() {
-    return $this->value.' '.base64_encode($this->user.':'.$this->pass);
+    return $this->value.' '.base64_encode($this->user.':'.$this->pass->getCharacters());
   }
 }
