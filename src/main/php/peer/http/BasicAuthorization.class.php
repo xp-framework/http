@@ -60,7 +60,7 @@ class BasicAuthorization extends Header {
    * Returns a BasicAuthorization object from header value; returns
    * FALSE on error.
    *
-   * @param   stirng $value The header value
+   * @param   string $value The header value
    * @return  peer.http.BasicAuthorization
    */    
   public static function fromValue($value) {

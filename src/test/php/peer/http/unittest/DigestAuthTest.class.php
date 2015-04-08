@@ -34,7 +34,7 @@ class DigestAuthTest extends \unittest\TestCase {
       'dcd98b7102dd2f0e8b11d0f600bfb0c093',
       '5ccc069c403ebaf9f0171e9517f40e41'
     );
-    $this->digest->cnonce(self::CNONCE);
+    $this->digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
     $this->digest->username(self::USER);
     $this->digest->password(new SecureString(self::PASS));
   }
@@ -107,7 +107,7 @@ class DigestAuthTest extends \unittest\TestCase {
 
     if (HttpConstants::STATUS_AUTHORIZATION_REQUIRED === $res->getStatusCode()) {
       $digest= Authorizations::fromResponse($res, self::USER, new SecureString(self::PASS));
-      $digest->cnonce(self::CNONCE);
+      $digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
       $req= $this->http->create($req);
       $digest->sign($req);
     }
@@ -147,7 +147,7 @@ class DigestAuthTest extends \unittest\TestCase {
       self::USER,
       new SecureString(self::PASS)
     );
-    $digest->cnonce(self::CNONCE);
+    $digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
 
     $this->assertEquals(
       sprintf('username="Mufasa", realm="testrealm@host.com", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/", qop="auth", nc=00000001, cnonce="%s", response="%s"',

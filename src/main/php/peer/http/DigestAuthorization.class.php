@@ -23,18 +23,18 @@ use lang\MethodNotImplementedException;
 class DigestAuthorization extends Object {
 
   /* Server values */
-  private $realm;
-  private $qop;
-  private $nonce;
-  private $opaque;
+  private $realm;       // Realm
+  private $qop;         // Quality of protection
+  private $nonce;       // Server nonce
+  private $opaque;      // Opaque - optional
 
   /* Client credentials */
   private $username;
   private $password;
 
   /* Internal state */
-  private $counter= 1;
-  private $cnonce;
+  private $counter= 1;  // Client request counter
+  private $cnonce;      // Client nonce
 
   /**
    * Constructor
@@ -50,6 +50,7 @@ class DigestAuthorization extends Object {
     $this->nonce= $nonce;
     $this->opaque= $opaque;
 
+    // Initialize client nonce
     $this->cnonce();
   }
 
