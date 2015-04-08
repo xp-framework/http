@@ -39,6 +39,12 @@ class DigestAuthTest extends \unittest\TestCase {
     $this->digest->password(new SecureString(self::PASS));
   }
 
+  private function assertStringContains($needle, $haystack) {
+    if (false === strpos($haystack, $needle)) {
+      $this->fail('String not contained.', $haystack, $needle);
+    }
+  }
+
   #[@test]
   public function server_indicates_digest_auth() {
     $this->assertEquals(HttpConstants::STATUS_AUTHORIZATION_REQUIRED, $this->http->get('/')->getStatusCode());
@@ -173,6 +179,56 @@ class DigestAuthTest extends \unittest\TestCase {
       'algorithm="sha1"',
       self::USER,
       new SecureString(self::PASS)
+    );
+  }
+
+  #[@test]
+  public function sign_includes_request_params() {
+    $request= new HttpRequest(new URL('http://example.com/foo'));
+    $request->setParameter('param', 'value');
+
+    $this->digest->sign($request);
+    $this->assertStringContains(
+      'uri="/foo?param=value", ',
+      $request->getHeaderString()
+    );
+  }
+
+  #[@test]
+  public function sign_includes_url_params() {
+    $request= new HttpRequest(new URL('http://example.com/foo'));
+    $request->getUrl()->setParam('param', 'value');
+
+    $this->digest->sign($request);
+    $this->assertStringContains(
+      'uri="/foo?param=value", ',
+      $request->getHeaderString()
+    );
+  }
+
+  #[@test]
+  public function sign_merges_url_params() {
+    $request= new HttpRequest(new URL('http://example.com/foo'));
+    $request->setParameter('param', 'value');
+    $request->getUrl()->setParam('foo', 'bar');
+
+    $this->digest->sign($request);
+    $this->assertStringContains(
+      'uri="/foo?param=value&foo=bar", ',
+      $request->getHeaderString()
+    );
+  }
+
+  #[@test]
+  public function sign_merges_url_params_but_parameters_are_unique() {
+    $request= new HttpRequest(new URL('http://example.com/foo'));
+    $request->setParameter('param', 'value');
+    $request->getUrl()->setParam('param', 'bar');
+
+    $this->digest->sign($request);
+    $this->assertStringContains(
+      'uri="/foo?param=bar", ',
+      $request->getHeaderString()
     );
   }
 }

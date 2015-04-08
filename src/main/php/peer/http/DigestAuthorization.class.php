@@ -160,12 +160,27 @@ class DigestAuthorization extends Object {
    * @param  peer.http.HttpRequest $request
    */
   public function sign(HttpRequest $request) {
-    $url= $request->getUrl();
+    $url= $request->target;
+
+    // FIXME: This is not unittested:
+    $params= [];
+    if (is_array($request->parameters)) $params= array_merge($params, $request->parameters);
+
+    if ($request->getUrl()->hasParams()) $params= array_merge($params, $request->getUrl()->getParams());
+
+    if (sizeof($params)) {
+      $url.= '?';
+      foreach ($params as $k => $v) {
+        $url.= $k.'='.$v.'&';
+      }
+      $url= substr($url, 0, -1);
+    }
+
     $request->setHeader('Authorization', new Header(
       'Authorization',
       'Digest '.$this->getValueRepresentation(
         $request->method,
-        $url->getPath().($url->hasParams() ? '?'.$url->getQuery() : '')
+        $url
     )));
 
     // Increase internal counter
