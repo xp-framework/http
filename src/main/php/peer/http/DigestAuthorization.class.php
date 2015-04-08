@@ -20,17 +20,13 @@ use lang\MethodNotImplementedException;
  * @see  rfc://2617
  * @see  https://en.wikipedia.org/wiki/Digest_access_authentication
  */
-class DigestAuthorization extends Object {
+class DigestAuthorization extends Authorization {
 
   /* Server values */
   private $realm;       // Realm
   private $qop;         // Quality of protection
   private $nonce;       // Server nonce
   private $opaque;      // Opaque - optional
-
-  /* Client credentials */
-  private $username;
-  private $password;
 
   /* Internal state */
   private $counter= 1;  // Client request counter
@@ -63,7 +59,7 @@ class DigestAuthorization extends Object {
    * @param  security.SecureString $pass
    * @return peer.http.DigestAuthorization
    */
-  public static function fromChallenge($header, $user, SecureString $pass) {
+  public static function fromChallenge($header, $user, $pass) {
     if (!preg_match_all('#(([a-z]+)=("[^"$]+)")#m', $header, $matches, PREG_SET_ORDER)) {
       throw new IllegalStateException('Invalid WWW-Authenticate line');
     }
@@ -86,32 +82,14 @@ class DigestAuthorization extends Object {
       $values['nonce'],
       $values['opaque']
     );
-    $auth->username($user);
-    $auth->password($pass);
+    $auth->setUsername($user);
+    $auth->setPassword($pass);
 
     return $auth;
   }
 
   /**
-   * Set username
-   *
-   * @param  string $u
-   */
-  public function username($u) {
-    $this->username= $u;
-  }
-
-  /**
-   * Set password
-   *
-   * @param  security.SecureString $p
-   */
-  public function password(SecureString $p) {
-    $this->password= $p;
-  }
-
-  /**
-   * Calculate the response code for the given request#
+   * Calculate the response code for the given request
    *
    * @param  peer.http.HttpRequest $request
    * @return string
@@ -215,7 +193,7 @@ class DigestAuthorization extends Object {
   private function qop() {
     $qop= explode(',', $this->qop);
     if (!in_array('auth', $qop)) {
-      throw new MethodNotImplementedException('QoP not given or not supported (required: "auth", have '.\xp::stringOf($this->qop).').');
+      throw new MethodNotImplementedException('QoP not given or not supported (supported: "auth", have: '.\xp::stringOf($this->qop).').');
     }
 
     return 'auth';

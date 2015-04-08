@@ -35,8 +35,8 @@ class DigestAuthTest extends \unittest\TestCase {
       '5ccc069c403ebaf9f0171e9517f40e41'
     );
     $this->digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
-    $this->digest->username(self::USER);
-    $this->digest->password(new SecureString(self::PASS));
+    $this->digest->setUsername(self::USER);
+    $this->digest->setPassword(new SecureString(self::PASS));
   }
 
   private function assertStringContains($needle, $haystack) {

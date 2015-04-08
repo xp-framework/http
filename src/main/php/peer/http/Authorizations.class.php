@@ -1,5 +1,6 @@
 <?php namespace peer\http;
 
+use lang\Object;
 use security\SecureString;
 use lang\IllegalStateException;
 
@@ -7,7 +8,8 @@ use lang\IllegalStateException;
  * Authorization factory class for HTTP
  *
  */
-class Authorizations extends \lang\Object {
+class Authorizations extends Object {
+  const AUTH_HEADER= 'WWW-Authenticate';
 
   /**
    * Create authorization from challenge data from given
@@ -16,7 +18,7 @@ class Authorizations extends \lang\Object {
    * @param  peer.http.HttpResponse $response
    * @param  string $user
    * @param  security.SecureString $pass
-   * @return var peer.http.BasicAuthorization or peer.http.DigestAuthentication
+   * @return peer.http.Authorization
    * @throws lang.IllegalStateException If request hadn't challenged
    * @throws lang.IllegalStateException If HTTP status not equal 401
    * @throws lang.IllegalStateException If Unknown authorization type was used
@@ -26,11 +28,11 @@ class Authorizations extends \lang\Object {
       throw new IllegalStateException('Request had not been rejected, will not create authorization.');
     }
 
-    if (1 != sizeof($response->header('WWW-Authenticate'))) {
+    if (1 != sizeof($response->header(self::AUTH_HEADER))) {
       throw new IllegalStateException('No authentication type indicated.');
     }
 
-    $header= $response->header('WWW-Authenticate')[0];
+    $header= $response->header(self::AUTH_HEADER)[0];
     switch (true) {
       case 'Digest ' === substr($header, 0, strlen('Digest ')): {
         return DigestAuthorization::fromChallenge($header, $user, $pass);
