@@ -6,6 +6,7 @@ use peer\http\HttpProxy;
 use peer\http\HttpRequest;
 use peer\http\HttpConstants;
 use peer\http\RequestData;
+use peer\http\BasicAuthorization;
 use util\log\LogCategory;
 use util\log\BufferedAppender;
 use util\log\layout\PatternLayout;
@@ -129,4 +130,46 @@ class HttpConnectionTest extends TestCase {
   public function can_force_direct_connection() {
     $this->fixture->setProxy(HttpProxy::NONE);
   }
+
+  #[@test]
+  public function can_add_authorization_as_header() {
+    $req= $this->fixture->create(new HttpRequest());
+    $req->setHeader('Authorization', new BasicAuthorization('user', 'pass'));
+
+    $this->assertEquals(
+      "GET /path/of/file HTTP/1.1\r\n".
+      "Connection: close\r\n".
+      "Host: example.com:80\r\n".
+      "Authorization: Basic dXNlcjpwYXNz\r\n\r\n",
+      $req->getHeaderString()
+    );
+  }
+
+  #[@test]
+  public function can_add_authorization_as_header_in_get() {
+    $this->fixture->get([], [new BasicAuthorization('user', 'pass')]);
+
+    $this->assertEquals(
+      "GET /path/of/file HTTP/1.1\r\n".
+      "Connection: close\r\n".
+      "Host: example.com:80\r\n".
+      "Authorization: Basic dXNlcjpwYXNz\r\n\r\n",
+      $this->fixture->lastRequest()
+    );
+  }
+
+  #[@test]
+  public function can_add_authorization_within_url() {
+    $conn= new MockHttpConnection('http://user:pass@example.com/');
+    $conn->get();
+
+    $this->assertEquals(
+      "GET / HTTP/1.1\r\n".
+      "Connection: close\r\n".
+      "Authorization: Basic dXNlcjpwYXNz\r\n".
+      "Host: example.com\r\n\r\n",
+      $conn->lastRequest()
+    );
+  }
+
 }

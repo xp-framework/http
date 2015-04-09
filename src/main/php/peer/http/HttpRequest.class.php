@@ -2,6 +2,8 @@
 
 use peer\URL;
 use peer\Header;
+use peer\http\BasicAuthorization;
+use security\SecureString;
 
 /**
  * Wrap HTTP/1.0 and HTTP/1.1 requests (used internally by the HttpConnection
@@ -37,7 +39,7 @@ class HttpRequest extends \lang\Object {
   public function setUrl(URL $url) {
     $this->url= $url;
     if ($url->getUser() && $url->getPassword()) {
-      $this->headers['Authorization']= array('Basic '.base64_encode($url->getUser().':'.$url->getPassword()));
+      $this->setHeader('Authorization', new BasicAuthorization($url->getUser(), new SecureString($url->getPassword())));
     }
     $port= $this->url->getPort(-1);
     $this->headers['Host']= array($this->url->getHost().(-1 == $port ? '' : ':'.$port));
@@ -113,7 +115,13 @@ class HttpRequest extends \lang\Object {
     if (is_array($v)) {
       $this->headers[$k]= $v;
     } else {
-      $this->headers[$k]= array($v);
+
+      // Handle special BC case when eg. BasicAuthorization instance being passed
+      if ($v instanceof Authorization) {
+        $v->sign($this);
+      } else {
+        $this->headers[$k]= array($v);
+      }
     }
   }
 
