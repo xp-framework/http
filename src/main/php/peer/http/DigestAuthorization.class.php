@@ -129,7 +129,7 @@ class DigestAuthorization extends Authorization {
       );
     }
 
-    return rtrim($digest, ', ');
+    return 'Digest '.rtrim($digest, ', ');
   }
 
   /**
@@ -141,10 +141,8 @@ class DigestAuthorization extends Authorization {
   public function sign(HttpRequest $request) {
     $url= $request->target;
 
-    // FIXME: This is not unittested:
     $params= [];
     if (is_array($request->parameters)) $params= array_merge($params, $request->parameters);
-
     if ($request->getUrl()->hasParams()) $params= array_merge($params, $request->getUrl()->getParams());
 
     if (sizeof($params)) {
@@ -157,10 +155,8 @@ class DigestAuthorization extends Authorization {
 
     $request->setHeader('Authorization', new Header(
       'Authorization',
-      'Digest '.$this->getValueRepresentation(
-        $request->method,
-        $url
-    )));
+      $this->getValueRepresentation($request->method, $url)
+    ));
 
     // Increase internal counter
     $this->counter++;

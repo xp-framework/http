@@ -34,6 +34,9 @@ class BasicAuthorization extends Authorization {
       $this->setPassword($pass);
     }
   }
+
+  /** @return string */
+  public function getUser() { return $this->user; }
   
   /**
    * Returns a BasicAuthorization object from header value; returns

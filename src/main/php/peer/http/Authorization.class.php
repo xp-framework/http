@@ -8,32 +8,16 @@ abstract class Authorization extends Object {
   protected $password;
 
   /** @return string */
-  public function getUsername() {
-    return $this->username;
-  }
+  public function username() { return $this->username; }
 
-  /**
-   * Set user
-   * 
-   * @param string $u
-   */
-  public function setUsername($u) {
-    $this->username= $u;
-  }
+  /** @param string u */
+  public function setUsername($u) { $this->username= $u; }
   
   /** @return security.SecureString */
-  public function getPassword() {
-    return $this->password;
-  }
+  public function password() { return $this->password; }
 
-  /**
-   * Set password
-   * 
-   * @param security.SecureString $p
-   */
-  public function setPassword(SecureString $p) {
-    $this->password= $p;
-  }
+  /** @param security.SecureString p */
+  public function setPassword(SecureString $p) { $this->password= $p; }
 
   /**
    * Sign HTTP request

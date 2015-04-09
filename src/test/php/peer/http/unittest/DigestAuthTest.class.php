@@ -150,7 +150,7 @@ class DigestAuthTest extends \unittest\TestCase {
     $digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
 
     $this->assertEquals(
-      sprintf('username="Mufasa", realm="testrealm@host.com", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/", qop="auth", nc=00000001, cnonce="%s", response="%s"',
+      sprintf('Digest username="Mufasa", realm="testrealm@host.com", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/", qop="auth", nc=00000001, cnonce="%s", response="%s"',
         self::CNONCE, $digest->hashFor('GET', '/')
       ),
       $digest->getValueRepresentation('GET', '/')
