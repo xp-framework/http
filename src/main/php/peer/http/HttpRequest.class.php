@@ -163,7 +163,7 @@ class HttpRequest extends \lang\Object {
     // Which HTTP method? GET and HEAD use query string, POST etc. use
     // body for passing parameters
     switch ($this->method) {
-      case HttpConstants::HEAD: case HttpConstants::GET: case HttpConstants::DELETE: case HttpConstants::OPTIONS:
+      case HttpConstants::HEAD: case HttpConstants::GET: case HttpConstants::OPTIONS:
         if (null !== $this->url->getQuery()) {
           $target.= '?'.$this->url->getQuery().(empty($query) ? '' : $query);
         } else {
@@ -171,7 +171,7 @@ class HttpRequest extends \lang\Object {
         }
         break;
 
-      case HttpConstants::POST: case HttpConstants::PUT: case HttpConstants::TRACE: default:
+      case HttpConstants::POST: case HttpConstants::PUT: case HttpConstants::DELETE: case HttpConstants::TRACE: default:
         if ($withBody) $body= substr($query, 1);
         if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
         $this->headers['Content-Length']= array(max(0, strlen($query)- 1));
