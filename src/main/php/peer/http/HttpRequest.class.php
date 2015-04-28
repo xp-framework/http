@@ -142,10 +142,19 @@ class HttpRequest extends \lang\Object {
    * @param   bool withBody
    */
   protected function getPayload($withBody) {
-   if ($this->parameters instanceof RequestData) {
+    static $params= [
+      HttpConstants::HEAD    => true,
+      HttpConstants::GET     => true,
+      HttpConstants::DELETE  => true,
+      HttpConstants::OPTIONS => true
+    ];
+
+    if ($this->parameters instanceof RequestData) {
       $this->addHeaders($this->parameters->getHeaders());
       $query= '&'.$this->parameters->getData();
+      $useParams= false;
     } else {
+      $useParams= isset($params[$this->method]);
       $query= '';
       foreach ($this->parameters as $name => $value) {
         if (is_array($value)) {
@@ -160,25 +169,19 @@ class HttpRequest extends \lang\Object {
     $target= $this->target;
     $body= '';
 
-    // Which HTTP method? GET and HEAD use query string, POST etc. use
-    // body for passing parameters
-    switch ($this->method) {
-      case HttpConstants::HEAD: case HttpConstants::GET: case HttpConstants::DELETE: case HttpConstants::OPTIONS:
-        if (null !== $this->url->getQuery()) {
-          $target.= '?'.$this->url->getQuery().(empty($query) ? '' : $query);
-        } else {
-          $target.= empty($query) ? '' : '?'.substr($query, 1);
-        }
-        break;
-
-      case HttpConstants::POST: case HttpConstants::PUT: case HttpConstants::TRACE: default:
-        if ($withBody) $body= substr($query, 1);
-        if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
-        $this->headers['Content-Length']= array(max(0, strlen($query)- 1));
-        if (empty($this->headers['Content-Type'])) {
-          $this->headers['Content-Type']= array('application/x-www-form-urlencoded');
-        }
-        break;
+    if ($useParams) {
+      if (null !== $this->url->getQuery()) {
+        $target.= '?'.$this->url->getQuery().(empty($query) ? '' : $query);
+      } else {
+        $target.= empty($query) ? '' : '?'.substr($query, 1);
+      }
+    } else {
+      if ($withBody) $body= substr($query, 1);
+      if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
+      $this->headers['Content-Length']= array(max(0, strlen($query)- 1));
+      if (empty($this->headers['Content-Type'])) {
+        $this->headers['Content-Type']= array('application/x-www-form-urlencoded');
+      }
     }
 
     $request= sprintf(

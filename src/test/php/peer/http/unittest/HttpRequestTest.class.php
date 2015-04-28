@@ -1,6 +1,7 @@
 <?php namespace peer\http\unittest;
 
 use peer\URL;
+use peer\Header;
 use peer\http\RequestData;
 use peer\http\FormRequestData;
 use peer\http\FileUpload;
@@ -101,7 +102,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function get_url_with_empty_array_parameters() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
-    $r->setParameters(array());
+    $r->setParameters([]);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
@@ -130,24 +131,13 @@ class HttpRequestTest extends \unittest\TestCase {
   }
 
   #[@test]
-  public function get_url_with_RequestData_parameters() {
-    $r= new HttpRequest(new URL('http://example.com/'));
-    $r->setMethod(HttpConstants::GET);
-    $r->setParameters(new RequestData('a=b&c=d'));
-    $this->assertEquals(
-      "GET /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
-      $r->getRequestString()
-    );
-  }
-
-  #[@test]
   public function post_url_with_RequestData_parameters() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
-    $r->setParameters(new FormRequestData(array(
+    $r->setParameters(new FormRequestData([
       new FormData('key', 'value'),
       new FormData('xml', '<foo/>', 'text/xml')
-    )));
+    ]));
 
     // Fetch randomly generated boundary
     $boundary= $r->parameters->getBoundary();
@@ -169,10 +159,10 @@ class HttpRequestTest extends \unittest\TestCase {
   public function post_url_with_FileUpload_parameters() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
-    $r->setParameters(new FormRequestData(array(
+    $r->setParameters(new FormRequestData([
       new FileUpload('file', 'image.jpeg', new \io\streams\MemoryInputStream('JFIF...'), 'image/jpeg'),
       new FileUpload('file', 'attach.txt', new \io\streams\MemoryInputStream('Test'), 'text/plain')
-    )));
+    ]));
 
     // Fetch randomly generated boundary
     $boundary= $r->parameters->getBoundary();
@@ -204,7 +194,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function get_url_with_map_parameter() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
-    $r->setParameters(array('params' => array('target' => 'home', 'ssl' => 'true')));
+    $r->setParameters(['params' => ['target' => 'home', 'ssl' => 'true']]);
     $this->assertEquals(
       "GET /?params[target]=home&params[ssl]=true HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
@@ -334,7 +324,7 @@ class HttpRequestTest extends \unittest\TestCase {
   #[@test]
   public function with_custom_header_object() {
     $r= new HttpRequest(new URL('http://example.com/'));
-    $r->setHeader('X-Binford', new \peer\Header('X-Binford', 6100));
+    $r->setHeader('X-Binford', new Header('X-Binford', 6100));
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
       $r->getRequestString()
@@ -344,7 +334,7 @@ class HttpRequestTest extends \unittest\TestCase {
   #[@test]
   public function with_custom_header_list() {
     $r= new HttpRequest(new URL('http://example.com/'));
-    $r->setHeader('X-Binford', array(6100, 'More Power'));
+    $r->setHeader('X-Binford', [6100, 'More Power']);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\nX-Binford: More Power\r\n\r\n",
       $r->getRequestString()
@@ -354,7 +344,7 @@ class HttpRequestTest extends \unittest\TestCase {
   #[@test]
   public function with_custom_headers() {
     $r= new HttpRequest(new URL('http://example.com/'));
-    $r->addHeaders(array('X-Binford' => 6100));
+    $r->addHeaders(['X-Binford' => 6100]);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
       $r->getRequestString()
@@ -364,7 +354,7 @@ class HttpRequestTest extends \unittest\TestCase {
   #[@test]
   public function with_custom_headers_as_map() {
     $r= new HttpRequest(new URL('http://example.com/'));
-    $r->addHeaders(array('X-Binford' => new \peer\Header('X-Binford', 6100)));
+    $r->addHeaders(['X-Binford' => new Header('X-Binford', 6100)]);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
       $r->getRequestString()
@@ -374,7 +364,7 @@ class HttpRequestTest extends \unittest\TestCase {
   #[@test]
   public function with_custom_header_objects() {
     $r= new HttpRequest(new URL('http://example.com/'));
-    $r->addHeaders(array(new \peer\Header('X-Binford', 6100)));
+    $r->addHeaders([new Header('X-Binford', 6100)]);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
       $r->getRequestString()
@@ -384,7 +374,7 @@ class HttpRequestTest extends \unittest\TestCase {
   #[@test]
   public function with_custom_headers_list() {
     $r= new HttpRequest(new URL('http://example.com/'));
-    $r->addHeaders(array('X-Binford' => array(6100, 'Even more power')));
+    $r->addHeaders(['X-Binford' => [6100, 'Even more power']]);
     $this->assertEquals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\nX-Binford: Even more power\r\n\r\n",
       $r->getRequestString()
@@ -436,12 +426,23 @@ class HttpRequestTest extends \unittest\TestCase {
   }
 
   #[@test]
-  public function with_1byte_body() {
+  public function post_with_1byte_body() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
     $r->setParameters(new RequestData('1'));
     $this->assertEquals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 1\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
+      $r->getHeaderString()
+    );
+  }
+
+  #[@test]
+  public function delete_with_1byte_body() {
+    $r= new HttpRequest(new URL('http://example.com/'));
+    $r->setMethod(HttpConstants::DELETE);
+    $r->setParameters(new RequestData('1'));
+    $this->assertEquals(
+      "DELETE / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 1\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $r->getHeaderString()
     );
   }
