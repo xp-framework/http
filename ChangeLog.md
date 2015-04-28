@@ -3,6 +3,8 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 6.1.0 / 2015-04-28
+
 * Changed functionality to always send data in body if a RequestData instance
   is given. See pull requests #4 and #10.
   (@kiesel, @thekid)
