@@ -135,7 +135,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r->setMethod(HttpConstants::GET);
     $r->setParameters(new RequestData('a=b&c=d'));
     $this->assertEquals(
-      "GET /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
+      "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 7\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\na=b&c=d",
       $r->getRequestString()
     );
   }

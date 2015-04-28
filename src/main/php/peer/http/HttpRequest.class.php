@@ -142,7 +142,13 @@ class HttpRequest extends \lang\Object {
    * @param   bool withBody
    */
   protected function getPayload($withBody) {
-   if ($this->parameters instanceof RequestData) {
+    $payloadIntoBody= !in_array($this->method, [HttpConstants::HEAD, HttpConstants::GET, HttpConstants::DELETE, HttpConstants::OPTIONS]);
+
+    if ($this->parameters instanceof RequestData) {
+
+      // RequestData parameters will always be put into the HTTP request's body
+      $payloadIntoBody= true;
+
       $this->addHeaders($this->parameters->getHeaders());
       $query= '&'.$this->parameters->getData();
     } else {
@@ -162,23 +168,19 @@ class HttpRequest extends \lang\Object {
 
     // Which HTTP method? GET and HEAD use query string, POST etc. use
     // body for passing parameters
-    switch ($this->method) {
-      case HttpConstants::HEAD: case HttpConstants::GET: case HttpConstants::OPTIONS:
-        if (null !== $this->url->getQuery()) {
-          $target.= '?'.$this->url->getQuery().(empty($query) ? '' : $query);
-        } else {
-          $target.= empty($query) ? '' : '?'.substr($query, 1);
-        }
-        break;
-
-      case HttpConstants::POST: case HttpConstants::PUT: case HttpConstants::DELETE: case HttpConstants::TRACE: default:
-        if ($withBody) $body= substr($query, 1);
-        if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
-        $this->headers['Content-Length']= array(max(0, strlen($query)- 1));
-        if (empty($this->headers['Content-Type'])) {
-          $this->headers['Content-Type']= array('application/x-www-form-urlencoded');
-        }
-        break;
+    if ($payloadIntoBody) {
+      if ($withBody) $body= substr($query, 1);
+      if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
+      $this->headers['Content-Length']= array(max(0, strlen($query)- 1));
+      if (empty($this->headers['Content-Type'])) {
+        $this->headers['Content-Type']= array('application/x-www-form-urlencoded');
+      }
+    } else {
+      if (null !== $this->url->getQuery()) {
+        $target.= '?'.$this->url->getQuery().(empty($query) ? '' : $query);
+      } else {
+        $target.= empty($query) ? '' : '?'.substr($query, 1);
+      }
     }
 
     $request= sprintf(
