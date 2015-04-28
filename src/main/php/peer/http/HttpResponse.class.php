@@ -173,13 +173,17 @@ class HttpResponse extends \lang\Object {
   }
 
   /**
-   * Returns an input stream to read data
+   * Retrieve input stream
    *
+   * @deprecated Use in() instead
    * @return  io.streams.InputStream
    */
   public function getInputStream() {
-    return new HttpInputStream($this);
+    return $this->in();
   }
+
+  /** @return io.streams.InputStream */
+  public function in() { return new HttpInputStream($this); }
 
   /**
    * Returns HTTP response headers as read from server

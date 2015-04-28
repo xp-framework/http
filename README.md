@@ -5,15 +5,14 @@ HTTP protocol support for the XP Framework
 [![XP Framework Module](https://raw.githubusercontent.com/xp-framework/web/master/static/xp-framework-badge.png)](https://github.com/xp-framework/core)
 [![BSD Licence](https://raw.githubusercontent.com/xp-framework/web/master/static/licence-bsd.png)](https://github.com/xp-framework/core/blob/master/LICENCE.md)
 [![Required PHP 5.4+](https://raw.githubusercontent.com/xp-framework/web/master/static/php-5_4plus.png)](http://php.net/)
+[![Required HHVM 3.4+](https://raw.githubusercontent.com/xp-framework/web/master/static/hhvm-3_4plus.png)](http://hhvm.com/)
+[![Latest Stable Version](https://poser.pugx.org/xp-framework/http/version.png)](https://packagist.org/packages/xp-framework/http)
 
-Implements HTTP (HyperText Transfer Protocol) and provides a client
-to interact with HTTP servers. The `HttpConnection` is the entry
-point class.
+Implements HTTP (HyperText Transfer Protocol) and provides a client to interact with HTTP servers. The `HttpConnection` is the entry point class.
 
 Methods
 -------
-Different request methods are handled by `HttpConnection` class
-methods as follows:
+Different request methods are handled by `HttpConnection` class methods as follows:
 
 * GET - via `get()`
 * POST - via `post()`
@@ -31,9 +30,10 @@ Headers
 The following code will show the response headers for a HEAD request:
 
 ```php
-with ($c= new HttpConnection('http://xp-framework.net/')); {
-  Console::writeLine($c->head()->toString());
-}
+use peer\http\HttpConnection;
+
+$c= new HttpConnection('http://xp-framework.net/');
+Console::writeLine($c->head());
 ```
 
 Getting data
@@ -44,18 +44,16 @@ with ($c= new HttpConnection('http://xp-framework.net/')); {
   $response= $c->get();
   Console::writeLine('Response: ', $response);
   
-  while ($chunk= $response->readData()) {
-    // ...
+  $in= $response->in();
+  while ($in->available()) {
+    $bytes= $in->read();
   }
 }
 ```
 
 SSL support
 -----------
-This API also supports SSL connections - based on the scheme given to
-`HttpConnection`'s constructor the `HttpRequestFactory` class will create 
-an SSL connection. This is transparent from the outside, the rest of the
-calls are the same!
+This API also supports SSL connections - based on the scheme given to `HttpConnection`'s constructor the `HttpRequestFactory` class will create an SSL connection. This is transparent from the outside, the rest of the calls are the same!
 
 Example:
 

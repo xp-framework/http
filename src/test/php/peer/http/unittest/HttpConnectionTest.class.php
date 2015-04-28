@@ -6,6 +6,7 @@ use peer\http\HttpProxy;
 use peer\http\HttpRequest;
 use peer\http\HttpConstants;
 use peer\http\RequestData;
+use peer\http\BasicAuthorization;
 use util\log\LogCategory;
 use util\log\BufferedAppender;
 use util\log\layout\PatternLayout;
@@ -27,28 +28,28 @@ class HttpConnectionTest extends TestCase {
 
   #[@test]
   public function get() {
-    $this->fixture->get(array('var1' => 1, 'var2' => 2));
+    $this->fixture->get(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "GET /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()
     );
   }
   
   #[@test]
   public function head() {
-    $this->fixture->head(array('var1' => 1, 'var2' => 2));
+    $this->fixture->head(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "HEAD /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()
     );
   }
 
   #[@test]
   public function post() {
-    $this->fixture->post(array('var1' => 1, 'var2' => 2));
+    $this->fixture->post(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "POST /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 13\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nvar1=1&var2=2",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()
     );
   }
 
@@ -57,7 +58,7 @@ class HttpConnectionTest extends TestCase {
     $this->fixture->put(new RequestData('THIS IS A DATA STRING'));
     $this->assertEquals(
       "PUT /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTHIS IS A DATA STRING",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()
     );
   }
 
@@ -66,25 +67,25 @@ class HttpConnectionTest extends TestCase {
     $this->fixture->patch(new RequestData('THIS IS A DATA STRING'));
     $this->assertEquals(
       "PATCH /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTHIS IS A DATA STRING",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()
     );
   }
 
   #[@test]
   public function delete() {
-    $this->fixture->delete(array('var1' => 1, 'var2' => 2));
+    $this->fixture->delete(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "DELETE /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()
     );
   }
 
   #[@test]
   public function options() {
-    $this->fixture->options(array('var1' => 1, 'var2' => 2));
+    $this->fixture->options(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
       "OPTIONS /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()
     );
   }
 
@@ -97,7 +98,7 @@ class HttpConnectionTest extends TestCase {
     }
     $this->assertEquals(
       "PROPPATCH / HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 0\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
-      $this->fixture->lastRequest()->getRequestString()
+      $this->fixture->lastRequest()
     );
   }
 
@@ -129,4 +130,46 @@ class HttpConnectionTest extends TestCase {
   public function can_force_direct_connection() {
     $this->fixture->setProxy(HttpProxy::NONE);
   }
+
+  #[@test]
+  public function can_add_authorization_as_header() {
+    $req= $this->fixture->create(new HttpRequest());
+    $req->setHeader('Authorization', new BasicAuthorization('user', 'pass'));
+
+    $this->assertEquals(
+      "GET /path/of/file HTTP/1.1\r\n".
+      "Connection: close\r\n".
+      "Host: example.com:80\r\n".
+      "Authorization: Basic dXNlcjpwYXNz\r\n\r\n",
+      $req->getHeaderString()
+    );
+  }
+
+  #[@test]
+  public function can_add_authorization_as_header_in_get() {
+    $this->fixture->get([], [new BasicAuthorization('user', 'pass')]);
+
+    $this->assertEquals(
+      "GET /path/of/file HTTP/1.1\r\n".
+      "Connection: close\r\n".
+      "Host: example.com:80\r\n".
+      "Authorization: Basic dXNlcjpwYXNz\r\n\r\n",
+      $this->fixture->lastRequest()
+    );
+  }
+
+  #[@test]
+  public function can_add_authorization_within_url() {
+    $conn= new MockHttpConnection('http://user:pass@example.com/');
+    $conn->get();
+
+    $this->assertEquals(
+      "GET / HTTP/1.1\r\n".
+      "Connection: close\r\n".
+      "Authorization: Basic dXNlcjpwYXNz\r\n".
+      "Host: example.com\r\n\r\n",
+      $conn->lastRequest()
+    );
+  }
+
 }

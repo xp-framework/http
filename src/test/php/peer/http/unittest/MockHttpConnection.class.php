@@ -10,10 +10,25 @@ use peer\http\HttpResponse;
  */
 class MockHttpConnection extends \peer\http\HttpConnection {
   protected $lastRequest= null;
+  protected $response= null;
   protected $cat= null;
 
-  /** @return peer.http.HttpRequest */
-  public function lastRequest() { return $this->lastRequest; }
+  /** @return string */
+  public function lastRequest() { return $this->lastRequest->getRequestString(); }
+
+  public function setResponse(HttpResponse $response) {
+    $this->response= $response;
+  }
+
+  protected function response() {
+    if ($this->response) {
+      $r= $this->response;
+      $this->response= null;
+      return $r;
+    }
+
+    return new HttpResponse(new \io\streams\MemoryInputStream("HTTP/1.0 200 Testing OK\r\n"));
+  }
 
   /**
    * Send a HTTP request
@@ -25,7 +40,7 @@ class MockHttpConnection extends \peer\http\HttpConnection {
     $this->lastRequest= $request;
 
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
-    $response= new HttpResponse(new \io\streams\MemoryInputStream("HTTP/1.0 200 Testing OK\r\n"));
+    $response= $this->response();
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;
   }
