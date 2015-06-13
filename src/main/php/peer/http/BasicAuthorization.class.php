@@ -36,7 +36,7 @@ class BasicAuthorization extends Authorization {
   }
 
   /** @return string */
-  public function getUser() { return $this->user; }
+  public function getUser() { return $this->username; }
   
   /**
    * Returns a BasicAuthorization object from header value; returns
@@ -82,5 +82,14 @@ class BasicAuthorization extends Authorization {
       'Authorization',
       new Header('Authorization', $this->getValueRepresentation())
     );
+  }
+
+  /**
+   * Retrieve string representation
+   *
+   * @return string
+   */
+  public function toString() {
+    return $this->getClassName().' { username = "'.$this->username.'" }';
   }
 }
