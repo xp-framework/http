@@ -2,6 +2,8 @@
 
 language: php
 
+sudo: false
+
 php:
   - 5.4
   - 5.5
@@ -9,12 +11,8 @@ php:
   - hhvm
   - nightly
 
-matrix:
-  allow_failures:
-    - php: nightly
-
 before_script:
-  - wget 'https://github.com/xp-framework/xp-runners/releases/download/v5.2.0/setup' -O - | php
+  - wget 'https://github.com/xp-framework/xp-runners/releases/download/v5.5.0/setup' -O - | php
   - composer install --prefer-dist
   - echo "vendor/autoload.php" > composer.pth
   - echo "use=vendor/xp-framework/core" > xp.ini
