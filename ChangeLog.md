@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 6.1.2 / 2015-09-26
+
+* Merged PR #1: Use short array syntax / ::class in annotations - @thekid
+
 ## 6.1.1 / 2015-07-12
 
 * Added forward compatibility with XP 6.4.0 - @thekid
