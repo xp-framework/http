@@ -1,5 +1,6 @@
 <?php namespace peer\http\unittest;
 
+use lang\IllegalArgumentException;
 use peer\URL;
 use peer\http\HttpTransport;
 use peer\http\HttpProxy;
@@ -16,7 +17,7 @@ class HttpTransportTest extends \unittest\TestCase {
    */
   #[@beforeClass]
   public static function registerTransport() {
-    HttpTransport::register('test', \lang\ClassLoader::defineClass('TestHttpTransport', 'peer.http.HttpTransport', array(), '{
+    HttpTransport::register('test', \lang\ClassLoader::defineClass('TestHttpTransport', 'peer.http.HttpTransport', [], '{
       public $host, $port, $arg, $proxy;
 
       public function __construct(\peer\URL $url, $arg) {
@@ -35,7 +36,7 @@ class HttpTransportTest extends \unittest\TestCase {
     }'));
   }
 
-  #[@test, @expect('lang.IllegalArgumentException')]
+  #[@test, @expect(IllegalArgumentException::class)]
   public function registerIncorrectClass() {
     HttpTransport::register('irrelevant', $this->getClass());
   }

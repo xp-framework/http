@@ -1,5 +1,6 @@
 <?php namespace peer\http\unittest;
 
+use lang\IllegalStateException;
 use unittest\TestCase;
 use peer\http\HttpResponse;
 use peer\http\Authorizations;
@@ -41,7 +42,7 @@ class AuthorizationsTest extends TestCase {
     );
   }
 
-  #[@test, @expect('lang.IllegalStateException')]
+  #[@test, @expect(IllegalStateException::class)]
   public function unknown_type_throws_exception() {
     $res= new HttpResponse(new MemoryInputStream(
       "HTTP/1.1 401 Authentication required.\r\n".

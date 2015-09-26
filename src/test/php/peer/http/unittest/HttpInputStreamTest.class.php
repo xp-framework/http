@@ -51,7 +51,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
    * @throws  unittest.AssertionFailedError
    */
   protected function assertRead($data) {
-    with ($length= strlen($data), $r= $this->httpResponse(HttpConstants::STATUS_OK, array('Content-Length' => $length), $data)); {
+    with ($length= strlen($data), $r= $this->httpResponse(HttpConstants::STATUS_OK, ['Content-Length' => $length], $data)); {
     
       // Self-testing
       $this->assertEquals(HttpConstants::STATUS_OK, $r->statusCode());
@@ -85,7 +85,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
   public function available() {
     with ($s= new HttpInputStream($this->httpResponse(
       HttpConstants::STATUS_OK, 
-      array('Content-Length' => 10), 
+      ['Content-Length' => 10], 
       'HelloWorld'
     ))); {
 
@@ -103,7 +103,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
   public function availableWithChunks() {
     with ($s= new HttpInputStream($this->httpResponse(
       HttpConstants::STATUS_OK, 
-      array('Transfer-Encoding' => 'chunked'), 
+      ['Transfer-Encoding' => 'chunked'], 
       "5\r\nHello\r\n".
       "5\r\nWorld\r\n".
       "0\r\n"
@@ -123,7 +123,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
   public function availableAfterReadingAll() {
     with ($s= new HttpInputStream($this->httpResponse(
       HttpConstants::STATUS_OK, 
-      array('Content-Length' => 10), 
+      ['Content-Length' => 10], 
       'HelloWorld'
     ))); {
       $this->readAll($s);
@@ -135,7 +135,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
   public function readAfterReadingAll() {
     with ($s= new HttpInputStream($this->httpResponse(
       HttpConstants::STATUS_OK, 
-      array('Content-Length' => 10), 
+      ['Content-Length' => 10], 
       'HelloWorld'
     ))); {
       $this->readAll($s);
@@ -147,7 +147,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
   public function availableWhenBuffered() {
     with ($s= new HttpInputStream($this->httpResponse(
       HttpConstants::STATUS_OK, 
-      array('Content-Length' => 10), 
+      ['Content-Length' => 10], 
       'HelloWorld'
     ))); {
       $s->read(5);

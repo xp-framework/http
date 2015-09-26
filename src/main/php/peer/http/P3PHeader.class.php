@@ -71,7 +71,7 @@ define('P3PC_CATEGORIES_OTHER_CATEGORY',    'OTC');
 class P3PHeader extends Header {
   public 
     $policyref = '',
-    $compact   = array();
+    $compact   = [];
 
   /**
    * Constructor

@@ -24,7 +24,7 @@ class RequestData extends \lang\Object {
    * @return  peer.Header[]
    */
   public function getHeaders() {
-    return array();
+    return [];
   }
   
   /**

@@ -1,5 +1,6 @@
 <?php namespace peer\http\unittest;
 
+use lang\IllegalArgumentException;
 use peer\URL;
 use peer\http\HttpProxy;
 
@@ -57,7 +58,7 @@ class HttpProxyTest extends \unittest\TestCase {
     $this->assertEquals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
   }
 
-  #[@test, @expect('lang.IllegalArgumentException')]
+  #[@test, @expect(IllegalArgumentException::class)]
   public function cannot_create_with_host_only_authority() {
     new HttpProxy('proxy.example.com', null);
   }

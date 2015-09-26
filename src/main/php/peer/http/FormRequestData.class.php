@@ -24,7 +24,7 @@ class FormRequestData extends RequestData {
   const CRLF    = "\r\n";
 
   protected
-    $parts      = array(),
+    $parts      = [],
     $boundary   = null;
 
   /**
@@ -32,7 +32,7 @@ class FormRequestData extends RequestData {
    *
    * @param   peer.http.FormData[] $parts default array()
    */
-  public function __construct($parts= array()) {
+  public function __construct($parts= []) {
     $this->boundary= '__--boundary-'.uniqid(time()).'--__';
     foreach ($parts as $part) {
       $this->addPart($part);

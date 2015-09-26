@@ -14,13 +14,13 @@ class HttpResponse extends \lang\Object {
     $statuscode    = 0,
     $message       = '',
     $version       = '',
-    $headers       = array(),
+    $headers       = [],
     $chunked       = null;
   
   protected
     $stream        = null,
     $buffer        = '',
-    $_headerlookup = array();
+    $_headerlookup = [];
     
   /**
    * Constructor
@@ -112,7 +112,7 @@ class HttpResponse extends \lang\Object {
         $k= $this->_headerlookup[$l];
       }
       if (!isset($this->headers[$k])) {
-        $this->headers[$k]= array($v);
+        $this->headers[$k]= [$v];
       } else {
         $this->headers[$k][]= $v;
       }
@@ -274,7 +274,7 @@ class HttpResponse extends \lang\Object {
    * @return  [:string] headers
    */
   public function getHeaders() {
-    $headers= array();
+    $headers= [];
     foreach ($this->headers as $name => $values) {
       $headers[$name]= end($values);
     }
