@@ -35,7 +35,7 @@ class HttpUtil extends \lang\Object {
    * @return  string
    * @throws  peer.http.UnexpectedResponseException
    */
-  public static function get($connection, $params= array(), $headers= array()) {
+  public static function get($connection, $params= [], $headers= []) {
     $redirected= 0;
     do {
       try {

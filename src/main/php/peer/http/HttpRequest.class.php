@@ -19,8 +19,8 @@ class HttpRequest extends \lang\Object {
     $method     = HttpConstants::GET,
     $target     = '',
     $version    = HttpConstants::VERSION_1_1,
-    $headers    = array('Connection' => array('close')),
-    $parameters = array();
+    $headers    = ['Connection' => ['close']],
+    $parameters = [];
     
   /**
    * Constructor
@@ -42,7 +42,7 @@ class HttpRequest extends \lang\Object {
       $this->setHeader('Authorization', new BasicAuthorization($url->getUser(), new SecureString($url->getPassword())));
     }
     $port= $this->url->getPort(-1);
-    $this->headers['Host']= array($this->url->getHost().(-1 == $port ? '' : ':'.$port));
+    $this->headers['Host']= [$this->url->getHost().(-1 == $port ? '' : ':'.$port)];
     $this->target= $this->url->getPath('/');
   }
 
@@ -89,7 +89,7 @@ class HttpRequest extends \lang\Object {
     } else if (is_array($p)) {
       $params= $p;
     } else {
-      $params= array();
+      $params= [];
     }
     
     $this->parameters= array_diff($params, $this->url->getParams());
@@ -120,7 +120,7 @@ class HttpRequest extends \lang\Object {
       if ($v instanceof Authorization) {
         $v->sign($this);
       } else {
-        $this->headers[$k]= array($v);
+        $this->headers[$k]= [$v];
       }
     }
   }
@@ -178,9 +178,9 @@ class HttpRequest extends \lang\Object {
     } else {
       if ($withBody) $body= substr($query, 1);
       if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
-      $this->headers['Content-Length']= array(max(0, strlen($query)- 1));
+      $this->headers['Content-Length']= [max(0, strlen($query)- 1)];
       if (empty($this->headers['Content-Type'])) {
-        $this->headers['Content-Type']= array('application/x-www-form-urlencoded');
+        $this->headers['Content-Type']= ['application/x-www-form-urlencoded'];
       }
     }
 

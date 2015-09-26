@@ -1,5 +1,6 @@
 <?php namespace peer\http\unittest;
 
+use lang\IllegalStateException;
 use peer\URL;
 use peer\http\HttpRequest;
 use peer\http\HttpResponse;
@@ -50,7 +51,7 @@ class DigestAuthTest extends \unittest\TestCase {
     $this->assertEquals(HttpConstants::STATUS_AUTHORIZATION_REQUIRED, $this->http->get('/')->getStatusCode());
   }
 
-  #[@test, @expect('lang.IllegalStateException')]
+  #[@test, @expect(IllegalStateException::class)]
   public function no_auth_when_not_indicated() {
     Authorizations::fromResponse(new HttpResponse(new MemoryInputStream("HTTP/1.0 200 OK")), 'user', new SecureString('pass'));
   }
@@ -63,7 +64,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @expect('lang.MethodNotImplementedException')]
+  #[@test, @expect(MethodNotImplementedException::class)]
   public function only_md5_algorithm_supported() {
     $this->http->setResponse(new HttpResponse(new MemoryInputStream(
       "HTTP/1.0 401 Unauthorized\r\n".
@@ -170,7 +171,7 @@ class DigestAuthTest extends \unittest\TestCase {
   }
 
 
-  #[@test, @expect('lang.MethodNotImplementedException')]
+  #[@test, @expect(MethodNotImplementedException::class)]
   public function only_md5_is_supported_algorithm() {
     $digest= DigestAuthorization::fromChallenge(
       'WWW-Authenticate: Digest realm="testrealm@host.com", '.
