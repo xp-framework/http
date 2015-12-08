@@ -30,7 +30,7 @@ abstract class HttpTransport extends \lang\Object {
 
     // Detect system proxy
     self::$settings= new EnvironmentSettings();
-    if (!self::$settings->detected() && strncasecmp(PHP_OS, 'Win', 3) === 0) {
+    if (!self::$settings->detected() && strncasecmp(PHP_OS, 'Win', 3) === 0 && extension_loaded('com')) {
       self::$settings= new RegistrySettings();
     }
   }
