@@ -3,6 +3,8 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 6.1.3 / 2015-12-08
+
 * Merged PR #14: Port PR xp-framework/xp-framework#381 - `getPayload()`
   failed when array key contained spaces.
   @melogamepay, @kiesel
