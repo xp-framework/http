@@ -159,10 +159,10 @@ class HttpRequest extends \lang\Object {
       foreach ($this->parameters as $name => $value) {
         if (is_array($value)) {
           foreach ($value as $k => $v) {
-            $query.= '&'.$name.'['.$k.']='.urlencode($v);
+            $query.= '&'.urlencode($name).'['.urlencode($k).']='.urlencode($v);
           }
         } else {
-          $query.= '&'.$name.'='.urlencode($value);
+          $query.= '&'.urlencode($name).'='.urlencode($value);
         }
       }
     }
