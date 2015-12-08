@@ -3,6 +3,12 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #14: Port PR xp-framework/xp-framework#381 - `getPayload()`
+  failed when array key contained spaces.
+  @melogamepay, @kiesel
+* Fixed issue #12: Fatal error when ext/com is not present on Windows
+  @thekid
+
 ## 6.1.2 / 2015-09-26
 
 * Merged PR #11: Use short array syntax / ::class in annotations - @thekid
