@@ -55,7 +55,7 @@ class DigestAuthorization extends Authorization {
    *
    * @param  string $header
    * @param  string $user
-   * @param  util.Secret $pass
+   * @param  util.Secret|security.SecureString $pass
    * @return peer.http.DigestAuthorization
    */
   public static function fromChallenge($header, $user, $pass) {
