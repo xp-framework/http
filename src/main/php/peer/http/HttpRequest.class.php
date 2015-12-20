@@ -2,7 +2,6 @@
 
 use peer\URL;
 use peer\http\BasicAuthorization;
-use util\Secret;
 
 /**
  * Wrap HTTP/1.0 and HTTP/1.1 requests (used internally by the HttpConnection
@@ -38,7 +37,7 @@ class HttpRequest extends \lang\Object {
   public function setUrl(URL $url) {
     $this->url= $url;
     if ($url->getUser() && $url->getPassword()) {
-      $this->setHeader('Authorization', new BasicAuthorization($url->getUser(), new Secret($url->getPassword())));
+      $this->setHeader('Authorization', new BasicAuthorization($url->getUser(), $url->getPassword()));
     }
     $port= $this->url->getPort(-1);
     $this->headers['Host']= [$this->url->getHost().(-1 == $port ? '' : ':'.$port)];
