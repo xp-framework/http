@@ -3,7 +3,7 @@
 use lang\Object;
 use lang\XPClass;
 use lang\reflect\TargetInvocationException;
-use security\SecureString;
+use util\Secret;
 use lang\IllegalStateException;
 
 /**
@@ -21,7 +21,7 @@ class Authorizations extends Object {
     return HttpConstants::STATUS_AUTHORIZATION_REQUIRED == $response->getStatusCode();
   }
 
-  public function create(HttpResponse $response, $user, SecureString $pass) {
+  public function create(HttpResponse $response, $user, Secret $pass) {
     if (!$this->required($response)) {
       throw new IllegalStateException('Request had not been rejected, will not create authorization.');
     }
@@ -53,13 +53,13 @@ class Authorizations extends Object {
    *
    * @param  peer.http.HttpResponse $response
    * @param  string $user
-   * @param  security.SecureString $pass
+   * @param  util.Secret $pass
    * @return peer.http.Authorization
    * @throws lang.IllegalStateException If request hadn't challenged
    * @throws lang.IllegalStateException If HTTP status not equal 401
    * @throws lang.IllegalStateException If Unknown authorization type was used
    */
-  public static function fromResponse(HttpResponse $response, $user, SecureString $pass) {
+  public static function fromResponse(HttpResponse $response, $user, Secret $pass) {
     return (new self())->create($response, $user, $pass);
   }
 }

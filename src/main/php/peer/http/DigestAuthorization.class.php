@@ -153,10 +153,7 @@ class DigestAuthorization extends Authorization {
       $url= substr($url, 0, -1);
     }
 
-    $request->setHeader('Authorization', new Header(
-      'Authorization',
-      $this->getValueRepresentation($request->method, $url)
-    ));
+    $request->setHeader('Authorization', $this->getValueRepresentation($request->method, $url));
 
     // Increase internal counter
     $this->counter++;
@@ -168,7 +165,7 @@ class DigestAuthorization extends Authorization {
    * @return string
    */
   private function ha1() {
-    return md5(implode(':', [$this->username, $this->realm, $this->password->getCharacters()]));
+    return md5(implode(':', [$this->username, $this->realm, $this->password->reveal()]));
   }
 
   /**

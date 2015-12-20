@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Refactored API to use `util.Secret` class instead of the deprecated
+  `security.SecureString` internally.
+  (@thekid)
+
 ## 6.1.2 / 2015-09-26
 
 * Merged PR #11: Use short array syntax / ::class in annotations - @thekid

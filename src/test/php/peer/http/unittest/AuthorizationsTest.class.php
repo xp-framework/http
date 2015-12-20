@@ -5,7 +5,7 @@ use unittest\TestCase;
 use peer\http\HttpResponse;
 use peer\http\Authorizations;
 use io\streams\MemoryInputStream;
-use security\SecureString;
+use util\Secret;
 use peer\http\BasicAuthorization;
 
 class AuthorizationsTest extends TestCase {
@@ -25,7 +25,7 @@ class AuthorizationsTest extends TestCase {
 
     $this->assertInstanceof(
       'peer.http.BasicAuthorization',
-      $this->cut->create($res, self::USER, new SecureString(self::PASS))
+      $this->cut->create($res, self::USER, new Secret(self::PASS))
     );
   }
 
@@ -38,7 +38,7 @@ class AuthorizationsTest extends TestCase {
 
     $this->assertInstanceof(
       'peer.http.DigestAuthorization',
-      $this->cut->create($res, self::USER, new SecureString(self::PASS))
+      $this->cut->create($res, self::USER, new Secret(self::PASS))
     );
   }
 
@@ -51,7 +51,7 @@ class AuthorizationsTest extends TestCase {
 
     $this->assertInstanceof(
       'peer.http.DigestAuthorization',
-      $this->cut->create($res, self::USER, new SecureString(self::PASS))
+      $this->cut->create($res, self::USER, new Secret(self::PASS))
     );
   }
 

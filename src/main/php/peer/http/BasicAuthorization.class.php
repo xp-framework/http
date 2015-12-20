@@ -2,7 +2,7 @@
 
 use lang\Object;
 use peer\Header;
-use security\SecureString;
+use util\Secret;
 
 /**
  * Basic Authorization header
@@ -23,15 +23,15 @@ class BasicAuthorization extends Authorization {
    * Constructor
    *
    * @param   string $user
-   * @param   var $pass security.SecureString or plain string
+   * @param   var $pass util.Secret or plain string
    */
   public function __construct($user, $pass) {
     $this->setUsername($user);
 
-    if (!$pass instanceof SecureString) {
-      $this->setPassword(new SecureString($pass));
-    } else {
+    if ($pass instanceof Secret) {
       $this->setPassword($pass);
+    } else {
+      $this->setPassword(new Secret($pass));
     }
   }
 
@@ -48,7 +48,7 @@ class BasicAuthorization extends Authorization {
   public static function fromValue($value) {
     if (!preg_match('/^Basic (.*)$/', $value, $matches)) return false;
     list($user, $password)= explode(':', base64_decode($matches[1]), 2);
-    return new self($user, new SecureString($password));
+    return new self($user, new Secret($password));
   }
 
   /**
@@ -56,7 +56,7 @@ class BasicAuthorization extends Authorization {
    *
    * @param  string $header
    * @param  string $user
-   * @param  security.SecureString $pass
+   * @param  security.Secret $pass
    * @return self
    */
   public static function fromChallenge($header, $user, $pass) {
@@ -69,7 +69,7 @@ class BasicAuthorization extends Authorization {
    * @return  string value
    */
   public function getValueRepresentation() {
-    return 'Basic '.base64_encode($this->username.':'.$this->password->getCharacters());
+    return 'Basic '.base64_encode($this->username.':'.$this->password->reveal());
   }
 
   /**
@@ -78,10 +78,7 @@ class BasicAuthorization extends Authorization {
    * @param  peer.http.HttpRequest $request
    */
   public function sign(HttpRequest $request) {
-    $request->setHeader(
-      'Authorization',
-      new Header('Authorization', $this->getValueRepresentation())
-    );
+    $request->setHeader('Authorization', $this->getValueRepresentation());
   }
 
   /**
