@@ -67,14 +67,14 @@ class DigestAuthTest extends \unittest\TestCase {
 
   #[@test, @expect(IllegalStateException::class)]
   public function no_auth_when_not_indicated() {
-    Authorizations::fromResponse(new HttpResponse(new MemoryInputStream("HTTP/1.0 200 OK")), 'user', 'pass');
+    Authorizations::fromResponse(new HttpResponse(new MemoryInputStream("HTTP/1.0 200 OK")), self::USER, $this->secret);
   }
 
   #[@test]
   public function create_digest_authorization() {
     $this->assertEquals(
       $this->digest,
-      Authorizations::fromResponse($this->http->get('/'), 'user', 'pass')
+      Authorizations::fromResponse($this->http->get('/'), self::USER, $this->secret)
     );
   }
 
@@ -89,7 +89,7 @@ class DigestAuthTest extends \unittest\TestCase {
       'algorithm="sha1"'."\r\n"
     )));
 
-    Authorizations::fromResponse($this->http->get('/'), 'user', 'pass');
+    Authorizations::fromResponse($this->http->get('/'), self::USER, $this->secret);
   }
 
   #[@test]
