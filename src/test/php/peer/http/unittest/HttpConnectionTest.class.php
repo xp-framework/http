@@ -1,5 +1,6 @@
 <?php namespace peer\http\unittest;
 
+use util\log\Traceable;
 use unittest\TestCase;
 use peer\URL;
 use peer\http\HttpProxy;
@@ -104,7 +105,7 @@ class HttpConnectionTest extends TestCase {
 
   #[@test]
   public function is_traceable() {
-    $this->assertInstanceOf('util.log.Traceable', $this->fixture);
+    $this->assertInstanceOf(Traceable::class, $this->fixture);
   }
 
   #[@test]

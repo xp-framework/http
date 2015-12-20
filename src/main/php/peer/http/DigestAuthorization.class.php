@@ -164,7 +164,7 @@ class DigestAuthorization extends Authorization {
    * @return string
    */
   private function ha1() {
-    return md5(implode(':', [$this->username, $this->realm, $this->password->reveal()]));
+    return md5(implode(':', [$this->username, $this->realm, Authorizations::$REVEAL->__invoke($this->password)]));
   }
 
   /**

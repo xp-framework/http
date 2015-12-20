@@ -1,7 +1,5 @@
 <?php namespace peer\http;
 
-use util\Secret;
-
 abstract class Authorization extends \lang\Object {
   protected $username, $password;
 
@@ -11,11 +9,11 @@ abstract class Authorization extends \lang\Object {
   /** @param string $value */
   public function setUsername($value) { $this->username= $value; }
   
-  /** @return util.Secret */
+  /** @return util.Secret|security.SecureString */
   public function password() { return $this->password; }
 
-  /** @param util.Secret|string $value */
-  public function setPassword($value) { $this->password= $value instanceof Secret ? $value : new Secret($value); }
+  /** @param util.Secret|security.SecureString $value */
+  public function setPassword($value) { $this->password= $value; }
 
   /**
    * Sign HTTP request

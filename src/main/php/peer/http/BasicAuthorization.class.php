@@ -1,6 +1,5 @@
 <?php namespace peer\http;
 
-use lang\Object;
 use util\Secret;
 
 /**
@@ -22,15 +21,14 @@ class BasicAuthorization extends Authorization {
    * Constructor
    *
    * @param   string $user
-   * @param   var $pass util.Secret or plain string
+   * @param   string|util.Secret|security.SecureString $pass
    */
   public function __construct($user, $pass) {
     $this->setUsername($user);
-
-    if ($pass instanceof Secret) {
+    if ($pass instanceof Secret || $pass instanceof \security\SecureString) {
       $this->setPassword($pass);
     } else {
-      $this->setPassword(new Secret($pass));
+      $this->setPassword(Authorizations::$CONCEAL->__invoke($pass));
     }
   }
 
@@ -47,7 +45,7 @@ class BasicAuthorization extends Authorization {
   public static function fromValue($value) {
     if (!preg_match('/^Basic (.*)$/', $value, $matches)) return false;
     list($user, $password)= explode(':', base64_decode($matches[1]), 2);
-    return new self($user, new Secret($password));
+    return new self($user, Authorizations::$CONCEAL->__invoke($password));
   }
 
   /**
@@ -55,7 +53,7 @@ class BasicAuthorization extends Authorization {
    *
    * @param  string $header
    * @param  string $user
-   * @param  security.Secret $pass
+   * @param  util.Secret|security.SecureString $pass
    * @return self
    */
   public static function fromChallenge($header, $user, $pass) {
@@ -68,7 +66,7 @@ class BasicAuthorization extends Authorization {
    * @return  string value
    */
   public function getValueRepresentation() {
-    return 'Basic '.base64_encode($this->username.':'.$this->password->reveal());
+    return 'Basic '.base64_encode($this->username.':'.Authorizations::$REVEAL->__invoke($this->password));
   }
 
   /**

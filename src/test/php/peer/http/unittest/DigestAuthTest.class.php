@@ -1,24 +1,32 @@
 <?php namespace peer\http\unittest;
 
+use io\streams\MemoryInputStream;
 use lang\IllegalStateException;
-use peer\URL;
-use peer\http\HttpRequest;
-use peer\http\HttpResponse;
-use peer\http\HttpConstants;
+use lang\MethodNotImplementedException;
 use peer\http\Authorizations;
 use peer\http\DigestAuthorization;
-use io\streams\MemoryInputStream;
-use lang\MethodNotImplementedException;
+use peer\http\HttpConstants;
+use peer\http\HttpRequest;
+use peer\http\HttpResponse;
+use peer\URL;
+use security\SecureString;
+use util\Secret;
 
 class DigestAuthTest extends \unittest\TestCase {
   const USER = 'Mufasa';
   const PASS = 'Circle Of Life';
   const CNONCE = '0a4f113b';
 
-  private $http, $digest;
+  private $http, $secret, $digest;
 
   /** @return void */
   public function setUp() {
+    if (class_exists(Secret::class)) {
+      $this->secret= new Secret(self::PASS);
+    } else {
+      $this->secret= new SecureString(self::PASS);
+    }
+
     $this->http= new MockHttpConnection(new URL('http://example.com:80/dir/index.html'));
     $this->http->setResponse(new HttpResponse(new MemoryInputStream(
       "HTTP/1.0 401 Unauthorized\r\n".
@@ -36,7 +44,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
     $this->digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
     $this->digest->setUsername(self::USER);
-    $this->digest->setPassword(self::PASS);
+    $this->digest->setPassword($this->secret);
   }
 
   /**
@@ -113,7 +121,7 @@ class DigestAuthTest extends \unittest\TestCase {
     $res= $this->http->send($req);
 
     if (HttpConstants::STATUS_AUTHORIZATION_REQUIRED === $res->getStatusCode()) {
-      $digest= Authorizations::fromResponse($res, self::USER, self::PASS);
+      $digest= Authorizations::fromResponse($res, self::USER, $this->secret);
       $digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
       $req= $this->http->create($req);
       $digest->sign($req);
@@ -152,7 +160,7 @@ class DigestAuthTest extends \unittest\TestCase {
       'qop="auth,auth-int", '.
       'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093"',
       self::USER,
-      self::PASS
+      $this->secret
     );
     $digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
 
@@ -172,7 +180,7 @@ class DigestAuthTest extends \unittest\TestCase {
       'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", '.
       'algorithm="md5"',
       self::USER,
-      self::PASS
+      $this->secret
     );
   }
 
@@ -185,7 +193,7 @@ class DigestAuthTest extends \unittest\TestCase {
       'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", '.
       'algorithm="sha1"',
       self::USER,
-      self::PASS
+      $this->secret
     );
   }
 

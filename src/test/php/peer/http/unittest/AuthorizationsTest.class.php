@@ -4,12 +4,12 @@ use io\streams\MemoryInputStream;
 use lang\IllegalStateException;
 use peer\http\Authorizations;
 use peer\http\BasicAuthorization;
+use peer\http\DigestAuthorization;
 use peer\http\HttpResponse;
 use security\SecureString;
-use unittest\TestCase;
 use util\Secret;
 
-class AuthorizationsTest extends TestCase {
+class AuthorizationsTest extends \unittest\TestCase {
   const USER= 'foo';
   private $cut;
 
@@ -21,10 +21,10 @@ class AuthorizationsTest extends TestCase {
   /** @return var[][] */
   private function secrets() {
     $values= [];
-    if (class_exists('util\\Secret')) {
+    if (class_exists(Secret::class)) {
       $values[]= [new Secret('Test')];
     }
-    if (class_exists('security\\SecureString')) {
+    if (class_exists(SecureString::class)) {
       $values[]= [new SecureString('Test')];
     }
     return $values;
@@ -37,10 +37,7 @@ class AuthorizationsTest extends TestCase {
       "WWW-Authenticate: Basic realm=\"Auth me!\"\r\n\r\n"
     ));
 
-    $this->assertInstanceof(
-      'peer.http.BasicAuthorization',
-      $this->cut->create($res, self::USER, $secret)
-    );
+    $this->assertInstanceof(BasicAuthorization::class, $this->cut->create($res, self::USER, $secret));
   }
 
   #[@test, @values('secrets')]
@@ -50,10 +47,7 @@ class AuthorizationsTest extends TestCase {
       "WWW-Authenticate: Digest realm=\"Auth me!\", qop=\"auth\", nonce=\"12345\"\r\n\r\n"
     ));
 
-    $this->assertInstanceof(
-      'peer.http.DigestAuthorization',
-      $this->cut->create($res, self::USER, $secret)
-    );
+    $this->assertInstanceof(DigestAuthorization::class, $this->cut->create($res, self::USER, $secret));
   }
 
   #[@test, @values('secrets'), @expect(IllegalStateException::class)]
