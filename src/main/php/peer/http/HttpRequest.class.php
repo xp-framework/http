@@ -107,31 +107,29 @@ class HttpRequest extends \lang\Object {
   /**
    * Set header
    *
-   * @param   string k header name
-   * @param   var v header value either a string, string[] or peer.Header
+   * @param   string $name header name
+   * @param   string|string[]|peer.http.Header|peer.http.Authorization $header header value
    */
-  public function setHeader($k, $v) {
-    if (is_array($v)) {
-      $this->headers[$k]= $v;
+  public function setHeader($name, $header) {
+    if ($header instanceof Header) {
+      $this->headers[$header->name()]= [$header->value()];
+    } else if ($header instanceof Authorization) {      // BC
+      $header->sign($this);
+    } else if ($header instanceof \peer\Header) {       // BC
+      $this->headers[$header->getName()]= [$header->getValueRepresentation()];
     } else {
-
-      // Handle special BC case when eg. BasicAuthorization instance being passed
-      if ($v instanceof Authorization) {
-        $v->sign($this);
-      } else {
-        $this->headers[$k]= [$v];
-      }
+      $this->headers[$name]= (array)$header;
     }
   }
 
   /**
    * Add headers
    *
-   * @param   [:var] headers
+   * @param   [:var] $headers
    */
   public function addHeaders($headers) {
-    foreach ($headers as $key => $header) {
-      $this->setHeader($header instanceof Header ? $header->name() : $key, $header);
+    foreach ($headers as $name => $header) {
+      $this->setHeader($name, $header);
     }
   }
 
@@ -183,21 +181,10 @@ class HttpRequest extends \lang\Object {
       }
     }
 
-    $request= sprintf(
-      "%s %s HTTP/%s\r\n",
-      $this->method,
-      $target,
-      $this->version
-    );
-
-    // Add request headers
-    foreach ($this->headers as $k => $v) {
-      foreach ($v as $header) {
-        if ($header instanceof Header) {
-          $request.= $header->name().': '.$header->value()."\r\n";
-        } else {
-          $request.= $k.': '.$header."\r\n";
-        }
+    $request= sprintf("%s %s HTTP/%s\r\n", $this->method, $target, $this->version);
+    foreach ($this->headers as $name => $values) {
+      foreach ($values as $header) {
+        $request.= $name.': '.$header."\r\n";
       }
     }
 
