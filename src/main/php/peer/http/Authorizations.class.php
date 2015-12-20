@@ -21,7 +21,18 @@ class Authorizations extends Object {
     return HttpConstants::STATUS_AUTHORIZATION_REQUIRED == $response->getStatusCode();
   }
 
-  public function create(HttpResponse $response, $user, Secret $pass) {
+  /**
+   * Create authorization instance from a response
+   *
+   * @param  peer.http.HttpResponse $response
+   * @param  string $user
+   * @param  string|util.Secret|security.SecureString $pass
+   * @return peer.http.Authorization
+   * @throws lang.IllegalStateException If request hadn't challenged
+   * @throws lang.IllegalStateException If HTTP status not equal 401
+   * @throws lang.IllegalStateException If Unknown authorization type was used
+   */
+  public function create(HttpResponse $response, $user, $pass) {
     if (!$this->required($response)) {
       throw new IllegalStateException('Request had not been rejected, will not create authorization.');
     }
@@ -33,11 +44,17 @@ class Authorizations extends Object {
     $header= $response->header(self::AUTH_HEADER)[0];
     foreach ($this->impl as $impl) {
       if (0 == strncmp($impl['startsWith'], $header, strlen($impl['startsWith']))) {
+
+        if ($pass instanceof Secret) {
+          $secret= $pass;
+        } else if ($pass instanceof \security\SecureString) {
+          $secret= new Secret($pass->getCharacters());
+        } else {
+          $secret= new Secret($pass);
+        }
+
         try {
-          return XPClass::forName($impl['impl'])->getMethod('fromChallenge')->invoke(
-            null,
-            [$header, $user, $pass]
-          );
+          return XPClass::forName($impl['impl'])->getMethod('fromChallenge')->invoke(null, [$header, $user, $secret]);
         } catch (TargetInvocationException $e) {
           throw $e->getCause();
         }
@@ -53,13 +70,13 @@ class Authorizations extends Object {
    *
    * @param  peer.http.HttpResponse $response
    * @param  string $user
-   * @param  util.Secret $pass
+   * @param  string|util.Secret|security.SecureString $pass
    * @return peer.http.Authorization
    * @throws lang.IllegalStateException If request hadn't challenged
    * @throws lang.IllegalStateException If HTTP status not equal 401
    * @throws lang.IllegalStateException If Unknown authorization type was used
    */
-  public static function fromResponse(HttpResponse $response, $user, Secret $pass) {
+  public static function fromResponse(HttpResponse $response, $user, $pass) {
     return (new self())->create($response, $user, $pass);
   }
 }
