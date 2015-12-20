@@ -1,19 +1,17 @@
 <?php namespace peer\http;
 
-use peer\Header;
-
 /**
  * Build an HttpRequest w/ embedded multipart/form-data
  *
  * Example:
- * <code>
- *   $request= $conn->create(new HttpRequest());
- *   $request->setMethod(HttpConstants::POST);
- *   $request->setParameters(create(new FormRequestData())
- *     ->withPart(new FormData('key', 'value'))
- *     ->withPart(new FormData('comment.txt', $contents, 'text/plain', 'utf-8'))
- *   );
- * </code>
+ * ```php
+ * $request= $conn->create(new HttpRequest());
+ * $request->setMethod(HttpConstants::POST);
+ * $request->setParameters(create(new FormRequestData())
+ *   ->withPart(new FormData('key', 'value'))
+ *   ->withPart(new FormData('comment.txt', $contents, 'text/plain', 'utf-8'))
+ * );
+ * ```
  *
  * @see   xp://peer.http.HttpConnection
  * @see   xp://peer.http.HttpRequest
@@ -84,7 +82,7 @@ class FormRequestData extends RequestData {
   /**
    * Retrieve headers to be set
    *
-   * @return  peer.Header[]
+   * @return  peer.http.Header[]
    */
   public function getHeaders() {
     $headers= parent::getHeaders();

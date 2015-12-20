@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Refactored API to provide its own dedicated `Header` class inside the
+  `peer.http` package instead of relying on the deprecated one in XP
+  framework core.
+  (@thekid)
 * Refactored API to use `util.Secret` class instead of the deprecated
   `security.SecureString` internally.
   (@thekid)

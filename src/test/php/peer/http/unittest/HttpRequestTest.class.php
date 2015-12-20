@@ -1,7 +1,7 @@
 <?php namespace peer\http\unittest;
 
 use peer\URL;
-use peer\Header;
+use peer\http\Header;
 use peer\http\RequestData;
 use peer\http\FormRequestData;
 use peer\http\FileUpload;

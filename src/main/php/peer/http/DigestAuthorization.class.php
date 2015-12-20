@@ -1,8 +1,7 @@
 <?php namespace peer\http;
 
 use lang\Object;
-use peer\Header;
-use security\SecureString;
+use util\Secret;
 use lang\IllegalStateException;
 use lang\MethodNotImplementedException;
 

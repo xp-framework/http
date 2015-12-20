@@ -131,7 +131,7 @@ class HttpRequest extends \lang\Object {
    */
   public function addHeaders($headers) {
     foreach ($headers as $key => $header) {
-      $this->setHeader($header instanceof Header ? $header->getName() : $key, $header);
+      $this->setHeader($header instanceof Header ? $header->name() : $key, $header);
     }
   }
 
@@ -192,8 +192,12 @@ class HttpRequest extends \lang\Object {
 
     // Add request headers
     foreach ($this->headers as $k => $v) {
-      foreach ($v as $value) {
-        $request.= ($value instanceof Header ? $value->toString() : $k.': '.$value)."\r\n";
+      foreach ($v as $header) {
+        if ($header instanceof Header) {
+          $request.= $header->name().': '.$header->value()."\r\n";
+        } else {
+          $request.= $k.': '.$header."\r\n";
+        }
       }
     }
 

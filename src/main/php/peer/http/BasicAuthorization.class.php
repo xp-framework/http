@@ -1,7 +1,6 @@
 <?php namespace peer\http;
 
 use lang\Object;
-use peer\Header;
 use util\Secret;
 
 /**
