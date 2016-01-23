@@ -221,7 +221,7 @@ class HttpResponse extends \lang\Object {
     }
     return sprintf(
       "%s (HTTP/%s %3d %s) {\n%s}",
-      $this->getClassName(),
+      nameof($this),
       $this->version,
       $this->statuscode,
       $this->message,

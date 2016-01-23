@@ -105,7 +105,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   public function toString() {
     return sprintf(
       '%s(->URL{%s via %s}, timeout: [read= %.2f, connect= %.2f])',
-      $this->getClassName(),
+      nameof($this),
       $this->url->getUrl(),
       $this->transport->toString(),
       $this->_timeout,

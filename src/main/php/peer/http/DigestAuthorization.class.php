@@ -227,7 +227,7 @@ class DigestAuthorization extends Authorization {
    * @return string
    */
   public function toString() {
-    $s= $this->getClassName().' ('.$this->hashCode().") {\n";
+    $s= nameof($this).' ('.$this->hashCode().") {\n";
     foreach (['realm', 'qop', 'nonce', 'opaque', 'username'] as $attr) {
       $s.= sprintf("  [ %8s ] %s\n", $attr, \xp::stringOf($this->{$attr}));
     }

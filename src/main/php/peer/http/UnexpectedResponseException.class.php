@@ -45,7 +45,7 @@ class UnexpectedResponseException extends \lang\XPException {
   public function compoundMessage() {
     return sprintf(
       'Exception %s (statuscode %d: %s)',
-      $this->getClassName(),
+      nameof($this),
       $this->statuscode,
       $this->message
     );

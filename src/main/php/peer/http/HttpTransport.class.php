@@ -68,7 +68,7 @@ abstract class HttpTransport extends \lang\Object {
    * @return  string
    */
   public function toString() {
-    return $this->getClassName();
+    return nameof($this);
   }
   
   /**

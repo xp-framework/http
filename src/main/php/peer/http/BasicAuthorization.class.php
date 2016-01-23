@@ -84,6 +84,6 @@ class BasicAuthorization extends Authorization {
    * @return string
    */
   public function toString() {
-    return $this->getClassName().' { username = "'.$this->username.'" }';
+    return nameof($this).' { username = "'.$this->username.'" }';
   }
 }

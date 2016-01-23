@@ -3,6 +3,12 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 6.2.1 / 2016-01-23
+
+* Fix code to use `nameof()` instead of the deprecated `getClassName()`
+  method from lang.Generic. See xp-framework/core#120
+  (@thekid)
+
 ## 6.2.0 / 2015-12-20
 
 * Refactored API to provide its own dedicated `Header` class inside the
