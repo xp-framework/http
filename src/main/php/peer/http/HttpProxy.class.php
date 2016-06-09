@@ -33,7 +33,14 @@ class HttpProxy extends \lang\Object {
    */
   public function __construct($host, $port= 8080, $excludes= []) {
     if (null === $port) {
-      if (2 !== sscanf($host, '%[^:]:%d', $this->host, $this->port)) {
+      if ('[' === $host{0}) {
+        $parsed= sscanf($host, '[%[^]]]:%d', $addr, $this->port);
+        $this->host= '['.$addr.']';
+      } else {
+        $parsed= sscanf($host, '%[^:]:%d', $this->host, $this->port);
+      }
+
+      if (2 !== $parsed) {
         throw new IllegalArgumentException('Malformed authority "'.$host.'"');
       }
     } else {

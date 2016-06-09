@@ -58,6 +58,12 @@ class HttpProxyTest extends \unittest\TestCase {
     $this->assertEquals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
   }
 
+  #[@test]
+  public function can_create_with_ipv6_addr() {
+    $proxy= new HttpProxy('[::1]:3128', null);
+    $this->assertEquals(['[::1]', 3128], [$proxy->host(), $proxy->port()]);
+  }
+
   #[@test, @expect(IllegalArgumentException::class)]
   public function cannot_create_with_host_only_authority() {
     new HttpProxy('proxy.example.com', null);
