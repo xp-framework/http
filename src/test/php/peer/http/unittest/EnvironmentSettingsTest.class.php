@@ -87,4 +87,19 @@ class EnvironmentSettingsTest extends \unittest\TestCase {
       $this->assertEquals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
     });
   }
+
+  #[@test, @values([
+  #  'proxy.example.com:3128',
+  #  'http://proxy.example.com:3128',
+  #  'http://proxy.example.com:3128/',
+  #  ' http://proxy.example.com:3128 ',
+  #  ' proxy.example.com:3128 ',
+  #  ' http://proxy.example.com:3128/ '
+  #])]
+  public function proxy_formats($value) {
+    with (new Environment(['http_proxy' => $value]), function() {
+      $proxy= (new EnvironmentSettings())->proxy('http');
+      $this->assertEquals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
+    });
+  }
 }
