@@ -16,7 +16,8 @@ class EnvironmentSettings extends ProxySettings {
     'https_proxy' => 'https',
     'HTTP_PROXY'  => 'http',
     'HTTPS_PROXY' => 'https',
-    'all_proxy'   => '*'
+    'all_proxy'   => '*',
+    'ALL_PROXY'   => '*'
   ];
 
   static function __static() {
@@ -27,7 +28,7 @@ class EnvironmentSettings extends ProxySettings {
 
   /** @return bool */
   protected function infer() {
-    if ($no= getenv('no_proxy')) {
+    if ($no= getenv('no_proxy') ?: getenv('NO_PROXY')) {
       $this->excludes= explode(',', $no);
     } else {
       $this->excludes= [];
