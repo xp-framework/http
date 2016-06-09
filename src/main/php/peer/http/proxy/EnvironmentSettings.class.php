@@ -28,7 +28,7 @@ class EnvironmentSettings extends ProxySettings {
 
   /** @return bool */
   protected function infer() {
-    if ($no= getenv('no_proxy') ?: getenv('NO_PROXY')) {
+    if ($no= trim(getenv('no_proxy') ?: getenv('NO_PROXY'))) {
       $this->excludes= explode(',', $no);
     } else {
       $this->excludes= [];
@@ -37,7 +37,7 @@ class EnvironmentSettings extends ProxySettings {
     $inferred= false;
     $this->proxies= [];
     foreach (self::$variables as $var => $proto) {
-      if ($env= getenv($var)) {
+      if ($env= trim(getenv($var))) {
         $inferred= true;
         if (false === ($p= strpos($env, '://'))) {
           $this->proxies[$proto]= new HttpProxy($env, null, $this->excludes);
