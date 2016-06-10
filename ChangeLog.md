@@ -3,6 +3,8 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 7.0.1 / 2016-06-10
+
 * Allowed IPV6 addresses in *_PROXY, e.g. `[::1]:3128` - @thekid
 * Fixed issue #15: NO_PROXY - @thekid
 
