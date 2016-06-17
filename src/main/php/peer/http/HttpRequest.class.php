@@ -75,17 +75,24 @@ class HttpRequest extends \lang\Object {
   /**
    * Set request parameters
    *
-   * @param   var p either a string, a RequestData object or an associative array
+   * @param  var $arg either a string, a RequestData object or an associative array
    */
-  public function setParameters($p) {
-    if ($p instanceof RequestData) {
-      $this->parameters= $p;
+  public function setParameters($arg) {
+    if ($arg instanceof RequestData) {
+      $this->parameters= $arg;
       return;
-    } else if (is_string($p)) {
-      parse_str($p, $out); 
-      $params= $out;
-    } else if (is_array($p)) {
-      $params= $p;
+    } else if (is_string($arg)) {
+      if ('' === $arg) {
+        $params= [];
+      } else if ('/' === $arg{0}) {
+        sscanf($arg, "%[^?]?%[^\r]", $path, $query);
+        $this->setTarget($path);
+        parse_str($query, $params);
+      } else {
+        parse_str($arg, $params);
+      }
+    } else if (is_array($arg)) {
+      $params= $arg;
     } else {
       $params= [];
     }

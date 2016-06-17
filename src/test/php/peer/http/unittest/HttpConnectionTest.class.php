@@ -35,6 +35,24 @@ class HttpConnectionTest extends TestCase {
       $this->fixture->lastRequest()
     );
   }
+
+  #[@test]
+  public function get_with_path() {
+    $this->fixture->get('/test');
+    $this->assertEquals(
+      "GET /test HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
+      $this->fixture->lastRequest()
+    );
+  }
+
+  #[@test]
+  public function get_with_path_and_parameters() {
+    $this->fixture->get('/test?a=b&c=d');
+    $this->assertEquals(
+      "GET /test?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
+      $this->fixture->lastRequest()
+    );
+  }
   
   #[@test]
   public function head() {
@@ -172,5 +190,4 @@ class HttpConnectionTest extends TestCase {
       $conn->lastRequest()
     );
   }
-
 }

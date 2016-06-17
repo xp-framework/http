@@ -167,7 +167,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a GET request
    *
-   * @param   string $arg default NULL
+   * @param   [:string]|string $parameters Request parameters
    * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
@@ -178,7 +178,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a HEAD request
    *
-   * @param   string $arg default NULL
+   * @param   [:string]|string $parameters Request parameters
    * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
@@ -189,7 +189,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a POST request
    *
-   * @param   string $arg default NULL
+   * @param   [:string]|string $parameters Request parameters
    * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
@@ -200,7 +200,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a PUT request
    *
-   * @param   string $arg default NULL
+   * @param   [:string]|string $parameters Request parameters
    * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
@@ -211,7 +211,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a PATCH request
    *
-   * @param   string $arg default NULL
+   * @param   [:string]|string $parameters Request parameters
    * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
@@ -222,7 +222,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a DELETE request
    *
-   * @param   string $arg default NULL
+   * @param   [:string]|string $parameters Request parameters
    * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
@@ -233,7 +233,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform an OPTIONS request
    *
-   * @param   string $arg default NULL
+   * @param   [:string]|string $parameters Request parameters
    * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
@@ -244,7 +244,7 @@ class HttpConnection extends \lang\Object implements Traceable {
   /**
    * Perform a TRACE request
    *
-   * @param   string $arg default NULL
+   * @param   [:string]|string $parameters Request parameters
    * @param   [:var] $headers default array()
    * @return  peer.http.HttpResponse response object
    */
