@@ -96,7 +96,7 @@ class HttpResponse extends \lang\Object {
     $status= $this->scanUntil("\n");
     $r= sscanf($status, "HTTP/%[0-9.] %3d %[^\r]", $this->version, $this->statuscode, $this->message);
     if ($r < 2) {
-      throw new \lang\FormatException('"'.$status.'" is not a valid HTTP response ['.$r.']');
+      throw new \lang\FormatException('"'.addcslashes($status, "\0..\37!\177..\377").'" is not a valid HTTP response ['.$r.']');
     }
 
     // Headers
