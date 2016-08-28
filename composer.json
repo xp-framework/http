@@ -6,7 +6,7 @@
   "description" : "HTTP protocol support for the XP Framework",
   "keywords": ["module", "xp"],
   "require" : {
-    "xp-framework/core": "^7.0 | ^6.5",
+    "xp-framework/core": "^8.0 | ^7.0 | ^6.5",
     "xp-framework/logging": "^7.0 | ^6.5",
     "xp-framework/networking": "^7.0 | ^6.6",
     "php": ">=5.5.0"
