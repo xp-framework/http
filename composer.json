@@ -9,7 +9,7 @@
     "xp-framework/core": "^8.0 | ^7.0 | ^6.5",
     "xp-framework/logging": "^7.0 | ^6.5",
     "xp-framework/networking": "^7.0 | ^6.6",
-    "php": ">=5.5.0"
+    "php": ">=5.6.0"
   },
   "require-dev" : {
     "xp-framework/unittest": "^7.0 | ^6.5"

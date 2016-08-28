@@ -3,6 +3,11 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 8.0.0 / 2016-08-28
+
+* **Heads up: Dropped PHP 5.5 support!** - @thekid
+* Added forward compatibility with XP 8.0.0 - @thekid
+
 ## 7.0.1 / 2016-06-10
 
 * Allowed IPV6 addresses in *_PROXY, e.g. `[::1]:3128` - @thekid
