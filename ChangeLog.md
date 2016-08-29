@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 8.0.1 / 2016-08-29
+
+* Made compatible with xp-framework/networking v8.0.0 - @thekid
+
 ## 8.0.0 / 2016-08-28
 
 * **Heads up: Dropped PHP 5.5 support!** - @thekid
