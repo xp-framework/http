@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 8.0.1 / 2017-06-05
+
+* Fixed `Fatal error (Class 'peer\Header' not found)` - @thekid
+
 ## 8.0.1 / 2016-08-29
 
 * Made compatible with xp-framework/networking v8.0.0 - @thekid

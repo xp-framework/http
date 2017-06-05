@@ -1,7 +1,5 @@
 <?php namespace peer\http;
 
-use peer\Header;
-
 define('P3PC_ACCESS_NONIDENT',              'NOI');
 define('P3PC_ACCESS_ALL',                   'ALL');
 define('P3PC_ACCESS_CONTACT_AND_OTHER',     'CAO');
