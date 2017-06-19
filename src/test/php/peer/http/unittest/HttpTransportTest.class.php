@@ -38,7 +38,7 @@ class HttpTransportTest extends \unittest\TestCase {
 
   #[@test, @expect(IllegalArgumentException::class)]
   public function registerIncorrectClass() {
-    HttpTransport::register('irrelevant', $this->getClass());
+    HttpTransport::register('irrelevant', typeof($this));
   }
 
   #[@test]
