@@ -1,7 +1,8 @@
 <?php namespace peer\http;
 
-use lang\Object;
+use util\Objects;
 use util\Secret;
+use lang\Value;
 use lang\IllegalStateException;
 use lang\MethodNotImplementedException;
 
@@ -19,7 +20,7 @@ use lang\MethodNotImplementedException;
  * @see  rfc://2617
  * @see  https://en.wikipedia.org/wiki/Digest_access_authentication
  */
-class DigestAuthorization extends Authorization {
+class DigestAuthorization extends Authorization implements Value {
 
   /* Server values */
   private $realm;       // Realm
@@ -204,33 +205,33 @@ class DigestAuthorization extends Authorization {
     $this->cnonce= $c;
   }
 
-  /**
-   * Check if instance is equal to this instance
-   *
-   * @param  lang.Generic $o
-   * @return boolean
-   */
-  public function equals($o) {
-    if (!$o instanceof self) return false;
-
-    return (
-      $o->realm === $this->realm &&
-      $o->qop === $this->qop &&
-      $o->nonce === $this->nonce &&
-      $o->opaque === $this->opaque
-    );
+  /** @return string */
+  public function hashCode() {
+    return md5($this->realm.'.'.$this->qop.'.'.$this->nonce.'.'.$this->opaque);
   }
 
-  /**
-   * Retrieve string representation
-   *
-   * @return string
-   */
+  /** @return string */
   public function toString() {
     $s= nameof($this).' ('.$this->hashCode().") {\n";
     foreach (['realm', 'qop', 'nonce', 'opaque', 'username'] as $attr) {
       $s.= sprintf("  [ %8s ] %s\n", $attr, \xp::stringOf($this->{$attr}));
     }
     return $s.="}\n";
+  }
+
+  /**
+   * Compare
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self
+      ? Objects::compare(
+          [$this->realm, $this->qop, $this->nonce, $this->opaque],
+          [$value->realm, $value->qop, $value->nonce, $value->opaque]
+        )
+      : 1
+    ;
   }
 }
