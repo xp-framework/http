@@ -2,7 +2,7 @@
 
 use peer\http\HttpProxy;
 
-abstract class ProxySettings extends \lang\Object {
+abstract class ProxySettings {
   protected $proxies;
   protected $excludes;
   protected $detected;

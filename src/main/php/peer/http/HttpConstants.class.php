@@ -6,7 +6,7 @@
  * @see  http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html HTTP methods
  * @see  http://tools.ietf.org/html/rfc6585
  */
-class HttpConstants extends \lang\Object {
+class HttpConstants {
   const 
     GET     = 'GET',
     POST    = 'POST',

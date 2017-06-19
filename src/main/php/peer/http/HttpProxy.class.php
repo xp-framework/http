@@ -18,7 +18,7 @@ use peer\http\proxy\Excludes;
  * @see   xp://peer.http.proxy.Excludes
  * @test  xp://peer.http.unittest.HttpProxyTest
  */
-class HttpProxy extends \lang\Object {
+class HttpProxy {
   const NONE = null;
 
   protected $host, $port, $excludes;

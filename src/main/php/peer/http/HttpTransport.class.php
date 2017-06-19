@@ -11,7 +11,7 @@ use peer\http\proxy\RegistrySettings;
  * @see   xp://peer.http.HttpConnection
  * @test  xp://peer.http.unittest.HttpTransportTest
  */
-abstract class HttpTransport extends \lang\Object {
+abstract class HttpTransport {
   protected static $transports= [];
   protected static $settings;
   protected $proxy= null;

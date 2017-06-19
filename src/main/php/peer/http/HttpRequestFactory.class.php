@@ -5,7 +5,7 @@
  *
  * @see   xp://peer.http.HttpConnection
  */
-class HttpRequestFactory extends \lang\Object {
+class HttpRequestFactory {
 
   /**
    * Factory method

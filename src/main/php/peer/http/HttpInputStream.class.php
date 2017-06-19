@@ -7,7 +7,7 @@ use io\streams\InputStream;
  *
  * @test  xp://peer.http.unittest.HttpInputStreamTest
  */
-class HttpInputStream extends \lang\Object implements InputStream {
+class HttpInputStream implements InputStream {
   protected
     $response  = null,
     $buffer    = '',

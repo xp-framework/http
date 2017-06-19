@@ -23,7 +23,7 @@ define('REDIRECT_LIMIT',      0xA);
  * @see      xp://peer.http.HttpConnection
  * @purpose  Utility class
  */
-class HttpUtil extends \lang\Object {
+class HttpUtil {
 
   /**
    * Fetch an URL's content. Follows redirects up until the defined 

@@ -9,7 +9,7 @@ use io\streams\InputStream;
  * @test  xp://peer.http.unittest.HttpResponseTest
  * @test  xp://peer.http.unittest.HttpInputStreamTest
  */
-class HttpResponse extends \lang\Object {
+class HttpResponse {
   public
     $statuscode    = 0,
     $message       = '',

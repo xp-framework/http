@@ -17,7 +17,8 @@ class RegistrySettingsTest extends \unittest\TestCase {
    */
   #[@beforeClass]
   public static function defineMock() {
-    self::$shell= ClassLoader::defineClass('WScript_ShellMock', 'lang.Object', [], '{
+    $parent= class_exists(\lang\Object::class) ? 'lang.Object' : null;
+    self::$shell= ClassLoader::defineClass('WScript_ShellMock', $parent, [], '{
       protected $keys;
 
       public function __construct($keys) {

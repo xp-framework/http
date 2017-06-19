@@ -26,7 +26,7 @@ use util\log\Traceable;
  * @see   rfc://2616
  * @test  xp://net.xp_framework.unittest.peer.HttpTest
  */
-class HttpConnection extends \lang\Object implements Traceable {
+class HttpConnection implements Traceable {
   protected
     $url          = null,
     $transport    = null,
