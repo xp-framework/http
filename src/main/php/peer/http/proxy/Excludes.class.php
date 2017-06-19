@@ -12,7 +12,7 @@ use peer\URL;
  *
  * @see   xp://peer.http.HttpProxy
  */
-class Excludes extends \lang\Object {
+class Excludes {
   protected $patterns;
 
   /**

@@ -1,6 +1,6 @@
 <?php namespace peer\http;
 
-abstract class Authorization extends \lang\Object {
+abstract class Authorization {
   protected $username, $password;
 
   /** @return string */

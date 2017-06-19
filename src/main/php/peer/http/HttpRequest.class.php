@@ -11,7 +11,7 @@ use peer\http\BasicAuthorization;
  * @see   xp://peer.http.HttpConnection
  * @see   rfc://2616
  */
-class HttpRequest extends \lang\Object {
+class HttpRequest {
   public
     $url        = null,
     $method     = HttpConstants::GET,

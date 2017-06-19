@@ -5,7 +5,7 @@
  *
  * @see   xp://peer.http.HttpRequest#setParameters
  */
-class RequestData extends \lang\Object {
+class RequestData {
   public $data;
 
   /**

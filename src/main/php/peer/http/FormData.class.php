@@ -5,7 +5,7 @@
  *
  * @test   xp://peer.http.unittest.FormDataRequestTest
  */
-class FormData extends \lang\Object {
+class FormData {
   const
     CRLF  = "\r\n",
     DEFAULT_CONTENTTYPE = 'text/plain',
