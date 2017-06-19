@@ -30,7 +30,7 @@ class HeaderTest extends \unittest\TestCase {
   #  [new Header('Accept', '*/*'), new Header('Accept', '*/*'), 0],
   #  [new Header('ACCEPT', '*/*'), new Header('Accept', '*/*'), 0]
   #])]
-  public function compareTo($a, $b, $expect) {
+  public function compare($a, $b, $expect) {
     $this->assertEquals($expect, $a->compareTo($b));
   }
 }
