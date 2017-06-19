@@ -1,6 +1,8 @@
 <?php namespace peer\http;
 
 use io\streams\InputStream;
+use lang\Value;
+use util\Objects;
 
 /**
  * HTTP response
@@ -9,7 +11,7 @@ use io\streams\InputStream;
  * @test  xp://peer.http.unittest.HttpResponseTest
  * @test  xp://peer.http.unittest.HttpInputStreamTest
  */
-class HttpResponse {
+class HttpResponse implements Value {
   public
     $statuscode    = 0,
     $message       = '',
@@ -198,22 +200,12 @@ class HttpResponse {
     return $s."\r\n";
   }
   
-  /**
-   * Return nice string representation
-   *
-   * Example:
-   * <pre>
-   *   peer.http.HttpResponse (HTTP/1.1 300 Multiple Choices) {
-   *     [Date                ] Sat, 01 Feb 2003 01:27:26 GMT
-   *     [Server              ] Apache/1.3.27 (Unix)
-   *     [Connection          ] close
-   *     [Transfer-Encoding   ] chunked
-   *     [Content-Type        ] text/html; charset=iso-8859-1
-   *   }
-   * </pre>
-   *
-   * @return  toString
-   */
+  /** @return string */
+  public function hashCode() {
+    return Objects::hashOf([$this->version, $this->statuscode, $this->message, $this->headers]);
+  }
+
+  /** @return string */
   public function toString() {
     $h= '';
     foreach ($this->headers as $k => $v) {
@@ -227,6 +219,22 @@ class HttpResponse {
       $this->message,
       $h
     );
+  }
+
+  /**
+   * Compare
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $value instanceof self
+      ? Objects::compare(
+          [$this->version, $this->statuscode, $this->message, $this->headers],
+          [$value->version, $value->statuscode, $value->message, $value->headers]
+        )
+      : 1
+    ;
   }
 
   /**
