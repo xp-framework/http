@@ -40,7 +40,7 @@ class DigestAuthorization extends Authorization implements Value {
    * @param string $nonce
    * @param string $opaque
    */
-  public function __construct($realm, $qop, $nonce, $opaque) {
+  public function __construct($realm, $qop, $nonce, $opaque= null) {
     $this->realm= $realm;
     $this->qop= $qop;
     $this->nonce= $nonce;
@@ -117,7 +117,7 @@ class DigestAuthorization extends Authorization implements Value {
       'response'  => $this->hashFor($method, $requestUri)
     ];
 
-    if (sizeof($this->opaque)) {
+    if (null !== $this->opaque) {
       $parts['opaque']= $this->opaque;
     }
 
