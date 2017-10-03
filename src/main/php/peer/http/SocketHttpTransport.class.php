@@ -93,4 +93,9 @@ class SocketHttpTransport extends HttpTransport {
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;
   }
+
+  /** @return void */
+  public function close() {
+    $this->channel->disconnect();
+  }
 }

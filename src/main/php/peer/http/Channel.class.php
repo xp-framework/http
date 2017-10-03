@@ -46,6 +46,15 @@ class Channel implements \io\streams\InputStream {
   }
 
   /**
+   * Disconnect (if necessary)
+   *
+   * @return void
+   */
+  public function disconnect() {
+    $this->socket->isConnected() && $this->socket->close();
+  }
+
+  /**
    * Sends a request and returns the response
    *
    * @param  peer.http.HttpRequest $request

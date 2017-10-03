@@ -2,6 +2,8 @@
 
 use peer\URL;
 use lang\XPClass;
+use lang\Closeable;
+use lang\IllegalArgumentException;
 use peer\http\proxy\EnvironmentSettings;
 use peer\http\proxy\RegistrySettings;
 
@@ -11,7 +13,7 @@ use peer\http\proxy\RegistrySettings;
  * @see   xp://peer.http.HttpConnection
  * @test  xp://peer.http.unittest.HttpTransportTest
  */
-abstract class HttpTransport {
+abstract class HttpTransport implements Closeable {
   protected static $transports= [];
   protected static $settings;
   protected $proxy= null;
@@ -79,7 +81,7 @@ abstract class HttpTransport {
    */
   public static function register($scheme, XPClass $class) {
     if (!$class->isSubclassOf('peer.http.HttpTransport')) {
-      throw new \lang\IllegalArgumentException(sprintf(
+      throw new IllegalArgumentException(sprintf(
         'Given argument must be lang.XPClass<peer.http.HttpTransport>, %s given',
         $class->toString()
       ));
@@ -97,7 +99,7 @@ abstract class HttpTransport {
   public static function transportFor(URL $url) {
     sscanf($url->getScheme(), '%[^+]+%s', $scheme, $arg);
     if (!isset(self::$transports[$scheme])) {
-      throw new \lang\IllegalArgumentException('Scheme "'.$scheme.'" unsupported');
+      throw new IllegalArgumentException('Scheme "'.$scheme.'" unsupported');
     }
 
     $transport= self::$transports[$scheme]->newInstance($url, $arg);
@@ -112,5 +114,10 @@ abstract class HttpTransport {
    */
   public function setTrace($cat) {
     $this->cat= $cat;
+  }
+
+  /** @return void */
+  public function close() {
+    // NOOP
   }
 }
