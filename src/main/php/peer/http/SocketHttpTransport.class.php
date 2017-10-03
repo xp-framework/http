@@ -24,6 +24,7 @@ class SocketHttpTransport extends HttpTransport {
    */
   public function __construct(URL $url, $arg) {
     $this->socket= $this->newSocket($url, $arg);
+    $this->channel= new Channel($this->socket);
   }
 
   /**
@@ -38,30 +39,19 @@ class SocketHttpTransport extends HttpTransport {
   }
 
   /**
-   * Set proxy
+   * Set or unset proxy
    *
-   * @param   peer.http.HttpProxy proxy
+   * @param  peer.http.HttpProxy $proxy
+   * @return void
    */
   public function setProxy(HttpProxy $proxy= null) {
     parent::setProxy($proxy);
-    $this->proxySocket= $proxy ? new Socket($proxy->host(), $proxy->port()) : null;
-  }
-
-  /**
-   * Connect to a socket. If socket still open from last request (which
-   * is the case when unread data is left on it by not reading the body,
-   * e.g.), use the quick & dirty way: Close and reopen!
-   *
-   * @param  peer.Socket $s
-   * @param  double $read Read timeout
-   * @param  double $connect Connect timeout
-   * @return peer.Socket
-   */
-  protected function connect($s, $read, $connect) {
-    $s->isConnected() && $s->close();
-    $s->setTimeout($read);
-    $s->connect($connect);
-    return $s;
+    if (null === $proxy) {
+      $this->channel->bind($this->socket);
+    } else {
+      $this->proxySocket= new Socket($proxy->host(), $proxy->port());
+      $this->channel->bind($this->proxySocket);
+    }
   }
 
   /**
@@ -90,19 +80,17 @@ class SocketHttpTransport extends HttpTransport {
    * @return  peer.http.HttpResponse response object
    */
   public function send(HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
+    $request->setHeader('Connection', 'keep-alive');
 
     // Use proxy socket and Modify target if a proxy is to be used for this request, 
     // a proxy wants "GET http://example.com/ HTTP/X.X" for (and "CONNECT" for HTTPs).
     if ($this->proxy && !$this->proxy->excludes()->contains($url= $request->getUrl())) {
-      $s= $this->connect($this->proxySocket, $timeout, $connecttimeout);
-      $this->proxy($s, $request, $url);
-    } else {
-      $s= $this->connect($this->socket, $timeout, $connecttimeout);
+      $this->proxy($this->channel->socket(), $request, $url);
     }
+    $this->channel->connect($connecttimeout, $timeout);
 
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
-    $s->write($request->getRequestString());
-    $response= new HttpResponse(new SocketInputStream($s));
+    $response= $this->channel->send($request);
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;
   }
