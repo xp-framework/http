@@ -6,6 +6,7 @@ class Channel implements \io\streams\InputStream {
   private $socket;
   private $reuseable= null;
 
+  /** @param peer.Socket */
   public function __construct($socket) {
     $this->socket= $socket;
   }
@@ -13,10 +14,26 @@ class Channel implements \io\streams\InputStream {
   /** @return peer.Socket */
   public function socket() { return $this->socket; }
 
+  /**
+   * Rebinds to a new socket, closing the existing one if necessary
+   *
+   * @param  peer.Socket
+   * @return void
+   */
   public function bind($socket) {
+    if ($this->socket->isConnected()) {
+      $this->socket->close();
+    }
     $this->socket= $socket;
   }
 
+  /**
+   * Connect (if necessary)
+   *
+   * @param  float $connectTimeout
+   * @param  float $readTimeout
+   * @return void
+   */
   public function connect($connectTimeout, $readTimeout) {
     if (false === $this->reuseable) {
       $this->socket->close();
