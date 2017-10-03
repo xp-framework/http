@@ -47,7 +47,7 @@ class HttpInputStream implements InputStream {
       return null;    // EOF
     } else if ('' === $this->buffer) {
       $chunk= $this->stream->read($limit);
-      return '' === $chunk ? null : $chunk;
+      return '' == $chunk ? null : $chunk;
     } else {
       $return= substr($this->buffer, 0, $limit);
       $this->buffer= (string)substr($this->buffer, $limit);
@@ -61,7 +61,7 @@ class HttpInputStream implements InputStream {
 
     while (false === ($p= strpos($this->buffer, "\r\n"))) {
       $chunk= $this->stream->read();
-      if ('' === $chunk) {
+      if ('' == $chunk) {
         $return= $this->buffer;
         $this->buffer= null;
         return $return;
