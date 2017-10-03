@@ -80,7 +80,6 @@ class SocketHttpTransport extends HttpTransport {
    * @return  peer.http.HttpResponse response object
    */
   public function send(HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
-    $request->setHeader('Connection', 'keep-alive');
 
     // Use proxy socket and Modify target if a proxy is to be used for this request, 
     // a proxy wants "GET http://example.com/ HTTP/X.X" for (and "CONNECT" for HTTPs).
