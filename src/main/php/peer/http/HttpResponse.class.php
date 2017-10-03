@@ -16,107 +16,63 @@ class HttpResponse implements Value {
     $statuscode    = 0,
     $message       = '',
     $version       = '',
-    $headers       = [],
-    $chunked       = null;
+    $headers       = [];
   
   protected
-    $stream        = null,
-    $buffer        = '',
+    $in            = null,
     $_headerlookup = [];
-    
+
   /**
    * Constructor
    *
    * @param  io.streams.InputStream $stream
    * @param  bool $chunked Whether to check for chunked encoding.
+   * @param  callable $consumed Callback when stream has been consumed
    */
-  public function __construct(InputStream $stream, $chunked= true) {
-    $this->stream= $stream;
-    
-    // Read status line and headers
-    do { $this->readHeader(); } while (100 === $this->statuscode);
-
-    // Check for chunked transfer encoding
-    $this->chunked= $chunked && (bool)stristr($this->getHeader('Transfer-Encoding'), 'chunked');
-  }
-  
-  /**
-   * Scan stream until we we find a certain character
-   *
-   * @param   string char
-   * @return  string
-   */
-  protected function scanUntil($char) {
-    $pos= strpos($this->buffer, $char);
-    
-    // Found no line ending in buffer, read until we do!
-    while (false === $pos) {
-      if ($this->stream->available() <= 0) {
-        $pos= strlen($this->buffer);
-        break;
+  public function __construct(InputStream $stream, $chunked= true, $consumed= null) {
+    $input= new HttpInputStream($stream, $consumed);
+    do {
+      $message= $input->readLine();
+      $r= sscanf($message, "HTTP/%[0-9.] %3d %[^\r]", $this->version, $this->statuscode, $this->message);
+      if ($r < 2) {
+        throw new \lang\FormatException('"'.addcslashes($message, "\0..\37!\177..\377").'" is not a valid HTTP response ['.$r.']');
       }
-      $this->buffer.= $this->stream->read();
-      $pos= strpos($this->buffer, $char);
-    }
+      $this->readHeaders($input);
+    } while (100 === $this->statuscode);
 
-    // Return line, remove from buffer
-    $line= substr($this->buffer, 0, $pos);
-    $this->buffer= substr($this->buffer, $pos+ 1);
-    return $line;
+    if (
+      $chunked &&
+      isset($this->_headerlookup['transfer-encoding']) &&
+      $this->headers[$this->_headerlookup['transfer-encoding']][0] === 'chunked'
+    ) {
+      $this->in= new ReadChunks($input);
+    } else if (isset($this->_headerlookup['content-length'])) {
+      $this->in= new ReadLength($input, (int)$this->headers[$this->_headerlookup['content-length']][0]);
+    } else {
+      $this->in= $input;
+    }
   }
 
   /**
-   * Read a chunk
+   * Reads headers
    *
-   * @param   int bytes
-   * @return  string
+   * @param  peer.http.HttpInputStream $stream
+   * @return void
    */
-  protected function readChunk($bytes) {
-    $len= strlen($this->buffer);
-    
-    // Not enough data, read until it's here!
-    while ($len < $bytes) {
-      if ($this->stream->available() <= 0) break;
-      $this->buffer.= $this->stream->read();
-      $len= strlen($this->buffer);
-    }
-    
-    // Return chunk, remove from buffer
-    $chunk= substr($this->buffer, 0, $bytes);
-    $this->buffer= substr($this->buffer, $bytes);
-    return $chunk;
-  }
-  
-  /**
-   * Reads the header (status line and key/value pairs).
-   *
-   * @throws  lang.FormatException
-   */
-  protected function readHeader() {
-  
-    // Status line
-    $status= $this->scanUntil("\n");
-    $r= sscanf($status, "HTTP/%[0-9.] %3d %[^\r]", $this->version, $this->statuscode, $this->message);
-    if ($r < 2) {
-      throw new \lang\FormatException('"'.addcslashes($status, "\0..\37!\177..\377").'" is not a valid HTTP response ['.$r.']');
-    }
+  private function readHeaders($stream) {
+    while ($line= $stream->readLine()) {
+      sscanf($line, "%[^:]: %[^\r]", $name, $value);
 
-    // Headers
-    while ($line= $this->scanUntil("\n")) {
-      if (strlen($line) < 2) break;   // A line starting with \r\n indicates ends of headers
-
-      $v= null;
-      sscanf($line, "%[^:]: %[^\r\n]", $k, $v);
-      $l= strtolower($k);
-      if (!isset($this->_headerlookup[$l])) {
-        $this->_headerlookup[$l]= $k;
+      $l= strtolower($name);
+      if (isset($this->_headerlookup[$l])) {
+        $name= $this->_headerlookup[$l];
       } else {
-        $k= $this->_headerlookup[$l];
+        $this->_headerlookup[$l]= $name;
       }
-      if (!isset($this->headers[$k])) {
-        $this->headers[$k]= [$v];
+      if (!isset($this->headers[$name])) {
+        $this->headers[$name]= [$value];
       } else {
-        $this->headers[$k][]= $v;
+        $this->headers[$name][]= $value;
       }
     }
   }
@@ -128,40 +84,12 @@ class HttpResponse implements Value {
    * @return  string buf or FALSE to indicate EOF
    */
   public function readData($size= 8192) {
-    if (!$this->chunked) {
-      if (!($buf= $this->readChunk($size))) {
-        return $this->closeStream();
-      }
-
-      return $buf;
+    if ($this->in->available()) {
+      return $this->in->read($size);
+    } else {
+      $this->in->close();
+      return false;
     }
-
-    // Handle chunked transfer encoding. In chunked transfer encoding,
-    // a hexadecimal number followed by optional text is on a line by
-    // itself. The line is terminated by \r\n. The hexadecimal number
-    // indicates the size of the chunk. The first chunk indicator comes 
-    // immediately after the headers. Note: We assume that a chunked 
-    // indicator line will never be longer than 1024 bytes. We ignore
-    // any chunk extensions. We ignore the size and boolean parameters
-    // to this method completely to ensure functionality. For more 
-    // details, see RFC 2616, section 3.6.1
-    if (!($indicator= $this->scanUntil("\n"))) return $this->closeStream();
-    if (!(sscanf($indicator, "%x%s\r", $chunksize, $extension))) {
-      $this->closeStream();
-      throw new \io\IOException(sprintf(
-        'Chunked transfer encoding: Indicator line "%s" invalid', 
-        addcslashes($indicator, "\0..\17")
-      ));
-    }
-
-    // A chunk of size 0 means we're at the end of the document. We 
-    // ignore any trailers.
-    if (0 == $chunksize) return $this->closeStream();
-
-    // A chunk is terminated by \r\n, so scan over two more characters
-    $chunk= $this->readChunk($chunksize);
-    $this->readChunk(2);
-    return $chunk;
   }
   
   /**
@@ -170,7 +98,7 @@ class HttpResponse implements Value {
    * @return  bool
    */
   public function closeStream() {
-    $this->stream->close();
+    $this->in->close();
     return false;
   }
 
@@ -185,7 +113,7 @@ class HttpResponse implements Value {
   }
 
   /** @return io.streams.InputStream */
-  public function in() { return new HttpInputStream($this); }
+  public function in() { return $this->in; }
 
   /**
    * Returns HTTP response headers as read from server
