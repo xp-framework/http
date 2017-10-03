@@ -1,7 +1,6 @@
 <?php namespace peer\http\unittest;
 
 use io\streams\MemoryInputStream;
-use peer\http\HttpInputStream;
 use peer\http\HttpResponse;
 use peer\http\HttpConstants;
 
@@ -25,7 +24,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
     foreach ($headers as $key => $val) {
       $response.= $key.': '.$val."\r\n";
     }
-    $response.="\r\n".$body;
+    $response.= "\r\n".$body;
 
     return new HttpResponse(new MemoryInputStream($response));
   }
@@ -58,7 +57,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
       $this->assertEquals($length, (int)current($r->header('Content-Length')));
       
       // Check data
-      $this->assertEquals($data, $this->readAll(new HttpInputStream($r)));
+      $this->assertEquals($data, $this->readAll($r->in()));
     }
   }
 
@@ -83,12 +82,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
 
   #[@test]
   public function available() {
-    with ($s= new HttpInputStream($this->httpResponse(
-      HttpConstants::STATUS_OK, 
-      ['Content-Length' => 10], 
-      'HelloWorld'
-    ))); {
-
+    with ($s= $this->httpResponse(HttpConstants::STATUS_OK, ['Content-Length' => 10], 'HelloWorld')->in()); {
       $this->assertNotEquals(0, $s->available(), 'before read #1');
       $this->assertEquals('Hello', $s->read(5));
 
@@ -101,14 +95,8 @@ class HttpInputStreamTest extends \unittest\TestCase {
 
   #[@test]
   public function availableWithChunks() {
-    with ($s= new HttpInputStream($this->httpResponse(
-      HttpConstants::STATUS_OK, 
-      ['Transfer-Encoding' => 'chunked'], 
-      "5\r\nHello\r\n".
-      "5\r\nWorld\r\n".
-      "0\r\n"
-    ))); {
-
+    $chunks= "5\r\nHello\r\n"."5\r\nWorld\r\n"."0\r\n";
+    with ($s= $this->httpResponse(HttpConstants::STATUS_OK, ['Transfer-Encoding' => 'chunked'], $chunks)->in()); {
       $this->assertNotEquals(0, $s->available(), 'before read #1');
       $this->assertEquals('Hello', $s->read(5));
 
@@ -121,11 +109,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
  
   #[@test]
   public function availableAfterReadingAll() {
-    with ($s= new HttpInputStream($this->httpResponse(
-      HttpConstants::STATUS_OK, 
-      ['Content-Length' => 10], 
-      'HelloWorld'
-    ))); {
+    with ($s= $this->httpResponse(HttpConstants::STATUS_OK, ['Content-Length' => 10], 'HelloWorld')->in()); {
       $this->readAll($s);
       $this->assertEquals(0, $s->available(), 'after read all');
     }
@@ -133,11 +117,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
  
   #[@test]
   public function readAfterReadingAll() {
-    with ($s= new HttpInputStream($this->httpResponse(
-      HttpConstants::STATUS_OK, 
-      ['Content-Length' => 10], 
-      'HelloWorld'
-    ))); {
+    with ($s= $this->httpResponse(HttpConstants::STATUS_OK, ['Content-Length' => 10], 'HelloWorld')->in()); {
       $this->readAll($s);
       $this->assertEquals(null, $s->read(), 'after read all');
     }
@@ -145,11 +125,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
 
   #[@test]
   public function availableWhenBuffered() {
-    with ($s= new HttpInputStream($this->httpResponse(
-      HttpConstants::STATUS_OK, 
-      ['Content-Length' => 10], 
-      'HelloWorld'
-    ))); {
+    with ($s= $this->httpResponse(HttpConstants::STATUS_OK, ['Content-Length' => 10], 'HelloWorld')->in()); {
       $s->read(5);
       $this->assertEquals(5, $s->available());
     }
