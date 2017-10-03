@@ -1,6 +1,5 @@
 <?php namespace peer\http;
 
-use lang\Object;
 use lang\XPClass;
 use lang\reflect\TargetInvocationException;
 use util\Secret;
