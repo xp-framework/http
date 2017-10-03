@@ -22,6 +22,11 @@ class HttpInputStream implements InputStream {
     $this->consumed= $consumed;
   }
 
+  /** @param callable $consumed */
+  public function callback($consumed) {
+    $this->consumed= $consumed;
+  }
+
   /** @return void */
   public function consumed() {
     if ($f= $this->consumed) $f();
@@ -42,7 +47,7 @@ class HttpInputStream implements InputStream {
       return null;    // EOF
     } else if ('' === $this->buffer) {
       $chunk= $this->stream->read($limit);
-      return '' === $chunk ? null : $r;
+      return '' === $chunk ? null : $chunk;
     } else {
       $return= substr($this->buffer, 0, $limit);
       $this->buffer= (string)substr($this->buffer, $limit);

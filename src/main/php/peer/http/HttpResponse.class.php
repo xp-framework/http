@@ -10,6 +10,7 @@ use util\Objects;
  * @see   xp://peer.http.HttpConnection
  * @test  xp://peer.http.unittest.HttpResponseTest
  * @test  xp://peer.http.unittest.HttpInputStreamTest
+ * @see   https://en.wikipedia.org/wiki/HTTP_persistent_connection
  */
 class HttpResponse implements Value {
   public
@@ -39,6 +40,13 @@ class HttpResponse implements Value {
       }
       $this->readHeaders($input);
     } while (100 === $this->statuscode);
+
+    if (
+      isset($this->_headerlookup['connection']) &&
+      $this->headers[$this->_headerlookup['connection']][0] === 'close'
+    ) {
+      $input->callback(null);
+    }
 
     if (
       $chunked &&
