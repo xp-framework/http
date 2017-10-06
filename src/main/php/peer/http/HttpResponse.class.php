@@ -28,10 +28,9 @@ class HttpResponse implements Value {
    *
    * @param  io.streams.InputStream $stream
    * @param  bool $chunked Whether to check for chunked encoding.
-   * @param  callable $consumed Callback when stream has been consumed
    */
-  public function __construct(InputStream $stream, $chunked= true, $consumed= null) {
-    $input= new HttpInputStream($stream, $consumed);
+  public function __construct(InputStream $stream, $chunked= true) {
+    $input= $stream instanceof HttpInputStream ? $stream : new HttpInputStream($stream);
     do {
       $message= $input->readLine();
       $r= sscanf($message, "HTTP/%[0-9.] %3d %[^\r]", $this->version, $this->statuscode, $this->message);

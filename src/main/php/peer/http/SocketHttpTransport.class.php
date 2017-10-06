@@ -86,10 +86,9 @@ class SocketHttpTransport extends HttpTransport {
     if ($this->proxy && !$this->proxy->excludes()->contains($url= $request->getUrl())) {
       $this->proxy($this->channel->socket(), $request, $url);
     }
-    $this->channel->connect($connecttimeout, $timeout);
 
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
-    $response= $this->channel->send($request);
+    $response= $this->channel->send($request, $connecttimeout, $timeout);
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;
   }

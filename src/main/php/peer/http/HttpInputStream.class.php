@@ -22,6 +22,16 @@ class HttpInputStream implements InputStream {
     $this->consumed= $consumed;
   }
 
+  /**
+   * Put given bytes back into read buffer
+   *
+   * @param  string $bytes
+   * @return void
+   */
+  public function pushBack($bytes) {
+    $this->buffer= $bytes.$this->buffer;
+  }
+
   /** @param callable $consumed */
   public function callback($consumed) {
     $this->consumed= $consumed;

@@ -28,24 +28,6 @@ class Channel implements \io\streams\InputStream {
   }
 
   /**
-   * Connect (if necessary)
-   *
-   * @param  float $connectTimeout
-   * @param  float $readTimeout
-   * @return void
-   */
-  public function connect($connectTimeout, $readTimeout) {
-    if (false === $this->reuseable) {
-      $this->socket->close();
-    } else if ($this->socket->isConnected()) {
-      return;
-    }
-
-    $this->socket->setTimeout($readTimeout);
-    $this->socket->connect($connectTimeout);
-  }
-
-  /**
    * Disconnect (if necessary)
    *
    * @return void
@@ -58,12 +40,42 @@ class Channel implements \io\streams\InputStream {
    * Sends a request and returns the response
    *
    * @param  peer.http.HttpRequest $request
+   * @param  float $connectTimeout
+   * @param  float $readTimeout
    * @return peer.http.HttpResponse
    */
-  public function send($request) {
-    $this->socket->write($request->getRequestString());
-    $this->reuseable= false;
-    return new HttpResponse($this, true, function() { $this->reuseable= true; });
+  public function send($request, $connectTimeout, $readTimeout) {
+
+    // Previous call didn't finish reading all data, connection is not reusable
+    if (false === $this->reuseable) {
+      $this->socket->close();
+    }
+
+    do {
+      if ($this->socket->isConnected()) {
+        $reused= true;
+      } else {
+        $reused= false;
+        $this->socket->setTimeout($readTimeout);
+        $this->socket->connect($connectTimeout);
+      }
+
+      $this->socket->write($request->getRequestString());
+      $this->reuseable= false;
+      $input= new HttpInputStream($this, function() { $this->reuseable= true; });
+
+      // If we reused the connection and we receive EOF, disconnect & retry
+      $line= $input->readLine();
+      if ($this->socket->eof()) {
+        if (!$reused) throw new SocketException('Received EOF (timeout: '.$readTimeout.' seconds)');
+        $this->socket->close();
+        continue;
+      }
+
+      // Success
+      $input->pushBack($line."\r\n");
+      return new HttpResponse($input, true);
+    } while (true);
   }
 
   /** @return int */
