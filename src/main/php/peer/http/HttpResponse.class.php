@@ -75,11 +75,7 @@ class HttpResponse implements Value {
       } else {
         $this->_headerlookup[$l]= $name;
       }
-      if (!isset($this->headers[$name])) {
-        $this->headers[$name]= [$value];
-      } else {
-        $this->headers[$name][]= $value;
-      }
+      $this->headers[$name][]= $value;
     }
   }
 
