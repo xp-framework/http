@@ -64,6 +64,16 @@ class ChannelTest extends \unittest\TestCase {
   }
 
   #[@test]
+  public function closing_response_input_stream_does_not_close_socket() {
+    $s= new TestingSocket('localhost', 80);
+    $s->receives("HTTP/1.1 200 OK\r\n\r\n");
+    $c= new Channel($s);
+    $r= $c->send(new HttpRequest(new URL('http://localhost:80/')));
+    $r->in()->close();
+    $this->assertTrue($s->isConnected());
+  }
+
+  #[@test]
   public function connection_is_kept_alive_by_default() {
     $s= new TestingSocket('localhost', 80);
     $c= new Channel($s);
