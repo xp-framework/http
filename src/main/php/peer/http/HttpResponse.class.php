@@ -40,18 +40,17 @@ class HttpResponse implements Value {
       $this->readHeaders($input);
     } while (100 === $this->statuscode);
 
-    if (
+    if ($this->version < '1.1' || (
       isset($this->_headerlookup['connection']) &&
       $this->headers[$this->_headerlookup['connection']][0] === 'close'
-    ) {
+    )) {
       $input->callback(null);
     }
 
-    if (
-      $chunked &&
+    if ($chunked && (
       isset($this->_headerlookup['transfer-encoding']) &&
       $this->headers[$this->_headerlookup['transfer-encoding']][0] === 'chunked'
-    ) {
+    )) {
       $this->in= new ReadChunks($input);
     } else if (isset($this->_headerlookup['content-length'])) {
       $this->in= new ReadLength($input, (int)$this->headers[$this->_headerlookup['content-length']][0]);

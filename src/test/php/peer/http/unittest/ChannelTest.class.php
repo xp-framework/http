@@ -77,6 +77,19 @@ class ChannelTest extends \unittest\TestCase {
   }
 
   #[@test]
+  public function connection_is_closed_for_http10() {
+    $s= new TestingSocket('localhost', 80);
+    $c= new Channel($s);
+
+    for ($i= 0; $i < 2; $i++) {
+      $s->receives("HTTP/1.0 200 OK\r\nContent-Length: 4\r\n\r\nTest");
+      Streams::readAll($c->send(new HttpRequest(new URL('http://localhost:80/')))->in());
+    }
+
+    $this->assertEquals(['localhost:80', 'localhost:80'], $s->connected());
+  }
+
+  #[@test]
   public function connection_closed_when_specified_by_server() {
     $s= new TestingSocket('localhost', 80);
     $c= new Channel($s);
