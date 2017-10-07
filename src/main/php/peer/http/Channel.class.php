@@ -1,7 +1,14 @@
 <?php namespace peer\http;
 
-use peer\SocketInputStream;
+use peer\SocketException;
 
+/**
+ * Channel manages I/O between client and server, implementing keep-alive
+ *
+ * @see   https://en.wikipedia.org/wiki/HTTP_persistent_connection
+ * @see   https://tools.ietf.org/html/rfc7230#section-6.3
+ * @test  xp://peer.http.unittest.ChannelTest
+ */
 class Channel implements \io\streams\InputStream {
   private $socket;
   private $reuseable= null;
@@ -44,7 +51,7 @@ class Channel implements \io\streams\InputStream {
    * @param  float $readTimeout
    * @return peer.http.HttpResponse
    */
-  public function send($request, $connectTimeout, $readTimeout) {
+  public function send($request, $connectTimeout= 2.0, $readTimeout= 60.0) {
 
     // Previous call didn't finish reading all data, connection is not reusable
     if (false === $this->reuseable) {
