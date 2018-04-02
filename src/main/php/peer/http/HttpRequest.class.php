@@ -75,22 +75,23 @@ class HttpRequest {
   /**
    * Set request parameters
    *
-   * @param   var p either a string, a RequestData object or an associative array
+   * @param  string|[:map]|peer.http.RequestData
    */
   public function setParameters($p) {
     if ($p instanceof RequestData) {
       $this->parameters= $p;
       return;
-    } else if (is_string($p)) {
-      parse_str($p, $out); 
-      $params= $out;
-    } else if (is_array($p)) {
-      $params= $p;
-    } else {
-      $params= [];
     }
-    
-    $this->parameters= array_diff($params, $this->url->getParams());
+
+    if (is_string($p)) {
+      parse_str($p, $params);
+    } else {
+      $params= (array)$p;
+    }
+
+    foreach ($params as $key => $value) {
+      $this->url->hasParam($key) || $this->parameters[$key]= $value;
+    }
   }
   
   /**
