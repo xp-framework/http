@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 9.0.1 / 2018-04-02
+
+* Fixed compatiblity with PHP 7.2 - @thekid
+
 ## 9.0.0 / 2017-06-20
 
 * Merged PR #20: XP9 Compatibility - @thekid
@@ -22,7 +26,8 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## 7.0.1 / 2016-06-10
 
-* Allowed IPV6 addresses in *_PROXY, e.g. `[::1]:3128` - @thekid
+* Allowed IPV6 addresses in PROXY environment variables, e.g. `[::1]:3128`
+  (@thekid)
 * Fixed issue #15: NO_PROXY - @thekid
 
 ## 7.0.0 / 2016-02-21

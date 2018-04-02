@@ -1,6 +1,5 @@
 <?php namespace peer\http;
 
-use lang\Object;
 use lang\XPClass;
 use lang\reflect\TargetInvocationException;
 use util\Secret;
@@ -9,6 +8,7 @@ use lang\IllegalStateException;
 /**
  * Authorization factory class for HTTP
  *
+ * @test  xp://peer.http.unittest.AuthorizationsTest
  */
 final class Authorizations {
   const AUTH_HEADER= 'WWW-Authenticate';
