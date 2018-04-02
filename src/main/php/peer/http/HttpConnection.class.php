@@ -2,6 +2,7 @@
 
 use peer\URL;
 use util\log\Traceable;
+use lang\Closeable;
 
 /**
  * HTTP connection
@@ -26,7 +27,7 @@ use util\log\Traceable;
  * @see   rfc://2616
  * @test  xp://net.xp_framework.unittest.peer.HttpTest
  */
-class HttpConnection implements Traceable {
+class HttpConnection implements Traceable, Closeable {
   protected
     $url          = null,
     $transport    = null,
@@ -259,5 +260,10 @@ class HttpConnection implements Traceable {
    */
   public function setTrace($cat) {
     $this->transport->setTrace($cat);
+  }
+
+  /** @return void */
+  public function close() {
+    $this->transport->close();
   }
 }

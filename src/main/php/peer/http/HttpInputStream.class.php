@@ -8,74 +8,84 @@ use io\streams\InputStream;
  * @test  xp://peer.http.unittest.HttpInputStreamTest
  */
 class HttpInputStream implements InputStream {
-  protected
-    $response  = null,
-    $buffer    = '',
-    $available = 0;
-  
+  private $stream;
+  private $buffer= '';
+
   /**
    * Constructor
    *
-   * @param   peer.http.HttpResponse $response
+   * @param  io.streams.InputStream
+   * @param  callable $consumed Optional callback when stream is completely consumed
    */
-  public function __construct(HttpResponse $response) {
-    $this->response= $response;
+  public function __construct(InputStream $stream, $consumed= null) {
+    $this->stream= $stream;
+    $this->consumed= $consumed;
   }
-  
+
   /**
-   * Buffer a chunk if necessary
+   * Put given bytes back into read buffer
    *
-   * @return  int available
+   * @param  string $bytes
+   * @return void
    */
-  protected function buffer() {
-    if (($l= strlen($this->buffer)) > 0) return $l;
-    if (false === ($chunk= $this->response->readData(8192, true))) {
-      $this->available= -1;
-      return 0;
+  public function pushBack($bytes) {
+    $this->buffer= $bytes.$this->buffer;
+  }
+
+  /** @param callable $consumed */
+  public function callback($consumed) {
+    $this->consumed= $consumed;
+  }
+
+  /** @return void */
+  public function consumed() {
+    if ($f= $this->consumed) $f();
+  }
+
+  /** @return bool */
+  public function available() {
+    if ('' === $this->buffer) {
+      return $this->stream->available();
     } else {
-      $this->buffer.= $chunk;
-      $this->available= strlen($this->buffer);
-      return $this->available;
+      return strlen($this->buffer);
     }
   }
 
-  /**
-   * Read a string
-   *
-   * @param   int $limit default 8192
-   * @return  string
-   */
+  /** @return string */
   public function read($limit= 8192) {
-    if (-1 === $this->available) return null;   // At end
-    $this->buffer();
-    $b= substr($this->buffer, 0, $limit);
-    $this->buffer= substr($this->buffer, $limit);
-    return $b;
+    if (null === $this->buffer) {
+      return null;    // EOF
+    } else if ('' === $this->buffer) {
+      $chunk= $this->stream->read($limit);
+      return '' == $chunk ? null : $chunk;
+    } else {
+      $return= substr($this->buffer, 0, $limit);
+      $this->buffer= (string)substr($this->buffer, $limit);
+      return $return;
+    }
   }
 
-  /**
-   * Returns the number of bytes that can be read from this stream 
-   * without blocking.
-   *
-   * @return  int
-   */
-  public function available() {
-    return (-1 === $this->available) ? 0 : $this->buffer();
+  /** @return string */
+  public function readLine() {
+    if (null === $this->buffer) return null;    // EOF
+
+    while (false === ($p= strpos($this->buffer, "\r\n"))) {
+      $chunk= $this->stream->read();
+      if ('' == $chunk) {
+        $return= $this->buffer;
+        $this->buffer= null;
+        return $return;
+      }
+      $this->buffer.= $chunk;
+    }
+
+    $return= substr($this->buffer, 0, $p);
+    $this->buffer= substr($this->buffer, $p + 2);
+    return $return;
   }
 
-  /**
-   * Close this buffer
-   */
+  /** @return voud */
   public function close() {
-    $this->response->closeStream();
-  }
-
-  /**
-   * Creates a string representation of this Http
-   *
-   * @return  string
-   */
-  public function toString() {
-    return nameof($this).'<'.$this->response->toString().'>';
+    $this->stream->close();
   }
 }
