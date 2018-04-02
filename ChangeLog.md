@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 9.0.2 / 2018-04-02
+
+* Fixed compatiblity with PHP 7.3 - @thekid
+
 ## 9.0.1 / 2018-04-02
 
 * Fixed compatiblity with PHP 7.2 - @thekid
