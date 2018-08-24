@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 9.0.3 / 2018-08-24
+
+* Made compatible with `xp-framework/logging` version 9.0.0 - @thekid
+
 ## 9.0.2 / 2018-04-02
 
 * Fixed compatiblity with PHP 7.3 - @thekid
