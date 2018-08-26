@@ -133,6 +133,28 @@ class HttpRequest {
     }
   }
 
+  /** @return string */
+  public function target() {
+    $params= '';
+    foreach ($this->parameters as $name => $value) {
+      if (is_array($value)) {
+        foreach ($value as $k => $v) {
+          $params.= '&'.urlencode($name).'['.urlencode($k).']='.urlencode($v);
+        }
+      } else {
+        $params.= '&'.urlencode($name).'='.urlencode($value);
+      }
+    }
+
+    if (null !== ($query= $this->url->getQuery())) {
+      return $this->target.'?'.$query.$params;
+    } else if ($params) {
+      return $this->target.'?'.substr($params, 1);
+    } else {
+      return $this->target;
+    }
+  }
+
   /**
    * Returns payload
    *
