@@ -1,5 +1,7 @@
 <?php namespace peer\http\unittest;
 
+use io\streams\MemoryInputStream;
+use peer\http\HttpConnection;
 use peer\http\HttpRequest;
 use peer\http\HttpResponse;
 
@@ -8,26 +10,26 @@ use peer\http\HttpResponse;
  *
  * @see   xp://peer.http.HttpConnection
  */
-class MockHttpConnection extends \peer\http\HttpConnection {
-  protected $lastRequest= null;
-  protected $response= null;
-  protected $cat= null;
+class MockHttpConnection extends HttpConnection {
+  private $lastRequest= null;
+  private $response= null;
+  private $cat= null;
 
   /** @return string */
-  public function lastRequest() { return $this->lastRequest->getRequestString(); }
+  public function lastRequest() { return $this->lastRequest; }
 
-  public function setResponse(HttpResponse $response) {
-    $this->response= $response;
-  }
+  /** @param peer.http.HttpResponse $response */
+  public function setResponse(HttpResponse $response) { $this->response= $response; }
 
-  protected function response() {
+  /** @return peer.http.HttpResponse */
+  private function response() {
     if ($this->response) {
       $r= $this->response;
       $this->response= null;
       return $r;
     }
 
-    return new HttpResponse(new \io\streams\MemoryInputStream("HTTP/1.0 200 Testing OK\r\n"));
+    return new HttpResponse(new MemoryInputStream("HTTP/1.0 200 Testing OK\r\n"));
   }
 
   /**
@@ -37,9 +39,36 @@ class MockHttpConnection extends \peer\http\HttpConnection {
    * @return  peer.http.HttpResponse response object
    */
   public function send(HttpRequest $request) {
-    $this->lastRequest= $request;
+    $this->lastRequest= $request->getRequestString();
 
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
+    $response= $this->response();
+    $this->cat && $this->cat->info('<<<', $response->getHeaderString());
+    return $response;
+  }
+
+  /**
+   * Send a HTTP request
+   *
+   * @param   peer.http.HttpRequest
+   * @return  peer.http.MockHttpOutputStream
+   */
+  public function open(HttpRequest $request) {
+    $this->lastRequest= $request->getRequestString();
+
+    $this->cat && $this->cat->info('>>>', $request->getHeaderString());
+    return new MockHttpOutputStream();
+  }
+
+  /**
+   * Finish a HTTP request
+   *
+   * @param   peer.http.MockHttpOutputStream $output
+   * @return  peer.http.HttpResponse
+   */
+  public function finish($output) {
+    $this->lastRequest.= $output->bytes;
+
     $response= $this->response();
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;

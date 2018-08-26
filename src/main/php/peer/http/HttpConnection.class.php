@@ -124,20 +124,45 @@ class HttpConnection implements Traceable {
   }
 
   /**
+   * Opens a HTTP transfer
+   *
+   * ```php
+   * $transfer= $this->conn->open($request);
+   * $transfer->write(...);
+   *
+   * $response= $this->conn->finish($transfer);
+   * ```
+   *
+   * @param   peer.http.HttpRequest $request
+   * @return  peer.http.HttpOutputStream
+   */
+  public function open(HttpRequest $request) {
+    return $this->transport->open($request, $this->_ctimeout, $this->_timeout);
+  }
+
+  /**
+   * Finishes a transfer and returns the response
+   *
+   * @param  peer.http.HttpOutputStream $stream
+   * @return peer.http.HttpResponse
+   */
+  public function finish(HttpOutputStream $stream) {
+    return $this->transport->finish($stream);
+  }
+
+  /**
    * Creates a new HTTP request. For use in conjunction with send(), e.g.:
    *
-   * <code>
-   *   $conn= new HttpConnection('http://example.com/');
+   * ```php
+   * $conn= new HttpConnection('http://example.com/');
    *   
-   *   with ($request= $conn->create(new HttpRequest())); {
-   *     $request->setMethod(HttpConstants::GET);
-   *     $request->setParameters(array('a' => 'b'));
-   *     $request->setHeader('X-Binford', '6100 (more power)');
+   * $request= $conn->create(new HttpRequest());
+   * $request->setMethod(HttpConstants::GET);
+   * $request->setParameters(array('a' => 'b'));
+   * $request->setHeader('X-Binford', '6100 (more power)');
    *
-   *     $response= $conn->send($request);
-   *     // ...
-   *   }
-   * </code>
+   * $response= $conn->send($request);
+   * ```
    *
    * @param   peer.http.HttpRequest $r
    * @return  peer.http.HttpRequest request object
