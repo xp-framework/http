@@ -39,7 +39,13 @@ class CurlHttpTransport extends HttpTransport {
       HttpConstants::VERSION_1_1 => CURL_HTTP_VERSION_1_1,
     ];
 
-    $header= $request->getHeaderString();
+    $headers= [];
+    foreach ($request->headers as $name => $values) {
+      foreach ($values as $value) {
+        $headers[]= $name.': '.$value;
+      }
+    }
+
     $handle= curl_init();
     curl_setopt_array($handle, [
       CURLOPT_HEADER         => true,
@@ -50,7 +56,7 @@ class CurlHttpTransport extends HttpTransport {
       CURLOPT_CUSTOMREQUEST  => $request->method,
       CURLOPT_CONNECTTIMEOUT => $connectTimeout,
       CURLOPT_TIMEOUT        => $readTimeout,
-      CURLOPT_HTTPHEADER     => explode("\r\n", $header),
+      CURLOPT_HTTPHEADER     => $headers,
       CURLOPT_HTTP_VERSION   => isset($versions[$request->version]) ? $versions[$request->version] : CURL_HTTP_VERSION_NONE,
       CURLOPT_SSLVERSION     => $this->ssl,
     ]);
@@ -65,7 +71,10 @@ class CurlHttpTransport extends HttpTransport {
       $proxied= false;
     }
 
-    $this->cat && $this->cat->info('>>>', $header);
+    $this->cat && $this->cat->info('>>>', (
+      $request->method.' '.$request->target().' HTTP/'.$request->version."\r\n".
+      implode("\r\n", $headers)
+    ));
     return new CurlHttpOutputStream($handle, $proxied);
   }
 

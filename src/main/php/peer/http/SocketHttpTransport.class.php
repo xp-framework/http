@@ -101,9 +101,15 @@ class SocketHttpTransport extends HttpTransport {
     }
 
     // Send headers, then return control to caller
-    $header= $request->getHeaderString();
+    $header= $request->method.' '.$request->target().' HTTP/'.$request->version."\r\n";
+    foreach ($request->headers as $name => $values) {
+      foreach ($values as $value) {
+        $header.= $name.': '.$value."\r\n";
+      }
+    }
+
     $this->cat && $this->cat->info('>>>', $header);
-    $s->write($header);
+    $s->write($header."\r\n");
     return new SocketHttpOutputStream($s);
   }
 
