@@ -1,15 +1,15 @@
 <?php namespace peer\http\unittest;
 
-use util\log\Traceable;
-use unittest\TestCase;
 use peer\URL;
+use peer\http\BasicAuthorization;
+use peer\http\HttpConstants;
 use peer\http\HttpProxy;
 use peer\http\HttpRequest;
-use peer\http\HttpConstants;
 use peer\http\RequestData;
-use peer\http\BasicAuthorization;
-use util\log\LogCategory;
+use unittest\TestCase;
 use util\log\BufferedAppender;
+use util\log\LogCategory;
+use util\log\Traceable;
 use util\log\layout\PatternLayout;
 
 /**
@@ -173,4 +173,27 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
+  #[@test]
+  public function open_transfer() {
+    $request= $this->fixture->create(new HttpRequest());
+    $request->setMethod('POST');
+    $request->setTarget('/');
+    $request->setHeader('Content-Length', 13);
+    $request->setHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+    $transfer= $this->fixture->open($request);
+    $transfer->write('var1=1&var2=2');
+    $this->fixture->finish($transfer);
+
+    $this->assertEquals(
+      "POST / HTTP/1.1\r\n".
+      "Connection: close\r\n".
+      "Host: example.com:80\r\n".
+      "Content-Length: 13\r\n".
+      "Content-Type: application/x-www-form-urlencoded\r\n".
+      "\r\n".
+      "var1=1&var2=2",
+      $this->fixture->lastRequest()
+    );
+  }
 }
