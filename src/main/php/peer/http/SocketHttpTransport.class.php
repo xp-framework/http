@@ -1,8 +1,8 @@
 <?php namespace peer\http;
 
-use peer\URL;
 use peer\Socket;
 use peer\SocketInputStream;
+use peer\URL;
 
 /**
  * Transport via sockets
@@ -79,6 +79,44 @@ class SocketHttpTransport extends HttpTransport {
       $url->getPort() ? ':'.$url->getPort() : '',
       $url->getPath('/')
     ));
+  }
+
+  /**
+   * Opens a request
+   *
+   * @param   peer.http.HttpRequest $request
+   * @param   float $connectTimeout default 2.0
+   * @param   float $readTimeout default 60.0
+   * @return  peer.http.HttpOutputStream
+   */
+  public function open(HttpRequest $request, $connectTimeout= 2.0, $readTimeout= 60.0) {
+
+    // Use proxy socket and Modify target if a proxy is to be used for this request, 
+    // a proxy wants "GET http://example.com/ HTTP/X.X" for (and "CONNECT" for HTTPs).
+    if ($this->proxy && !$this->proxy->excludes()->contains($url= $request->getUrl())) {
+      $s= $this->connect($this->proxySocket, $readTimeout, $connectTimeout);
+      $this->proxy($s, $request, $url);
+    } else {
+      $s= $this->connect($this->socket, $readTimeout, $connectTimeout);
+    }
+
+    // Send headers, then return control to caller
+    $header= $request->getHeaderString();
+    $this->cat && $this->cat->info('>>>', $header);
+    $s->write($header);
+    return new SocketHttpOutputStream($s);
+  }
+
+  /**
+   * Finishes a transfer and returns the response
+   *
+   * @param  peer.http.HttpOutputStream $stream
+   * @return peer.http.HttpResponse
+   */
+  public function finish($stream) {
+    $response= new HttpResponse(new SocketInputStream($stream->socket));
+    $this->cat && $this->cat->info('<<<', $response->getHeaderString());
+    return $response;
   }
   
   /**
