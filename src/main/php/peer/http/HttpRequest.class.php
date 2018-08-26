@@ -175,8 +175,10 @@ class HttpRequest {
     } else {
       if ($withBody) $body= substr($query, 1);
       if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
-      $this->headers['Content-Length']= [max(0, strlen($query)- 1)];
-      if (empty($this->headers['Content-Type'])) {
+      if (!isset($this->headers['Content-Length'])) {
+        $this->headers['Content-Length']= [max(0, strlen($query)- 1)];
+      }
+      if (!isset($this->headers['Content-Type'])) {
         $this->headers['Content-Type']= ['application/x-www-form-urlencoded'];
       }
     }
