@@ -1,5 +1,6 @@
 <?php namespace peer\http;
 
+use io\IOException;
 use io\streams\MemoryInputStream;
 use peer\URL;
 
@@ -10,7 +11,7 @@ use peer\URL;
  * @see   xp://peer.http.HttpConnection
  */
 class CurlHttpTransport extends HttpTransport {
-  protected $handle = null;
+  private $ssl= null;
 
   static function __static() { }
 
@@ -21,14 +22,92 @@ class CurlHttpTransport extends HttpTransport {
    * @param   string $arg
    */
   public function __construct(URL $url, $arg) {
-    $this->handle= curl_init();
-    curl_setopt($this->handle, CURLOPT_HEADER, 1);
-    curl_setopt($this->handle, CURLOPT_RETURNTRANSFER, 1); 
-    curl_setopt($this->handle, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($this->handle, CURLOPT_SSL_VERIFYPEER, 0);
-    if (1 === sscanf($arg, 'v%d', $version)) {
-      curl_setopt($this->handle, CURLOPT_SSLVERSION, $version);
+    sscanf($arg, 'v%d', $this->ssl);
+  }
+
+  /**
+   * Opens a request
+   *
+   * @param   peer.http.HttpRequest $request
+   * @param   float $connectTimeout default 2.0
+   * @param   float $readTimeout default 60.0
+   * @return  peer.http.HttpOutputStream
+   */
+  public function open(HttpRequest $request, $connectTimeout= 2.0, $readTimeout= 60.0) {
+    static $versions= [
+      HttpConstants::VERSION_1_0 => CURL_HTTP_VERSION_1_0,
+      HttpConstants::VERSION_1_1 => CURL_HTTP_VERSION_1_1,
+    ];
+
+    $headers= [];
+    foreach ($request->headers as $name => $values) {
+      foreach ($values as $value) {
+        $headers[]= $name.': '.$value;
+      }
     }
+
+    $handle= curl_init();
+    curl_setopt_array($handle, [
+      CURLOPT_HEADER         => true,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_SSL_VERIFYHOST => 2,
+      CURLOPT_SSL_VERIFYPEER => 0,
+      CURLOPT_URL            => $request->url->getCanonicalURL(),
+      CURLOPT_CUSTOMREQUEST  => $request->method,
+      CURLOPT_CONNECTTIMEOUT => $connectTimeout,
+      CURLOPT_TIMEOUT        => $readTimeout,
+      CURLOPT_HTTPHEADER     => $headers,
+      CURLOPT_HTTP_VERSION   => isset($versions[$request->version]) ? $versions[$request->version] : CURL_HTTP_VERSION_NONE,
+      CURLOPT_SSLVERSION     => $this->ssl,
+    ]);
+
+    if ($this->proxy && !$this->proxy->excludes()->contains($request->getUrl())) {
+      curl_setopt_array($handle, [
+        CURLOPT_PROXY     => $this->proxy->host(),
+        CURLOPT_PROXYPORT => $this->proxy->port(),
+      ]);
+      $proxied= true;
+    } else {
+      $proxied= false;
+    }
+
+    $this->cat && $this->cat->info('>>>', (
+      $request->method.' '.$request->target().' HTTP/'.$request->version."\r\n".
+      implode("\r\n", $headers)
+    ));
+    return new CurlHttpOutputStream($handle, $proxied);
+  }
+
+  /**
+   * Finishes a transfer and returns the response
+   *
+   * @param  peer.http.HttpOutputStream $stream
+   * @return peer.http.HttpResponse
+   */
+  public function finish($stream) {
+    $stream->close();
+    if ('' !== $stream->bytes) {
+      curl_setopt($stream->handle, CURLOPT_POSTFIELDS, $stream->bytes);
+    }
+
+    $transfer= curl_exec($stream->handle);
+    if (false === $transfer) {
+      $error= curl_errno($stream->handle);
+      $message= curl_error($stream->handle);
+      curl_close($stream->handle);
+      throw new IOException($error.' '.$message);
+    }
+
+    // Strip "HTTP/x.x 200 Connection established" which is followed by
+    // the real HTTP message: headers and body
+    if ($stream->proxied) {
+      $transfer= preg_replace('#^HTTP/[0-9]\.[0-9] [0-9]{3} .+\r\n\r\n#', '', $transfer);
+    }
+
+    curl_close($stream->handle);
+    $response= new HttpResponse(new MemoryInputStream($transfer), false);
+    $this->cat && $this->cat->info('<<<', $response->getHeaderString());
+    return $response;
   }
 
   /**

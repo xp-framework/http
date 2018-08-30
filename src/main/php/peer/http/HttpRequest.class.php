@@ -133,6 +133,28 @@ class HttpRequest {
     }
   }
 
+  /** @return string */
+  public function target() {
+    $params= '';
+    foreach ($this->parameters as $name => $value) {
+      if (is_array($value)) {
+        foreach ($value as $k => $v) {
+          $params.= '&'.urlencode($name).'['.urlencode($k).']='.urlencode($v);
+        }
+      } else {
+        $params.= '&'.urlencode($name).'='.urlencode($value);
+      }
+    }
+
+    if (null !== ($query= $this->url->getQuery())) {
+      return $this->target.'?'.$query.$params;
+    } else if ($params) {
+      return $this->target.'?'.substr($params, 1);
+    } else {
+      return $this->target;
+    }
+  }
+
   /**
    * Returns payload
    *
@@ -175,8 +197,10 @@ class HttpRequest {
     } else {
       if ($withBody) $body= substr($query, 1);
       if (null !== $this->url->getQuery()) $target.= '?'.$this->url->getQuery();
-      $this->headers['Content-Length']= [max(0, strlen($query)- 1)];
-      if (empty($this->headers['Content-Type'])) {
+      if (!isset($this->headers['Content-Length'])) {
+        $this->headers['Content-Length']= [max(0, strlen($query)- 1)];
+      }
+      if (!isset($this->headers['Content-Type'])) {
         $this->headers['Content-Type']= ['application/x-www-form-urlencoded'];
       }
     }

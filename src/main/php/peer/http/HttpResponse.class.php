@@ -155,8 +155,11 @@ class HttpResponse implements Value {
     }
 
     // A chunk of size 0 means we're at the end of the document. We 
-    // ignore any trailers.
-    if (0 == $chunksize) return $this->closeStream();
+    // read the next line but ignore any trailers.
+    if (0 === $chunksize) {
+      $this->readChunk(2);
+      return $this->closeStream();
+    }
 
     // A chunk is terminated by \r\n, so scan over two more characters
     $chunk= $this->readChunk($chunksize);

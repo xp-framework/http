@@ -1,7 +1,7 @@
 <?php namespace peer\http;
 
-use peer\URL;
 use lang\XPClass;
+use peer\URL;
 use peer\http\proxy\EnvironmentSettings;
 use peer\http\proxy\RegistrySettings;
 
