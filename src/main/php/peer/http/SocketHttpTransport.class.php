@@ -108,9 +108,11 @@ class SocketHttpTransport extends HttpTransport {
       }
     }
 
+    // Check for chunked transfer encoding
     $this->cat && $this->cat->info('>>>', $header);
     $s->write($header."\r\n");
-    return new SocketHttpOutputStream($s);
+    $chunked= stristr($header, 'Transfer-Encoding: chunked');
+    return $chunked ? new ChunkedHttpOutputStream($s) : new SocketHttpOutputStream($s);
   }
 
   /**
@@ -120,6 +122,8 @@ class SocketHttpTransport extends HttpTransport {
    * @return peer.http.HttpResponse
    */
   public function finish($stream) {
+    $stream->close();
+
     $response= new HttpResponse(new SocketInputStream($stream->socket));
     $this->cat && $this->cat->info('<<<', $response->getHeaderString());
     return $response;

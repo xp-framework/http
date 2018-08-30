@@ -85,6 +85,7 @@ class CurlHttpTransport extends HttpTransport {
    * @return peer.http.HttpResponse
    */
   public function finish($stream) {
+    $stream->close();
     if ('' !== $stream->bytes) {
       curl_setopt($stream->handle, CURLOPT_POSTFIELDS, $stream->bytes);
     }
