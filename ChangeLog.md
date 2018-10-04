@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 9.1.1 / 2018-10-04
+
+* Merged PR #24: Add support for TLS v1.2 - @treuter, @thekid
+
 ## 9.1.0 / 2018-08-30
 
 * Merged PR #23: Streaming requests - @thekid
