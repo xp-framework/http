@@ -56,6 +56,8 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
   protected function proxy($s, $request, $url) {
     static $methods= [
       'tls://'    => STREAM_CRYPTO_METHOD_TLS_CLIENT,
+      'tlsv10://' => STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT,
+      'tlsv11://' => STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT,
       'tlsv12://' => STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT,
       'sslv3://'  => STREAM_CRYPTO_METHOD_SSLv3_CLIENT,
       'sslv23://' => STREAM_CRYPTO_METHOD_SSLv23_CLIENT,

@@ -5,6 +5,7 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## 9.1.1 / 2018-10-04
 
+* Added support for specifying TLS v1.0 and TLS v1.1 - @thekid
 * Merged PR #24: Add support for TLS v1.2 - @treuter, @thekid
 
 ## 9.1.0 / 2018-08-30
