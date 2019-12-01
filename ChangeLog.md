@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 9.1.2 / 2019-12-01
+
+* Made compatible with XP 10 - @thekid
+
 ## 9.1.1 / 2018-10-04
 
 * Added support for specifying TLS v1.0 and TLS v1.1 - @thekid
