@@ -33,7 +33,7 @@ class HttpProxy {
    */
   public function __construct($host, $port= 8080, $excludes= []) {
     if (null === $port) {
-      if ('[' === $host{0}) {
+      if ('[' === $host[0]) {
         $parsed= sscanf($host, '[%[^]]]:%d', $addr, $this->port);
         $this->host= '['.$addr.']';
       } else {
