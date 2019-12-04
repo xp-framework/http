@@ -2,6 +2,7 @@
 
 use peer\SSLSocket;
 use peer\TLSSocket;
+use io\IOException;
 
 /**
  * Transport via SSL sockets
@@ -20,7 +21,7 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
    * @return  peer.Socket
    */
   protected function newSocket(\peer\URL $url, $arg) {
-    if ('tls' === $arg) {
+    if (0 === strpos($arg, 'tls')) {
       return new TLSSocket($url->getHost(), $url->getPort(443), null);
     } else {
       sscanf($arg, 'v%d', $version);
@@ -43,7 +44,7 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
         return;
       }
     }
-    throw new \io\IOException('Cannot establish secure connection, tried '.\xp::stringOf($methods));
+    throw new IOException('Cannot establish secure connection, tried '.\xp::stringOf($methods));
   }
 
   /**
@@ -52,6 +53,8 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
    * @param  peer.Socket $s Connection to proxy
    * @param  peer.http.HttpRequest $request
    * @param  peer.URL $url
+   * @return peer.Socket
+   * @throws \io\IOException
    */
   protected function proxy($s, $request, $url) {
     static $methods= [
@@ -69,26 +72,44 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
       $url->getHost(),
       $url->getPort(443)
     );
+
+    $testEncryptionMethods = $methods;
+    // preserve the specified method
+    if (isset($methods[$this->socket->_prefix])) {
+      $testEncryptionMethods = [
+        $this->socket->_prefix => $methods[$this->socket->_prefix]
+      ];
+    }
+
+    if (xp::errorAt(__FILE__)) xp::gc(__FILE__); // reset error stack for openssl error detection
+
     $this->cat && $this->cat->info('>>>', substr($connect, 0, strpos($connect, "\r")));
-    $s->write($connect);
-    $handshake= $s->read();
+    
+    foreach ($testEncryptionMethods as $prefix => $encryptionMethod) {
+      $s->write($connect);
+      $handshake= $s->read();
 
-    if (4 === ($r= sscanf($handshake, "HTTP/%*d.%*d %d %[^\r]", $status, $message))) {
-      while ($line= $s->readLine()) { $handshake.= $line."\n"; }
-      $this->cat && $this->cat->info('<<<', $handshake);
+      if (4 === ($r= sscanf($handshake, "HTTP/%*d.%*d %d %[^\r]", $status, $message))) {
+        while ($line= $s->readLine()) { $handshake.= $line."\n"; }
+        $this->cat && $this->cat->info('<<<', $handshake);
 
-      if (200 === $status) {
-        stream_context_set_option($s->getHandle(), 'ssl', 'peer_name', $url->getHost());
-        if (isset($methods[$this->socket->_prefix])) {
-          $this->enable($s, [$this->socket->_prefix => $methods[$this->socket->_prefix]]);
+        if (HttpConstants::STATUS_OK === $status) {
+          stream_context_set_option($s->getHandle(), 'ssl', 'peer_name', $url->getHost());
+
+          $this->enable($s, [$prefix => $encryptionMethod]);
+          if (xp::errorAt(__FILE__)) {
+            xp::gc(__FILE__); // reset error stack for next encryptionMethod
+            throw new IOException('openssl failure?');
+          }
+          return $s;
         } else {
-          $this->enable($s, $methods);
+          throw new IOException('Cannot connect through proxy: #'.$status.' '.$message);
         }
       } else {
-        throw new \io\IOException('Cannot connect through proxy: #'.$status.' '.$message);
+        throw new IOException('Proxy did not answer with valid HTTP: '.$handshake);
       }
-    } else {
-      throw new \io\IOException('Proxy did not answer with valid HTTP: '.$handshake);
+      $s = clone $s; // reopen connection
     }
+    return $s;
   }
 }

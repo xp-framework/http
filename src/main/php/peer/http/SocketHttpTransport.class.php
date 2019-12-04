@@ -70,6 +70,7 @@ class SocketHttpTransport extends HttpTransport {
    * @param  peer.Socket $s Connection to proxy
    * @param  peer.http.HttpRequest $request
    * @param  peer.URL $url
+   * @return peer.Socket
    */
   protected function proxy($s, $request, $url) {
     $request->setTarget(sprintf(
@@ -79,6 +80,7 @@ class SocketHttpTransport extends HttpTransport {
       $url->getPort() ? ':'.$url->getPort() : '',
       $url->getPath('/')
     ));
+    return $s;
   }
 
   /**
@@ -95,7 +97,7 @@ class SocketHttpTransport extends HttpTransport {
     // a proxy wants "GET http://example.com/ HTTP/X.X" for (and "CONNECT" for HTTPs).
     if ($this->proxy && !$this->proxy->excludes()->contains($url= $request->getUrl())) {
       $s= $this->connect($this->proxySocket, $readTimeout, $connectTimeout);
-      $this->proxy($s, $request, $url);
+      $s= $this->proxy($s, $request, $url);
     } else {
       $s= $this->connect($this->socket, $readTimeout, $connectTimeout);
     }
@@ -143,7 +145,7 @@ class SocketHttpTransport extends HttpTransport {
     // a proxy wants "GET http://example.com/ HTTP/X.X" for (and "CONNECT" for HTTPs).
     if ($this->proxy && !$this->proxy->excludes()->contains($url= $request->getUrl())) {
       $s= $this->connect($this->proxySocket, $timeout, $connecttimeout);
-      $this->proxy($s, $request, $url);
+      $s= $this->proxy($s, $request, $url);
     } else {
       $s= $this->connect($this->socket, $timeout, $connecttimeout);
     }
