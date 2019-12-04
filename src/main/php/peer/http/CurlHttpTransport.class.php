@@ -83,6 +83,7 @@ class CurlHttpTransport extends HttpTransport {
    *
    * @param  peer.http.HttpOutputStream $stream
    * @return peer.http.HttpResponse
+   * @throws \io\IOException
    */
   public function finish($stream) {
     $stream->close();
@@ -117,13 +118,18 @@ class CurlHttpTransport extends HttpTransport {
    * @param   int $timeout default 60
    * @param   float $connecttimeout default 2.0
    * @return  peer.http.HttpResponse response object
+   * @throws \io\IOException
    */
   public function send(HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
-    $curl= curl_copy_handle($this->handle);
+    $curl= curl_init();
     curl_setopt($curl, CURLOPT_URL, $request->url->getCanonicalURL());
     curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $request->getRequestString());
     curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
-    
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $connecttimeout);
+    curl_setopt($curl, CURLOPT_HEADER, true);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
     if ($this->proxy && !$this->proxy->excludes()->contains($request->getUrl())) {
       curl_setopt($curl, CURLOPT_PROXY, $this->proxy->host());
       curl_setopt($curl, CURLOPT_PROXYPORT, $this->proxy->port());
@@ -147,7 +153,7 @@ class CurlHttpTransport extends HttpTransport {
       $errno= curl_errno($curl);
       $error= curl_error($curl);
       curl_close($curl);
-      throw new \io\IOException(sprintf('%d: %s', $errno, $error));
+      throw new IOException(sprintf('%d: %s', $errno, $error));
     }
     // ensure handle is closed
     curl_close($curl);
