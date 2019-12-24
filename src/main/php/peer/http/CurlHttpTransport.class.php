@@ -32,6 +32,7 @@ class CurlHttpTransport extends HttpTransport {
    * @param   float $connectTimeout default 2.0
    * @param   float $readTimeout default 60.0
    * @return  peer.http.HttpOutputStream
+   * @throws  io.IOException
    */
   public function open(HttpRequest $request, $connectTimeout= 2.0, $readTimeout= 60.0) {
     static $versions= [
@@ -49,6 +50,7 @@ class CurlHttpTransport extends HttpTransport {
     $handle= curl_init();
     curl_setopt_array($handle, [
       CURLOPT_HEADER         => true,
+      CURLOPT_NOBODY         => 'HEAD' === $request->method,
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_SSL_VERIFYHOST => 2,
       CURLOPT_SSL_VERIFYPEER => 0,
@@ -71,10 +73,10 @@ class CurlHttpTransport extends HttpTransport {
       $proxied= false;
     }
 
-    $this->cat && $this->cat->info('>>>', (
+    $this->cat && $this->cat->info('>>>',
       $request->method.' '.$request->target().' HTTP/'.$request->version."\r\n".
       implode("\r\n", $headers)
-    ));
+    );
     return new CurlHttpOutputStream($handle, $proxied);
   }
 
@@ -83,6 +85,7 @@ class CurlHttpTransport extends HttpTransport {
    *
    * @param  peer.http.HttpOutputStream $stream
    * @return peer.http.HttpResponse
+   * @throws  io.IOException
    */
   public function finish($stream) {
     $stream->close();
@@ -117,16 +120,42 @@ class CurlHttpTransport extends HttpTransport {
    * @param   int $timeout default 60
    * @param   float $connecttimeout default 2.0
    * @return  peer.http.HttpResponse response object
+   * @throws  io.IOException
    */
   public function send(HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
-    $curl= curl_copy_handle($this->handle);
-    curl_setopt($curl, CURLOPT_URL, $request->url->getCanonicalURL());
-    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $request->getRequestString());
-    curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
-    
+    static $versions= [
+      HttpConstants::VERSION_1_0 => CURL_HTTP_VERSION_1_0,
+      HttpConstants::VERSION_1_1 => CURL_HTTP_VERSION_1_1,
+    ];
+
+    $headers= [];
+    foreach ($request->headers as $name => $values) {
+      foreach ($values as $value) {
+        $headers[]= $name.': '.$value;
+      }
+    }
+
+    $handle= curl_init();
+    curl_setopt_array($handle, [
+      CURLOPT_HEADER         => true,
+      CURLOPT_NOBODY         => 'HEAD' === $request->method,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_SSL_VERIFYHOST => 2,
+      CURLOPT_SSL_VERIFYPEER => 0,
+      CURLOPT_URL            => $request->url->getCanonicalURL(),
+      CURLOPT_CUSTOMREQUEST  => $request->method,
+      CURLOPT_CONNECTTIMEOUT => $connecttimeout,
+      CURLOPT_TIMEOUT        => $timeout,
+      CURLOPT_HTTPHEADER     => $headers,
+      CURLOPT_HTTP_VERSION   => isset($versions[$request->version]) ? $versions[$request->version] : CURL_HTTP_VERSION_NONE,
+      CURLOPT_SSLVERSION     => $this->ssl,
+    ]);
+
     if ($this->proxy && !$this->proxy->excludes()->contains($request->getUrl())) {
-      curl_setopt($curl, CURLOPT_PROXY, $this->proxy->host());
-      curl_setopt($curl, CURLOPT_PROXYPORT, $this->proxy->port());
+      curl_setopt_array($handle, [
+        CURLOPT_PROXY     => $this->proxy->host(),
+        CURLOPT_PROXYPORT => $this->proxy->port(),
+      ]);
       $read= function($transfer) {
         if (preg_match('#^HTTP/[0-9]\.[0-9] [0-9]{3} .+\r\n\r\n#', $transfer, $matches)) {
 
@@ -141,16 +170,16 @@ class CurlHttpTransport extends HttpTransport {
       $read= function($transfer) { return $transfer; };
     }
     
-    $return= curl_exec($curl);
+    $return= curl_exec($handle);
 
     if (false === $return) {
-      $errno= curl_errno($curl);
-      $error= curl_error($curl);
-      curl_close($curl);
+      $errno= curl_errno($handle);
+      $error= curl_error($handle);
+      curl_close($handle);
       throw new \io\IOException(sprintf('%d: %s', $errno, $error));
     }
     // ensure handle is closed
-    curl_close($curl);
+    curl_close($handle);
 
     $this->cat && $this->cat->info('>>>', $request->getHeaderString());
     $response= new HttpResponse(new MemoryInputStream($read($return)), false);
