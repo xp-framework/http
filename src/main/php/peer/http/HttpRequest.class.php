@@ -69,7 +69,7 @@ class HttpRequest {
    * @param   string method request method, e.g. HttpConstants::GET
    */
   public function setMethod($method) {
-    $this->method= $method;
+    $this->method= strtoupper($method);
   }
 
   /**
