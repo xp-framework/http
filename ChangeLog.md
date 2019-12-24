@@ -3,6 +3,11 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 9.1.4 / 2019-12-24
+
+* Fixed SSL handling when the server does not support TLS, see PR #25
+  (@patzerr, @thekid).
+
 ## 9.1.3 / 2019-12-24
 
 * Fixed HTTP *HEAD* requests when using `ext/curl` - @patzerr, @thekid
