@@ -1,5 +1,6 @@
 <?php namespace peer\http;
 
+use io\IOException;
 use peer\SSLSocket;
 use peer\TLSSocket;
 
@@ -37,13 +38,14 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
    * @throws io.IOException
    */
   protected function enable($s, $methods) {
+    $handle= $s->getHandle();
     foreach ($methods as $name => $method) {
-      if (stream_socket_enable_crypto($s->getHandle(), true, $method)) {
+      if (stream_socket_enable_crypto($handle, true, $method)) {
         $this->cat && $this->cat->debug('@@@ Enabling', $name, 'cryptography');
         return;
       }
     }
-    throw new \io\IOException('Cannot establish secure connection, tried '.\xp::stringOf($methods));
+    throw new IOException('Cannot establish secure connection, tried '.implode(', ', array_keys($methods)));
   }
 
   /**
@@ -52,6 +54,7 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
    * @param  peer.Socket $s Connection to proxy
    * @param  peer.http.HttpRequest $request
    * @param  peer.URL $url
+   * @throws io.IOException
    */
   protected function proxy($s, $request, $url) {
     static $methods= [
@@ -85,10 +88,10 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
           $this->enable($s, $methods);
         }
       } else {
-        throw new \io\IOException('Cannot connect through proxy: #'.$status.' '.$message);
+        throw new IOException('Cannot connect through proxy: #'.$status.' '.$message);
       }
     } else {
-      throw new \io\IOException('Proxy did not answer with valid HTTP: '.$handshake);
+      throw new IOException('Proxy did not answer with valid HTTP: '.$handshake);
     }
   }
 }
