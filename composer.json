@@ -11,6 +11,10 @@
     "xp-framework/networking": "^9.0 | ^8.0 | ^7.0 | ^6.6",
     "php": ">=5.6.0"
   },
+  "suggest": {
+    "ext-openssl": "Allows to use SSL/TLS, e.g. for https-connections",
+    "ext-curl": "Alternative to ext-openssl for SSL-/TLS connections"
+  },
   "require-dev" : {
     "xp-framework/unittest": "^11.0 | ^10.0 | ^9.0 | ^8.0 | ^7.0 | ^6.5"
   },
