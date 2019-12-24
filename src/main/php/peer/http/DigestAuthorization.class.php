@@ -1,10 +1,10 @@
 <?php namespace peer\http;
 
-use util\Objects;
-use util\Secret;
-use lang\Value;
 use lang\IllegalStateException;
 use lang\MethodNotImplementedException;
+use lang\Value;
+use util\Objects;
+use util\Secret;
 
 /**
  * Digest Authorization header
@@ -186,7 +186,7 @@ class DigestAuthorization extends Authorization implements Value {
   private function qop() {
     $qop= explode(',', $this->qop);
     if (!in_array('auth', $qop)) {
-      throw new MethodNotImplementedException('QoP not given or not supported (supported: "auth", have: '.\xp::stringOf($this->qop).').');
+      throw new MethodNotImplementedException('QoP not given or not supported (supported: "auth", have: '.Objects::stringOf($this->qop).').');
     }
 
     return 'auth';
@@ -214,7 +214,7 @@ class DigestAuthorization extends Authorization implements Value {
   public function toString() {
     $s= nameof($this).' ('.$this->hashCode().") {\n";
     foreach (['realm', 'qop', 'nonce', 'opaque', 'username'] as $attr) {
-      $s.= sprintf("  [ %8s ] %s\n", $attr, \xp::stringOf($this->{$attr}));
+      $s.= sprintf("  [ %8s ] %s\n", $attr, Objects::stringOf($this->{$attr}));
     }
     return $s.="}\n";
   }

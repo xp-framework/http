@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 9.1.3 / 2019-12-24
+
+* Fixed HTTP *HEAD* requests when using `ext/curl` - @patzerr, @thekid
+
 ## 9.1.2 / 2019-12-01
 
 * Made compatible with XP 10 - @thekid
