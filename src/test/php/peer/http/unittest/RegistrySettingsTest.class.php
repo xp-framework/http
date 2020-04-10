@@ -1,8 +1,8 @@
 <?php namespace peer\http\unittest;
 
+use lang\ClassLoader;
 use peer\http\HttpProxy;
 use peer\http\proxy\RegistrySettings;
-use lang\ClassLoader;
 
 /**
  * Verifies inferring proxy settings from the environment

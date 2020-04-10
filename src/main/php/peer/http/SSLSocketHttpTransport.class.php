@@ -1,8 +1,7 @@
 <?php namespace peer\http;
 
 use io\IOException;
-use peer\CryptoSocket;
-use peer\URL;
+use peer\{CryptoSocket, URL};
 use util\Objects;
 
 /**

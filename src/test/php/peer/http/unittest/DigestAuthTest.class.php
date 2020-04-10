@@ -1,14 +1,9 @@
 <?php namespace peer\http\unittest;
 
 use io\streams\MemoryInputStream;
-use lang\IllegalStateException;
-use lang\MethodNotImplementedException;
-use peer\http\Authorizations;
-use peer\http\DigestAuthorization;
-use peer\http\HttpConstants;
-use peer\http\HttpRequest;
-use peer\http\HttpResponse;
+use lang\{IllegalStateException, MethodNotImplementedException};
 use peer\URL;
+use peer\http\{Authorizations, DigestAuthorization, HttpConstants, HttpRequest, HttpResponse};
 use security\SecureString;
 use util\Secret;
 

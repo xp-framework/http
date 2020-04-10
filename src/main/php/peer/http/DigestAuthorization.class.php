@@ -1,10 +1,7 @@
 <?php namespace peer\http;
 
-use lang\IllegalStateException;
-use lang\MethodNotImplementedException;
-use lang\Value;
-use util\Objects;
-use util\Secret;
+use lang\{IllegalStateException, MethodNotImplementedException, Value};
+use util\{Objects, Secret};
 
 /**
  * Digest Authorization header

@@ -1,9 +1,7 @@
 <?php namespace peer\http\unittest;
 
 use io\streams\MemoryInputStream;
-use peer\http\HttpConnection;
-use peer\http\HttpRequest;
-use peer\http\HttpResponse;
+use peer\http\{HttpConnection, HttpRequest, HttpResponse};
 
 /**
  * Mock HTTP connection

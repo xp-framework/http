@@ -2,8 +2,7 @@
 
 use lang\XPClass;
 use peer\URL;
-use peer\http\proxy\EnvironmentSettings;
-use peer\http\proxy\RegistrySettings;
+use peer\http\proxy\{EnvironmentSettings, RegistrySettings};
 
 /**
  * HTTP Transports base class

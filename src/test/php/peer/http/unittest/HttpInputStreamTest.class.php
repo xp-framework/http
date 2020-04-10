@@ -1,9 +1,7 @@
 <?php namespace peer\http\unittest;
 
 use io\streams\MemoryInputStream;
-use peer\http\HttpInputStream;
-use peer\http\HttpResponse;
-use peer\http\HttpConstants;
+use peer\http\{HttpConstants, HttpInputStream, HttpResponse};
 
 /**
  * HTTP input stream tests

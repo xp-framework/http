@@ -1,13 +1,7 @@
 <?php namespace peer\http\unittest;
 
 use peer\URL;
-use peer\http\Header;
-use peer\http\RequestData;
-use peer\http\FormRequestData;
-use peer\http\FileUpload;
-use peer\http\FormData;
-use peer\http\HttpRequest;
-use peer\http\HttpConstants;
+use peer\http\{FileUpload, FormData, FormRequestData, Header, HttpConstants, HttpRequest, RequestData};
 
 /**
  * TestCase for HTTP request construction

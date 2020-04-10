@@ -1,8 +1,6 @@
 <?php namespace peer\http;
 
-use peer\Socket;
-use peer\SocketInputStream;
-use peer\URL;
+use peer\{Socket, SocketInputStream, URL};
 
 /**
  * Transport via sockets

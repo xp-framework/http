@@ -1,8 +1,7 @@
 <?php namespace peer\http\unittest;
 
+use peer\http\{FormData, FormRequestData};
 use unittest\TestCase;
-use peer\http\FormRequestData;
-use peer\http\FormData;
 
 /**
  * TestCase for FormRequestData and FormData classes

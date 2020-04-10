@@ -2,10 +2,7 @@
 
 use io\streams\MemoryInputStream;
 use lang\IllegalStateException;
-use peer\http\Authorizations;
-use peer\http\BasicAuthorization;
-use peer\http\DigestAuthorization;
-use peer\http\HttpResponse;
+use peer\http\{Authorizations, BasicAuthorization, DigestAuthorization, HttpResponse};
 use security\SecureString;
 use util\Secret;
 

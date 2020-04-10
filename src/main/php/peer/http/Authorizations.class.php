@@ -1,9 +1,8 @@
 <?php namespace peer\http;
 
-use lang\XPClass;
+use lang\{IllegalStateException, XPClass};
 use lang\reflect\TargetInvocationException;
 use util\Secret;
-use lang\IllegalStateException;
 
 /**
  * Authorization factory class for HTTP

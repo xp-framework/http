@@ -2,8 +2,7 @@
 
 use lang\IllegalArgumentException;
 use peer\URL;
-use peer\http\HttpTransport;
-use peer\http\HttpProxy;
+use peer\http\{HttpProxy, HttpTransport};
 
 /**
  * TestCase

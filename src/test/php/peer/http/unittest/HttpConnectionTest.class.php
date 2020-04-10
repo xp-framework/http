@@ -1,15 +1,9 @@
 <?php namespace peer\http\unittest;
 
 use peer\URL;
-use peer\http\BasicAuthorization;
-use peer\http\HttpConstants;
-use peer\http\HttpProxy;
-use peer\http\HttpRequest;
-use peer\http\RequestData;
+use peer\http\{BasicAuthorization, HttpConstants, HttpProxy, HttpRequest, RequestData};
 use unittest\TestCase;
-use util\log\BufferedAppender;
-use util\log\LogCategory;
-use util\log\Traceable;
+use util\log\{BufferedAppender, LogCategory, Traceable};
 use util\log\layout\PatternLayout;
 
 /**

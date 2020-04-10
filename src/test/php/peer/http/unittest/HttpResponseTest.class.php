@@ -1,8 +1,8 @@
 <?php namespace peer\http\unittest;
 
+use io\streams\MemoryInputStream;
 use lang\FormatException;
 use peer\http\HttpResponse;
-use io\streams\MemoryInputStream;
 
 /**
  * TestCase for HTTP responses
