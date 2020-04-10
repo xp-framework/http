@@ -59,7 +59,7 @@ class CurlHttpTransport extends HttpTransport {
       CURLOPT_CONNECTTIMEOUT => $connectTimeout,
       CURLOPT_TIMEOUT        => $readTimeout,
       CURLOPT_HTTPHEADER     => $headers,
-      CURLOPT_HTTP_VERSION   => isset($versions[$request->version]) ? $versions[$request->version] : CURL_HTTP_VERSION_NONE,
+      CURLOPT_HTTP_VERSION   => $versions[$request->version] ?? CURL_HTTP_VERSION_NONE,
       CURLOPT_SSLVERSION     => $this->ssl,
     ]);
 
