@@ -1,7 +1,7 @@
 <?php namespace peer\http\unittest;
 
 use peer\http\{FormData, FormRequestData};
-use unittest\TestCase;
+use unittest\{Test, TestCase};
 
 /**
  * TestCase for FormRequestData and FormData classes
@@ -19,19 +19,19 @@ class FormRequestDataTest extends TestCase {
     $this->fixture= new FormRequestData();
   }
 
-  #[@test]
+  #[Test]
   public function addPart() {
     $data= new FormData('key', 'value');
     $this->assertEquals($data, $this->fixture->addPart($data));
   }
 
-  #[@test]
+  #[Test]
   public function withPart() {
     $data= new FormData('key', 'value');
     $this->assertEquals($this->fixture, $this->fixture->withPart($data));
   }
 
-  #[@test]
+  #[Test]
   public function simpleMimeRepresentation() {
     $this->fixture->addPart(new FormData('key', 'value'));
 
@@ -44,7 +44,7 @@ class FormRequestDataTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function noDefaultTypeMimeRepresentation() {
     $this->fixture->addPart(new FormData('key', 'value', 'text/html'));
 
@@ -58,7 +58,7 @@ class FormRequestDataTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function noDefaultCharsetMimeRepresentation() {
     $this->fixture->addPart(new FormData('key', 'value', 'text/plain', 'utf-16'));
 

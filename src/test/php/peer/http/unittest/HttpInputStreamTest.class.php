@@ -2,6 +2,7 @@
 
 use io\streams\MemoryInputStream;
 use peer\http\{HttpConstants, HttpInputStream, HttpResponse};
+use unittest\Test;
 
 /**
  * HTTP input stream tests
@@ -60,17 +61,17 @@ class HttpInputStreamTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function readEmpty() {
     $this->assertRead('');
   }
 
-  #[@test]
+  #[Test]
   public function readNonEmpty() {
     $this->assertRead('Hello World');
   }
 
-  #[@test]
+  #[Test]
   public function readBinaryData() {
     $this->assertRead(
       "GIF89a\001\000\035\000\302\004\000\356\356\356\366\362\366\366\366\366\377\372".
@@ -79,7 +80,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function available() {
     with ($s= new HttpInputStream($this->httpResponse(
       HttpConstants::STATUS_OK, 
@@ -97,7 +98,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function availableWithChunks() {
     with ($s= new HttpInputStream($this->httpResponse(
       HttpConstants::STATUS_OK, 
@@ -117,7 +118,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
     }
   }
  
-  #[@test]
+  #[Test]
   public function availableAfterReadingAll() {
     with ($s= new HttpInputStream($this->httpResponse(
       HttpConstants::STATUS_OK, 
@@ -129,7 +130,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
     }
   }
  
-  #[@test]
+  #[Test]
   public function readAfterReadingAll() {
     with ($s= new HttpInputStream($this->httpResponse(
       HttpConstants::STATUS_OK, 
@@ -141,7 +142,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function availableWhenBuffered() {
     with ($s= new HttpInputStream($this->httpResponse(
       HttpConstants::STATUS_OK, 

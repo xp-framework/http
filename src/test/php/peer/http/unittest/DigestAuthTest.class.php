@@ -5,6 +5,7 @@ use lang\{IllegalStateException, MethodNotImplementedException};
 use peer\URL;
 use peer\http\{Authorizations, DigestAuthorization, HttpConstants, HttpRequest, HttpResponse};
 use security\SecureString;
+use unittest\{Expect, Test};
 use util\Secret;
 
 class DigestAuthTest extends \unittest\TestCase {
@@ -55,17 +56,17 @@ class DigestAuthTest extends \unittest\TestCase {
     }
   }
 
-  #[@test]
+  #[Test]
   public function server_indicates_digest_auth() {
     $this->assertEquals(HttpConstants::STATUS_AUTHORIZATION_REQUIRED, $this->http->get('/')->getStatusCode());
   }
 
-  #[@test, @expect(IllegalStateException::class)]
+  #[Test, Expect(IllegalStateException::class)]
   public function no_auth_when_not_indicated() {
     Authorizations::fromResponse(new HttpResponse(new MemoryInputStream("HTTP/1.0 200 OK")), self::USER, $this->secret);
   }
 
-  #[@test]
+  #[Test]
   public function create_digest_authorization() {
     $this->assertEquals(
       $this->digest,
@@ -73,7 +74,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @expect(MethodNotImplementedException::class)]
+  #[Test, Expect(MethodNotImplementedException::class)]
   public function only_md5_algorithm_supported() {
     $this->http->setResponse(new HttpResponse(new MemoryInputStream(
       "HTTP/1.0 401 Unauthorized\r\n".
@@ -87,7 +88,7 @@ class DigestAuthTest extends \unittest\TestCase {
     Authorizations::fromResponse($this->http->get('/'), self::USER, $this->secret);
   }
 
-  #[@test]
+  #[Test]
   public function calculate_digest() {
     $this->assertEquals(
       '6629fae49393a05397450978507c4ef1',
@@ -95,7 +96,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function sign_adds_authorization_header() {
     $req= new HttpRequest(new URL('http://example.com:80/dir/index.html'));
     $this->digest->sign($req);
@@ -110,7 +111,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function challenge_digest() {
     $req= new HttpRequest(new URL('http://example.com:80/dir/index.html'));
     $res= $this->http->send($req);
@@ -132,7 +133,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function digest_hashes_path() {
     $this->assertNotEquals(
       $this->digest->hashFor('GET', '/dir/index.html'),
@@ -140,7 +141,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function digest_hashes_querystring() {
     $this->assertNotEquals(
       $this->digest->hashFor('GET', '/dir/index.html?one'),
@@ -148,7 +149,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function opaque_is_optional() {
     $digest= DigestAuthorization::fromChallenge(
       'WWW-Authenticate: Digest realm="testrealm@host.com", '.
@@ -167,7 +168,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function md5_is_supported_algorithm() {
     $digest= DigestAuthorization::fromChallenge(
       'WWW-Authenticate: Digest realm="testrealm@host.com", '.
@@ -180,7 +181,7 @@ class DigestAuthTest extends \unittest\TestCase {
   }
 
 
-  #[@test, @expect(MethodNotImplementedException::class)]
+  #[Test, Expect(MethodNotImplementedException::class)]
   public function only_md5_is_supported_algorithm() {
     $digest= DigestAuthorization::fromChallenge(
       'WWW-Authenticate: Digest realm="testrealm@host.com", '.
@@ -192,7 +193,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function sign_includes_request_params() {
     $request= new HttpRequest(new URL('http://example.com/foo'));
     $request->setParameter('param', 'value');
@@ -204,7 +205,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function sign_includes_url_params() {
     $request= new HttpRequest(new URL('http://example.com/foo'));
     $request->getUrl()->setParam('param', 'value');
@@ -216,7 +217,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function sign_merges_url_params() {
     $request= new HttpRequest(new URL('http://example.com/foo'));
     $request->setParameter('param', 'value');
@@ -229,7 +230,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function sign_merges_url_params_but_parameters_are_unique() {
     $request= new HttpRequest(new URL('http://example.com/foo'));
     $request->setParameter('param', 'value');

@@ -2,9 +2,9 @@
 
 use peer\URL;
 use peer\http\{BasicAuthorization, HttpConstants, HttpProxy, HttpRequest, RequestData};
-use unittest\TestCase;
-use util\log\{BufferedAppender, LogCategory, Traceable};
+use unittest\{Test, TestCase};
 use util\log\layout\PatternLayout;
+use util\log\{BufferedAppender, LogCategory, Traceable};
 
 /**
  * TestCase for HTTP connection
@@ -21,7 +21,7 @@ class HttpConnectionTest extends TestCase {
     $this->fixture= new MockHttpConnection(new URL('http://example.com:80/path/of/file'));
   }
 
-  #[@test]
+  #[Test]
   public function get() {
     $this->fixture->get(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
@@ -30,7 +30,7 @@ class HttpConnectionTest extends TestCase {
     );
   }
   
-  #[@test]
+  #[Test]
   public function head() {
     $this->fixture->head(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
@@ -39,7 +39,7 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function post() {
     $this->fixture->post(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
@@ -48,7 +48,7 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function put() {
     $this->fixture->put(new RequestData('THIS IS A DATA STRING'));
     $this->assertEquals(
@@ -57,7 +57,7 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function patch() {
     $this->fixture->patch(new RequestData('THIS IS A DATA STRING'));
     $this->assertEquals(
@@ -66,7 +66,7 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function delete() {
     $this->fixture->delete(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
@@ -75,7 +75,7 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function options() {
     $this->fixture->options(['var1' => 1, 'var2' => 2]);
     $this->assertEquals(
@@ -84,7 +84,7 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function create_and_send() {
     with ($request= $this->fixture->create(new HttpRequest())); {
       $request->setMethod('PROPPATCH');   // Webdav
@@ -97,12 +97,12 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function is_traceable() {
     $this->assertInstanceOf(Traceable::class, $this->fixture);
   }
 
-  #[@test]
+  #[Test]
   public function tracing() {
     $appender= (new BufferedAppender())->withLayout(new PatternLayout('%m'));
     $this->fixture->setTrace((new LogCategory('trace'))->withAppender($appender));
@@ -114,19 +114,19 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function changing_request_target_does_not_modify_connection_url() {
     $url= $this->fixture->getUrl();
     $this->fixture->create(new HttpRequest())->setTarget('/foo');
     $this->assertNotEquals('/foo', $url->getPath());
   }
 
-  #[@test]
+  #[Test]
   public function can_force_direct_connection() {
     $this->fixture->setProxy(HttpProxy::NONE);
   }
 
-  #[@test]
+  #[Test]
   public function can_add_authorization_as_header() {
     $req= $this->fixture->create(new HttpRequest());
     $req->setHeader('Authorization', new BasicAuthorization('user', 'pass'));
@@ -140,7 +140,7 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function can_add_authorization_as_header_in_get() {
     $this->fixture->get([], [new BasicAuthorization('user', 'pass')]);
 
@@ -153,7 +153,7 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function can_add_authorization_within_url() {
     $conn= new MockHttpConnection('http://user:pass@example.com/');
     $conn->get();
@@ -167,7 +167,7 @@ class HttpConnectionTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function open_transfer() {
     $request= $this->fixture->create(new HttpRequest());
     $request->setMethod('POST');

@@ -3,6 +3,7 @@
 use lang\IllegalArgumentException;
 use peer\URL;
 use peer\http\{HttpProxy, HttpTransport};
+use unittest\{BeforeClass, Expect, Test};
 
 /**
  * TestCase
@@ -14,7 +15,7 @@ class HttpTransportTest extends \unittest\TestCase {
   /**
    * Register test transport
    */
-  #[@beforeClass]
+  #[BeforeClass]
   public static function registerTransport() {
     HttpTransport::register('test', \lang\ClassLoader::defineClass('TestHttpTransport', 'peer.http.HttpTransport', [], '{
       public $host, $port, $arg, $proxy;
@@ -35,36 +36,36 @@ class HttpTransportTest extends \unittest\TestCase {
     }'));
   }
 
-  #[@test, @expect(IllegalArgumentException::class)]
+  #[Test, Expect(IllegalArgumentException::class)]
   public function registerIncorrectClass() {
     HttpTransport::register('irrelevant', typeof($this));
   }
 
-  #[@test]
+  #[Test]
   public function host() {
     $t= HttpTransport::transportFor(new URL('test://example.com'));
     $this->assertEquals('example.com', $t->host);
   }
 
-  #[@test]
+  #[Test]
   public function port_80_is_the_default_port() {
     $t= HttpTransport::transportFor(new URL('test://example.com'));
     $this->assertEquals(80, $t->port);
   }
 
-  #[@test]
+  #[Test]
   public function urls_may_contain_port() {
     $t= HttpTransport::transportFor(new URL('test://example.com:8080'));
     $this->assertEquals(8080, $t->port);
   }
 
-  #[@test]
+  #[Test]
   public function schemes_may_contain_args() {
     $t= HttpTransport::transportFor(new URL('test+v2://example.com:443'));
     $this->assertEquals('v2', $t->arg);
   }
 
-  #[@test]
+  #[Test]
   public function null_is_passed_if_scheme_has_no_arg() {
     $t= HttpTransport::transportFor(new URL('test://example.com:443'));
     $this->assertNull($t->arg);

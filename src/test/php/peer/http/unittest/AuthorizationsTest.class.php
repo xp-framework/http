@@ -4,6 +4,7 @@ use io\streams\MemoryInputStream;
 use lang\IllegalStateException;
 use peer\http\{Authorizations, BasicAuthorization, DigestAuthorization, HttpResponse};
 use security\SecureString;
+use unittest\{Expect, Test, Values};
 use util\Secret;
 
 class AuthorizationsTest extends \unittest\TestCase {
@@ -27,7 +28,7 @@ class AuthorizationsTest extends \unittest\TestCase {
     return $values;
   }
 
-  #[@test, @values('secrets')]
+  #[Test, Values('secrets')]
   public function create_basic_auth($secret) {
     $res= new HttpResponse(new MemoryInputStream(
       "HTTP/1.1 401 Authentication required.\r\n".
@@ -37,7 +38,7 @@ class AuthorizationsTest extends \unittest\TestCase {
     $this->assertInstanceof(BasicAuthorization::class, $this->cut->create($res, self::USER, $secret));
   }
 
-  #[@test, @values('secrets')]
+  #[Test, Values('secrets')]
   public function create_digest_auth($secret) {
     $res= new HttpResponse(new MemoryInputStream(
       "HTTP/1.1 401 Authentication required.\r\n".
@@ -47,7 +48,7 @@ class AuthorizationsTest extends \unittest\TestCase {
     $this->assertInstanceof(DigestAuthorization::class, $this->cut->create($res, self::USER, $secret));
   }
 
-  #[@test, @values('secrets'), @expect(IllegalStateException::class)]
+  #[Test, Values('secrets'), Expect(IllegalStateException::class)]
   public function unknown_type_throws_exception($secret) {
     $res= new HttpResponse(new MemoryInputStream(
       "HTTP/1.1 401 Authentication required.\r\n".
@@ -57,13 +58,13 @@ class AuthorizationsTest extends \unittest\TestCase {
     $this->cut->create($res, self::USER, $secret);
   }
 
-  #[@test]
+  #[Test]
   public function requires_a_401() {
     $res= new HttpResponse(new MemoryInputStream('HTTP/1.1 401 Authentication required.'."\r\n\r\n"));
     $this->assertTrue($this->cut->required($res));
   }
 
-  #[@test]
+  #[Test]
   public function not_required_without_401() {
     $res= new HttpResponse(new MemoryInputStream('HTTP/1.1 200 Ok'."\r\n\r\n"));
     $this->assertFalse($this->cut->required($res));

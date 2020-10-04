@@ -3,6 +3,7 @@
 use io\streams\MemoryInputStream;
 use lang\FormatException;
 use peer\http\HttpResponse;
+use unittest\{Expect, Test};
 
 /**
  * TestCase for HTTP responses
@@ -22,7 +23,7 @@ class HttpResponseTest extends \unittest\TestCase {
     return new HttpResponse(new MemoryInputStream(implode("\r\n", $headers)."\r\n\r\n".$body));
   }
 
-  #[@test]
+  #[Test]
   public function errorDocument() {
     $body= '<h1>File not found</h1>';
     $response= $this->newResponse(['HTTP/1.0 404 OK', 'Content-Length: 23', 'Content-Type: text/html'], $body);
@@ -32,13 +33,13 @@ class HttpResponseTest extends \unittest\TestCase {
     $this->assertEquals($body, $response->readData());
   }
 
-  #[@test]
+  #[Test]
   public function emptyDocument() {
     $response= $this->newResponse(['HTTP/1.0 204 No content']);
     $this->assertEquals(204, $response->statusCode());
   }
 
-  #[@test]
+  #[Test]
   public function chunkedDocument() {
     $body= '<h1>File not found</h1>';
     $response= $this->newResponse(['HTTP/1.0 404 OK', 'Transfer-Encoding: chunked'], "17\r\n".$body."\r\n0\r\n");
@@ -47,7 +48,7 @@ class HttpResponseTest extends \unittest\TestCase {
     $this->assertEquals($body, $response->readData());
   }
 
-  #[@test]
+  #[Test]
   public function multipleChunkedDocument() {
     $response= $this->newResponse(
       ['HTTP/1.0 404 OK', 'Transfer-Encoding: chunked'],
@@ -61,7 +62,7 @@ class HttpResponseTest extends \unittest\TestCase {
     $this->assertEquals('<h1>File not found</h1>Did my best, sorry.', $buffer);
   }
 
-  #[@test]
+  #[Test]
   public function httpContinue() {
     $response= $this->newResponse(['HTTP/1.0 100 Continue', '', 'HTTP/1.0 200 OK', 'Content-Length: 4'], 'Test');
     $this->assertEquals(200, $response->statusCode());
@@ -69,7 +70,7 @@ class HttpResponseTest extends \unittest\TestCase {
     $this->assertEquals('Test', $response->readData());
   }
   
-  #[@test]
+  #[Test]
   public function statusCodeWithMessage() {
     $response= $this->newResponse(['HTTP/1.1 404 Not Found'], 'File Not Found');
     $this->assertEquals(404, $response->statusCode());
@@ -77,7 +78,7 @@ class HttpResponseTest extends \unittest\TestCase {
     $this->assertEquals('File Not Found', $response->readData());
   }
   
-  #[@test]
+  #[Test]
   public function statusCodeWithoutMessage() {
     $response= $this->newResponse(['HTTP/1.1 404'], 'File Not Found');
     $this->assertEquals(404, $response->statusCode());
@@ -85,32 +86,32 @@ class HttpResponseTest extends \unittest\TestCase {
     $this->assertEquals('File Not Found', $response->readData());
   }
 
-  #[@test, @expect(FormatException::class)]
+  #[Test, Expect(FormatException::class)]
   public function incorrectProtocol() {
     $this->newResponse(['* OK IMAP server ready H mimap20 68140']);
   }
 
-  #[@test]
+  #[Test]
   public function getHeader() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'X-Binford: 6100', 'Content-Type: text/html']);
     $this->assertEquals('6100', $response->getHeader('X-Binford'));
     $this->assertEquals('text/html', $response->getHeader('Content-Type'));
   }
 
-  #[@test]
+  #[Test]
   public function getHeaderIsCaseInsensitive() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'X-Binford: 6100', 'Content-Type: text/html']);
     $this->assertEquals('6100', $response->getHeader('x-binford'), 'all-lowercase');
     $this->assertEquals('text/html', $response->getHeader('CONTENT-TYPE'), 'all-uppercase');
   }
 
-  #[@test]
+  #[Test]
   public function nonExistantGetHeader() {
     $response= $this->newResponse(['HTTP/1.0 204 No Content']);
     $this->assertNull($response->getHeader('Via'));
   }
 
-  #[@test]
+  #[Test]
   public function multipleCookiesInGetHeader() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'Set-Cookie: color=green; path=/', 'Set-Cookie: make=example; path=/']);
     $this->assertEquals(
@@ -119,7 +120,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function getHeaders() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'X-Binford: 6100', 'Content-Type: text/html']);
     $this->assertEquals(
@@ -128,7 +129,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function emptyGetHeaders() {
     $response= $this->newResponse(['HTTP/1.0 204 No Content']);
     $this->assertEquals(
@@ -137,7 +138,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function multipleCookiesInGetHeaders() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'Set-Cookie: color=green; path=/', 'Set-Cookie: make=example; path=/']);
     $this->assertEquals(
@@ -146,27 +147,27 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function header() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'X-Binford: 6100', 'Content-Type: text/html']);
     $this->assertEquals(['6100'], $response->header('X-Binford'));
     $this->assertEquals(['text/html'], $response->header('Content-Type'));
   }
 
-  #[@test]
+  #[Test]
   public function headerIsCaseInsensitive() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'X-Binford: 6100', 'Content-Type: text/html']);
     $this->assertEquals(['6100'], $response->header('x-binford'), 'all-lowercase');
     $this->assertEquals(['text/html'], $response->header('CONTENT-TYPE'), 'all-uppercase');
   }
 
-  #[@test]
+  #[Test]
   public function nonExistantHeader() {
     $response= $this->newResponse(['HTTP/1.0 204 No Content']);
     $this->assertNull($response->header('Via'));
   }
 
-  #[@test]
+  #[Test]
   public function multipleCookiesInHeader() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'Set-Cookie: color=green; path=/', 'Set-Cookie: make=example; path=/']);
     $this->assertEquals(
@@ -175,7 +176,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function multipleCookiesInHeaders() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'Set-Cookie: color=green; path=/', 'Set-Cookie: make=example; path=/']);
     $this->assertEquals(
@@ -184,7 +185,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function headers() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'X-Binford: 6100', 'Content-Type: text/html']);
     $this->assertEquals(
@@ -193,7 +194,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function emptyHeaders() {
     $response= $this->newResponse(['HTTP/1.0 204 No Content']);
     $this->assertEquals(
@@ -202,7 +203,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function multipleHeadersWithDifferentCasing() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'X-Example: K', 'x-example: V']);
     $this->assertEquals(
@@ -211,7 +212,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function multipleHeaderWithDifferentCasing() {
     $response= $this->newResponse(['HTTP/1.0 200 OK', 'X-Example: K', 'x-example: V']);
     $this->assertEquals(
@@ -220,7 +221,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function headerString() {
     $response= $this->newResponse(['HTTP/1.1 200 OK', 'Content-Type: application/json', 'Content-Length: 0']);
     $this->assertEquals(
@@ -229,7 +230,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function headerStringDoesNotIncludeContent() {
     $response= $this->newResponse(['HTTP/1.1 200 OK', 'Content-Type: application/json', 'Content-Length: 21'], '{ "hello" : "world" }');
     $this->assertEquals(
@@ -238,7 +239,7 @@ class HttpResponseTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function headerWithoutValue() {
     $body= '.';
     $response= $this->newResponse(['HTTP/1.1 401 Unauthorized', 'Cache-Control: '], $body);

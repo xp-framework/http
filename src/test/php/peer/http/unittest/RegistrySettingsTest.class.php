@@ -3,6 +3,7 @@
 use lang\ClassLoader;
 use peer\http\HttpProxy;
 use peer\http\proxy\RegistrySettings;
+use unittest\{BeforeClass, Test, Values};
 
 /**
  * Verifies inferring proxy settings from the environment
@@ -15,7 +16,7 @@ class RegistrySettingsTest extends \unittest\TestCase {
   /**
    * Defines mock for `WScript.Shell` COM object
    */
-  #[@beforeClass]
+  #[BeforeClass]
   public static function defineMock() {
     $parent= class_exists(\lang\Object::class) ? 'lang.Object' : null;
     self::$shell= ClassLoader::defineClass('WScript_ShellMock', $parent, [], '{
@@ -34,7 +35,7 @@ class RegistrySettingsTest extends \unittest\TestCase {
     }');
   }
 
-  #[@test]
+  #[Test]
   public function excludes_separated_by_semicolons() {
     $settings= new RegistrySettings(self::$shell->newInstance([
       'ProxyEnable'    => 1,
@@ -44,7 +45,7 @@ class RegistrySettingsTest extends \unittest\TestCase {
     $this->assertEquals(['192.168.12.14', 'example.com:80'], $settings->excludes());
   }
 
-  #[@test, @values(['http', 'https'])]
+  #[Test, Values(['http', 'https'])]
   public function no_proxy($scheme) {
     $settings= new RegistrySettings(self::$shell->newInstance([
       'ProxyEnable'    => 0
@@ -52,7 +53,7 @@ class RegistrySettingsTest extends \unittest\TestCase {
     $this->assertEquals(HttpProxy::NONE, $settings->proxy($scheme));
   }
 
-  #[@test, @values(['http', 'https'])]
+  #[Test, Values(['http', 'https'])]
   public function general_proxy($scheme) {
     $settings= new RegistrySettings(self::$shell->newInstance([
       'ProxyEnable'    => 1,
@@ -62,7 +63,7 @@ class RegistrySettingsTest extends \unittest\TestCase {
     $this->assertEquals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
   }
 
-  #[@test]
+  #[Test]
   public function http_proxy() {
     $settings= new RegistrySettings(self::$shell->newInstance([
       'ProxyEnable'    => 1,
@@ -72,7 +73,7 @@ class RegistrySettingsTest extends \unittest\TestCase {
     $this->assertEquals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
   }
 
-  #[@test]
+  #[Test]
   public function https_proxy() {
     $settings= new RegistrySettings(self::$shell->newInstance([
       'ProxyEnable'    => 1,

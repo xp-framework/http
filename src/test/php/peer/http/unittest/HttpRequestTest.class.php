@@ -2,6 +2,7 @@
 
 use peer\URL;
 use peer\http\{FileUpload, FormData, FormRequestData, Header, HttpConstants, HttpRequest, RequestData};
+use unittest\{Test, Values};
 
 /**
  * TestCase for HTTP request construction
@@ -11,7 +12,7 @@ use peer\http\{FileUpload, FormData, FormRequestData, Header, HttpConstants, Htt
  */
 class HttpRequestTest extends \unittest\TestCase {
 
-  #[@test]
+  #[Test]
   public function get() {
     $r= new HttpRequest(new URL('http://example.com'));
     $r->setMethod(HttpConstants::GET);
@@ -21,7 +22,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @values([80, 8080])]
+  #[Test, Values([80, 8080])]
   public function get_url_with_non_port($port) {
     $r= new HttpRequest(new URL('http://example.com:'.$port));
     $r->setMethod(HttpConstants::GET);
@@ -31,7 +32,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function get_url_with_path() {
     $r= new HttpRequest(new URL('http://example.com/path/to/images/index.html'));
     $r->setMethod(HttpConstants::GET);
@@ -41,7 +42,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function basic_auth_supported_by_default() {
     $r= new HttpRequest(new URL('http://user:pass@example.com/'));
     $r->setMethod(HttpConstants::GET);
@@ -51,7 +52,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function get_url_with_file_only_path() {
     $r= new HttpRequest(new URL('http://example.com/index.html'));
     $r->setMethod(HttpConstants::GET);
@@ -61,7 +62,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function get_url_with_empty_parameters() {
     $r= new HttpRequest(new URL('http://example.com/?'));
     $r->setMethod(HttpConstants::GET);
@@ -71,7 +72,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @values(['a=b', 'a=b&c=d', 'data[color]=green&data[size]=S'])]
+  #[Test, Values(['a=b', 'a=b&c=d', 'data[color]=green&data[size]=S'])]
   public function get_url_with_parameters_via_constructor($params) {
     $r= new HttpRequest(new URL('http://example.com/?'.$params));
     $r->setMethod(HttpConstants::GET);
@@ -81,7 +82,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @values(['a=b', 'a=b&c=d', 'data[color]=green&data[size]=S'])]
+  #[Test, Values(['a=b', 'a=b&c=d', 'data[color]=green&data[size]=S'])]
   public function get_url_with_parameters_via_setParameters($params) {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
@@ -92,7 +93,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function get_url_with_empty_array_parameters() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
@@ -103,7 +104,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @values([[['a' => 'b'], 'a=b'], [['a' => 'b', 'c' => 'd'], 'a=b&c=d']])]
+  #[Test, Values([[['a' => 'b'], 'a=b'], [['a' => 'b', 'c' => 'd'], 'a=b&c=d']])]
   public function get_url_with_array_parameters_via_setParameters($input, $representation) {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
@@ -114,7 +115,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function get_url_with_array_parameters_via_url() {
     $r= new HttpRequest(new URL('http://example.com/?data[color]=green&data[size]=S'));
     $r->setMethod(HttpConstants::GET);
@@ -124,7 +125,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function post_url_with_RequestData_parameters() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
@@ -149,7 +150,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function post_url_with_FileUpload_parameters() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
@@ -173,7 +174,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @values([['a=b'], [['a' => 'b']]])]
+  #[Test, Values([['a=b'], [['a' => 'b']]])]
   public function get_url_with_parameters_from_constructor_and_setParameters($params) {
     $r= new HttpRequest(new URL('http://example.com/?a=b'));
     $r->setMethod(HttpConstants::GET);
@@ -184,7 +185,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function get_url_with_map_parameter() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
@@ -195,14 +196,14 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function getUrl_returns_url_passed_to_constructor() {
     $url= new URL('http://example.com/');
     $r= new HttpRequest($url);
     $this->assertEquals($url, $r->getUrl());
   }
 
-  #[@test]
+  #[Test]
   public function url_accessors() {
     $url= new URL('http://example.com/');
     $r= new HttpRequest();
@@ -210,14 +211,14 @@ class HttpRequestTest extends \unittest\TestCase {
     $this->assertEquals($url, $r->getUrl());
   }
 
-  #[@test]
+  #[Test]
   public function setting_target_changes_url() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setTarget('/test');
     $this->assertEquals(new URL('http://example.com/test'), $r->getUrl());
   }
 
-  #[@test]
+  #[Test]
   public function post() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
@@ -230,10 +231,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test, @values([
-  #  ['data[color]=green&data[size]=S'],
-  #  [['data' => ['color' => 'green', 'size' => 'S']]]
-  #])]
+  #[Test, Values([['data[color]=green&data[size]=S'], [['data' => ['color' => 'green', 'size' => 'S']]]])]
   public function post_url_with_map_parameter($params) {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setParameters($params);
@@ -246,7 +244,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function put() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::PUT);
@@ -259,7 +257,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function trace() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::TRACE);
@@ -272,7 +270,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function head() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::HEAD);
@@ -283,7 +281,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function delete() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::DELETE);
@@ -294,7 +292,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function options() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::OPTIONS);
@@ -305,7 +303,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function with_custom_header() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setHeader('X-Binford', 6100);
@@ -315,7 +313,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function with_custom_header_object() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setHeader('X-Binford', new Header('X-Binford', 6100));
@@ -325,7 +323,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function with_custom_header_list() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setHeader('X-Binford', [6100, 'More Power']);
@@ -335,7 +333,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function with_custom_headers() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->addHeaders(['X-Binford' => 6100]);
@@ -345,7 +343,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function with_custom_headers_as_map() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->addHeaders(['X-Binford' => new Header('X-Binford', 6100)]);
@@ -355,7 +353,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function with_custom_header_objects() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->addHeaders([new Header('X-Binford', 6100)]);
@@ -365,7 +363,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function with_custom_headers_list() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->addHeaders(['X-Binford' => [6100, 'Even more power']]);
@@ -375,7 +373,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function with_duplicate_header() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setHeader('X-Binford', 6100);
@@ -386,7 +384,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function header_string() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
@@ -397,7 +395,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function header_string_does_not_include_content() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
@@ -408,7 +406,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function with_empty_post_body() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
@@ -419,7 +417,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function post_with_1byte_body() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
@@ -430,7 +428,7 @@ class HttpRequestTest extends \unittest\TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function delete_with_1byte_body() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::DELETE);
@@ -451,7 +449,7 @@ class HttpRequestTest extends \unittest\TestCase {
   *    '7.14 TRY' => '200 teststeine'
   *  ];
   */
-  #[@test]
+  #[Test]
   public function get_url_with_array_params_spaced_key() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
@@ -474,7 +472,7 @@ class HttpRequestTest extends \unittest\TestCase {
    *    ]
    *  ];
    */
-   #[@test]
+   #[Test]
    public function get_url_with_assoc_array_containing_assoc_array() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
