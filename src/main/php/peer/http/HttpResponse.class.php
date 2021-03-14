@@ -37,7 +37,7 @@ class HttpResponse implements Value {
     do { $this->readHeader(); } while (100 === $this->statuscode);
 
     // Check for chunked transfer encoding
-    $this->chunked= $chunked && (bool)stristr($this->getHeader('Transfer-Encoding'), 'chunked');
+    $this->chunked= $chunked && (bool)stristr($this->getHeader('Transfer-Encoding') ?? '', 'chunked');
   }
   
   /**
