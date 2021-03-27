@@ -6,22 +6,19 @@ use util\log\Traceable;
 /**
  * HTTP connection
  *
- * <code>
- *   $c= new HttpConnection('http://xp-framework.net/');
- *   $response= $c->get(
- *     array('a' => 'b'),
- *     array(
- *       new Header('X-Binford', '6100 (more power)'),
- *       new BasicAuthorization('baz', 'bar'),
- *       'Cookie' => 'username=fred; lastvisit=2004-01-10'
- *     )
- *   );
- *   Console::writeLine('Headers: ', $response);
- *   
- *   while ($chunk= $response->readData()) {
- *     // ...
- *   }
- * </code>
+ * ```
+ * $c= new HttpConnection('https://example.com/');
+ * $response= $c->get(['a' => 'b'], [
+ *   new Header('X-Binford', '6100 (more power)'),
+ *   new BasicAuthorization('baz', 'bar'),
+ *   'Cookie' => 'username=fred; lastvisit=2004-01-10'
+ * ]);
+ * Console::writeLine('Headers: ', $response);
+ *
+ * while ($chunk= $response->readData()) {
+ *   // ...
+ * }
+ * ```
  *
  * @see   rfc://2616
  * @test  xp://net.xp_framework.unittest.peer.HttpTest
@@ -36,7 +33,7 @@ class HttpConnection implements Traceable {
   /**
    * Constructor
    *
-   * @param   var $url a string or a peer.URL object
+   * @param string|peer.URL $url
    */
   public function __construct($url) {
     $this->url= $url instanceof URL ? $url : new URL($url);
