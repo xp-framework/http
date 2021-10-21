@@ -33,11 +33,12 @@ class HttpConnection implements Traceable {
   /**
    * Constructor
    *
-   * @param string|peer.URL $url
+   * @param  string|peer.URL $url
+   * @param  peer.http.HttpTransport $transport
    */
-  public function __construct($url) {
+  public function __construct($url, $transport= null) {
     $this->url= $url instanceof URL ? $url : new URL($url);
-    $this->transport= HttpTransport::transportFor($this->url);
+    $this->transport= $transport ?? HttpTransport::transportFor($this->url);
   }
 
   /**
