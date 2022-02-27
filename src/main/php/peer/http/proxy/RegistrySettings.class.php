@@ -10,6 +10,8 @@ use peer\http\HttpProxy;
 class RegistrySettings extends ProxySettings {
   const SETTINGS= 'HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings';
 
+  private $shell;
+
   /**
    * Creates a new instance
    *
