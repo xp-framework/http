@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 10.1.0 / 2023-06-16
+
+* Merged PR #26: Implement flushing chunked output streams - @thekid
+
 ## 10.0.3 / 2022-02-27
 
 * Fixed "Creation of dynamic property" warnings in PHP 8.2 - @thekid
