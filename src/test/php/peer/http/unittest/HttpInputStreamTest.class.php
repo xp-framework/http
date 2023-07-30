@@ -2,6 +2,7 @@
 
 use io\streams\MemoryInputStream;
 use peer\http\{HttpConstants, HttpInputStream, HttpResponse};
+use unittest\Assert;
 use unittest\Test;
 
 /**
@@ -9,7 +10,7 @@ use unittest\Test;
  *
  * @see   xp://peer.http.HttpInputStream
  */
-class HttpInputStreamTest extends \unittest\TestCase {
+class HttpInputStreamTest {
 
   /**
    * Returns a HTTP response object
@@ -53,11 +54,11 @@ class HttpInputStreamTest extends \unittest\TestCase {
     with ($length= strlen($data), $r= $this->httpResponse(HttpConstants::STATUS_OK, ['Content-Length' => $length], $data)); {
     
       // Self-testing
-      $this->assertEquals(HttpConstants::STATUS_OK, $r->statusCode());
-      $this->assertEquals($length, (int)current($r->header('Content-Length')));
+      Assert::equals(HttpConstants::STATUS_OK, $r->statusCode());
+      Assert::equals($length, (int)current($r->header('Content-Length')));
       
       // Check data
-      $this->assertEquals($data, $this->readAll(new HttpInputStream($r)));
+      Assert::equals($data, $this->readAll(new HttpInputStream($r)));
     }
   }
 
@@ -88,13 +89,13 @@ class HttpInputStreamTest extends \unittest\TestCase {
       'HelloWorld'
     ))); {
 
-      $this->assertNotEquals(0, $s->available(), 'before read #1');
-      $this->assertEquals('Hello', $s->read(5));
+      Assert::notEquals(0, $s->available(), 'before read #1');
+      Assert::equals('Hello', $s->read(5));
 
-      $this->assertNotEquals(0, $s->available(), 'before read #2');
-      $this->assertEquals('World', $s->read(5));
+      Assert::notEquals(0, $s->available(), 'before read #2');
+      Assert::equals('World', $s->read(5));
 
-      $this->assertEquals(0, $s->available(), 'after read #3');
+      Assert::equals(0, $s->available(), 'after read #3');
     }
   }
 
@@ -108,13 +109,13 @@ class HttpInputStreamTest extends \unittest\TestCase {
       "0\r\n"
     ))); {
 
-      $this->assertNotEquals(0, $s->available(), 'before read #1');
-      $this->assertEquals('Hello', $s->read(5));
+      Assert::notEquals(0, $s->available(), 'before read #1');
+      Assert::equals('Hello', $s->read(5));
 
-      $this->assertNotEquals(0, $s->available(), 'before read #2');
-      $this->assertEquals('World', $s->read(5));
+      Assert::notEquals(0, $s->available(), 'before read #2');
+      Assert::equals('World', $s->read(5));
 
-      $this->assertEquals(0, $s->available(), 'after read #3');
+      Assert::equals(0, $s->available(), 'after read #3');
     }
   }
  
@@ -126,7 +127,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
       'HelloWorld'
     ))); {
       $this->readAll($s);
-      $this->assertEquals(0, $s->available(), 'after read all');
+      Assert::equals(0, $s->available(), 'after read all');
     }
   }
  
@@ -138,7 +139,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
       'HelloWorld'
     ))); {
       $this->readAll($s);
-      $this->assertEquals(null, $s->read(), 'after read all');
+      Assert::equals(null, $s->read(), 'after read all');
     }
   }
 
@@ -150,7 +151,7 @@ class HttpInputStreamTest extends \unittest\TestCase {
       'HelloWorld'
     ))); {
       $s->read(5);
-      $this->assertEquals(5, $s->available());
+      Assert::equals(5, $s->available());
     }
   }
 }

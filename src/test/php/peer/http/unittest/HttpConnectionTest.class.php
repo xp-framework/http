@@ -2,6 +2,7 @@
 
 use peer\URL;
 use peer\http\{BasicAuthorization, HttpConstants, HttpProxy, HttpRequest, RequestData};
+use unittest\Assert;
 use unittest\{Test, TestCase};
 use util\log\layout\PatternLayout;
 use util\log\{BufferedAppender, LogCategory, Traceable};
@@ -11,12 +12,13 @@ use util\log\{BufferedAppender, LogCategory, Traceable};
  *
  * @see      xp://peer.http.HttpConnection
  */
-class HttpConnectionTest extends TestCase {
+class HttpConnectionTest {
   protected $fixture= null;
 
   /**
    * Creates fixture member.
    */
+  #[Before]
   public function setUp() {
     $this->fixture= new MockHttpConnection(new URL('http://example.com:80/path/of/file'));
   }
@@ -24,7 +26,7 @@ class HttpConnectionTest extends TestCase {
   #[Test]
   public function get() {
     $this->fixture->get(['var1' => 1, 'var2' => 2]);
-    $this->assertEquals(
+    Assert::equals(
       "GET /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
       $this->fixture->lastRequest()
     );
@@ -33,7 +35,7 @@ class HttpConnectionTest extends TestCase {
   #[Test]
   public function head() {
     $this->fixture->head(['var1' => 1, 'var2' => 2]);
-    $this->assertEquals(
+    Assert::equals(
       "HEAD /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
       $this->fixture->lastRequest()
     );
@@ -42,7 +44,7 @@ class HttpConnectionTest extends TestCase {
   #[Test]
   public function post() {
     $this->fixture->post(['var1' => 1, 'var2' => 2]);
-    $this->assertEquals(
+    Assert::equals(
       "POST /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 13\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nvar1=1&var2=2",
       $this->fixture->lastRequest()
     );
@@ -51,7 +53,7 @@ class HttpConnectionTest extends TestCase {
   #[Test]
   public function put() {
     $this->fixture->put(new RequestData('THIS IS A DATA STRING'));
-    $this->assertEquals(
+    Assert::equals(
       "PUT /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTHIS IS A DATA STRING",
       $this->fixture->lastRequest()
     );
@@ -60,7 +62,7 @@ class HttpConnectionTest extends TestCase {
   #[Test]
   public function patch() {
     $this->fixture->patch(new RequestData('THIS IS A DATA STRING'));
-    $this->assertEquals(
+    Assert::equals(
       "PATCH /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nTHIS IS A DATA STRING",
       $this->fixture->lastRequest()
     );
@@ -69,7 +71,7 @@ class HttpConnectionTest extends TestCase {
   #[Test]
   public function delete() {
     $this->fixture->delete(['var1' => 1, 'var2' => 2]);
-    $this->assertEquals(
+    Assert::equals(
       "DELETE /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
       $this->fixture->lastRequest()
     );
@@ -78,7 +80,7 @@ class HttpConnectionTest extends TestCase {
   #[Test]
   public function options() {
     $this->fixture->options(['var1' => 1, 'var2' => 2]);
-    $this->assertEquals(
+    Assert::equals(
       "OPTIONS /path/of/file?var1=1&var2=2 HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n",
       $this->fixture->lastRequest()
     );
@@ -91,7 +93,7 @@ class HttpConnectionTest extends TestCase {
       $request->setTarget('/');
       $this->fixture->send($request);
     }
-    $this->assertEquals(
+    Assert::equals(
       "PROPPATCH / HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\nContent-Length: 0\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $this->fixture->lastRequest()
     );
@@ -99,7 +101,7 @@ class HttpConnectionTest extends TestCase {
 
   #[Test]
   public function is_traceable() {
-    $this->assertInstanceOf(Traceable::class, $this->fixture);
+    Assert::instance(Traceable::class, $this->fixture);
   }
 
   #[Test]
@@ -107,7 +109,7 @@ class HttpConnectionTest extends TestCase {
     $appender= (new BufferedAppender())->withLayout(new PatternLayout('%m'));
     $this->fixture->setTrace((new LogCategory('trace'))->withAppender($appender));
     $this->fixture->get();
-    $this->assertEquals(
+    Assert::equals(
       ">>> GET /path/of/file HTTP/1.1\r\nConnection: close\r\nHost: example.com:80\r\n\r\n".
       "<<< HTTP/1.0 200 Testing OK\r\n\r\n",
       $appender->getBuffer()
@@ -118,7 +120,7 @@ class HttpConnectionTest extends TestCase {
   public function changing_request_target_does_not_modify_connection_url() {
     $url= $this->fixture->getUrl();
     $this->fixture->create(new HttpRequest())->setTarget('/foo');
-    $this->assertNotEquals('/foo', $url->getPath());
+    Assert::notEquals('/foo', $url->getPath());
   }
 
   #[Test]
@@ -131,7 +133,7 @@ class HttpConnectionTest extends TestCase {
     $req= $this->fixture->create(new HttpRequest());
     $req->setHeader('Authorization', new BasicAuthorization('user', 'pass'));
 
-    $this->assertEquals(
+    Assert::equals(
       "GET /path/of/file HTTP/1.1\r\n".
       "Connection: close\r\n".
       "Host: example.com:80\r\n".
@@ -144,7 +146,7 @@ class HttpConnectionTest extends TestCase {
   public function can_add_authorization_as_header_in_get() {
     $this->fixture->get([], [new BasicAuthorization('user', 'pass')]);
 
-    $this->assertEquals(
+    Assert::equals(
       "GET /path/of/file HTTP/1.1\r\n".
       "Connection: close\r\n".
       "Host: example.com:80\r\n".
@@ -158,7 +160,7 @@ class HttpConnectionTest extends TestCase {
     $conn= new MockHttpConnection('http://user:pass@example.com/');
     $conn->get();
 
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\n".
       "Connection: close\r\n".
       "Authorization: Basic dXNlcjpwYXNz\r\n".
@@ -179,7 +181,7 @@ class HttpConnectionTest extends TestCase {
     $transfer->write('var1=1&var2=2');
     $this->fixture->finish($transfer);
 
-    $this->assertEquals(
+    Assert::equals(
       "POST / HTTP/1.1\r\n".
       "Connection: close\r\n".
       "Host: example.com:80\r\n".

@@ -4,14 +4,16 @@ use io\streams\MemoryInputStream;
 use lang\IllegalStateException;
 use peer\http\{Authorizations, BasicAuthorization, DigestAuthorization, HttpResponse};
 use security\SecureString;
+use unittest\Assert;
 use unittest\{Expect, Test, Values};
 use util\Secret;
 
-class AuthorizationsTest extends \unittest\TestCase {
+class AuthorizationsTest {
   const USER= 'foo';
   private $cut;
 
   /** @return void */
+  #[Before]
   public function setUp() {
     $this->cut= new Authorizations();
   }
@@ -35,7 +37,7 @@ class AuthorizationsTest extends \unittest\TestCase {
       "WWW-Authenticate: Basic realm=\"Auth me!\"\r\n\r\n"
     ));
 
-    $this->assertInstanceof(BasicAuthorization::class, $this->cut->create($res, self::USER, $secret));
+    Assert::instance(BasicAuthorization::class, $this->cut->create($res, self::USER, $secret));
   }
 
   #[Test, Values('secrets')]
@@ -45,7 +47,7 @@ class AuthorizationsTest extends \unittest\TestCase {
       "WWW-Authenticate: Digest realm=\"Auth me!\", qop=\"auth\", nonce=\"12345\"\r\n\r\n"
     ));
 
-    $this->assertInstanceof(DigestAuthorization::class, $this->cut->create($res, self::USER, $secret));
+    Assert::instance(DigestAuthorization::class, $this->cut->create($res, self::USER, $secret));
   }
 
   #[Test, Values('secrets'), Expect(IllegalStateException::class)]
@@ -61,12 +63,12 @@ class AuthorizationsTest extends \unittest\TestCase {
   #[Test]
   public function requires_a_401() {
     $res= new HttpResponse(new MemoryInputStream('HTTP/1.1 401 Authentication required.'."\r\n\r\n"));
-    $this->assertTrue($this->cut->required($res));
+    Assert::true($this->cut->required($res));
   }
 
   #[Test]
   public function not_required_without_401() {
     $res= new HttpResponse(new MemoryInputStream('HTTP/1.1 200 Ok'."\r\n\r\n"));
-    $this->assertFalse($this->cut->required($res));
+    Assert::false($this->cut->required($res));
   }
 }

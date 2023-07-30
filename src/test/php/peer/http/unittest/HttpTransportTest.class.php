@@ -1,23 +1,15 @@
 <?php namespace peer\http\unittest;
 
-use lang\IllegalArgumentException;
+use lang\{IllegalArgumentException, ClassLoader};
 use peer\URL;
 use peer\http\{HttpProxy, HttpTransport};
-use unittest\{BeforeClass, Expect, Test};
+use unittest\{Assert, Before, Expect, Test};
 
-/**
- * TestCase
- *
- * @see      xp://peer.http.HttpTransport
- */
-class HttpTransportTest extends \unittest\TestCase {
+class HttpTransportTest {
 
-  /**
-   * Register test transport
-   */
-  #[BeforeClass]
+  #[Before]
   public static function registerTransport() {
-    HttpTransport::register('test', \lang\ClassLoader::defineClass('TestHttpTransport', 'peer.http.HttpTransport', [], '{
+    HttpTransport::register('test', ClassLoader::defineClass('TestHttpTransport', 'peer.http.HttpTransport', [], '{
       public $host, $port, $arg, $proxy;
 
       public function __construct(\peer\URL $url, $arg) {
@@ -44,30 +36,30 @@ class HttpTransportTest extends \unittest\TestCase {
   #[Test]
   public function host() {
     $t= HttpTransport::transportFor(new URL('test://example.com'));
-    $this->assertEquals('example.com', $t->host);
+    Assert::equals('example.com', $t->host);
   }
 
   #[Test]
   public function port_80_is_the_default_port() {
     $t= HttpTransport::transportFor(new URL('test://example.com'));
-    $this->assertEquals(80, $t->port);
+    Assert::equals(80, $t->port);
   }
 
   #[Test]
   public function urls_may_contain_port() {
     $t= HttpTransport::transportFor(new URL('test://example.com:8080'));
-    $this->assertEquals(8080, $t->port);
+    Assert::equals(8080, $t->port);
   }
 
   #[Test]
   public function schemes_may_contain_args() {
     $t= HttpTransport::transportFor(new URL('test+v2://example.com:443'));
-    $this->assertEquals('v2', $t->arg);
+    Assert::equals('v2', $t->arg);
   }
 
   #[Test]
   public function null_is_passed_if_scheme_has_no_arg() {
     $t= HttpTransport::transportFor(new URL('test://example.com:443'));
-    $this->assertNull($t->arg);
+    Assert::null($t->arg);
   }
 }

@@ -1,9 +1,10 @@
 <?php namespace peer\http\unittest;
 
 use peer\http\Header;
-use unittest\{Test, Values, TestCase};
+use unittest\Assert;
+use unittest\{Test, TestCase, Values};
 
-class HeaderTest extends TestCase {
+class HeaderTest {
 
   /** @return iterable */
   private function comparison() {
@@ -20,21 +21,21 @@ class HeaderTest extends TestCase {
 
   #[Test]
   public function name_accessor() {
-    $this->assertEquals('Name', (new Header('Name', 'Value'))->name());
+    Assert::equals('Name', (new Header('Name', 'Value'))->name());
   }
 
   #[Test]
   public function value_accessor() {
-    $this->assertEquals('Value', (new Header('Name', 'Value'))->value());
+    Assert::equals('Value', (new Header('Name', 'Value'))->value());
   }
 
   #[Test]
   public function string_representation() {
-    $this->assertEquals('peer.http.Header(Name: Value)', (new Header('Name', 'Value'))->toString());
+    Assert::equals('peer.http.Header(Name: Value)', (new Header('Name', 'Value'))->toString());
   }
 
   #[Test, Values('comparison')]
   public function compare($a, $b, $expect) {
-    $this->assertEquals($expect, $a->compareTo($b));
+    Assert::equals($expect, $a->compareTo($b));
   }
 }

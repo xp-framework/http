@@ -2,6 +2,7 @@
 
 use peer\http\HttpProxy;
 use peer\http\proxy\EnvironmentSettings;
+use unittest\Assert;
 use unittest\{Test, Values};
 
 /**
@@ -9,7 +10,7 @@ use unittest\{Test, Values};
  *
  * @see    xp://peer.http.proxy.EnvironmentSettings
  */
-class EnvironmentSettingsTest extends \unittest\TestCase {
+class EnvironmentSettingsTest {
   private $environment;
 
   /**
@@ -17,6 +18,7 @@ class EnvironmentSettingsTest extends \unittest\TestCase {
    *
    * @return void
    */
+  #[Before]
   public function setUp() {
     $this->environment= new Environment([
       'http_proxy'  => null,
@@ -35,33 +37,34 @@ class EnvironmentSettingsTest extends \unittest\TestCase {
    *
    * @return void
    */
+  #[After]
   public function tearDown() {
     $this->environment->close();
   }
 
   #[Test, Values(['http', 'https'])]
   public function no_proxy($scheme) {
-    $this->assertEquals(HttpProxy::NONE, (new EnvironmentSettings())->proxy($scheme));
+    Assert::equals(HttpProxy::NONE, (new EnvironmentSettings())->proxy($scheme));
   }
 
   #[Test, Values(['no_proxy', 'NO_PROXY'])]
   public function excludes_from_no_proxy($env) {
     with (new Environment([$env => '*']), function() {
-      $this->assertEquals(['*'], (new EnvironmentSettings())->excludes());
+      Assert::equals(['*'], (new EnvironmentSettings())->excludes());
     });
   }
 
   #[Test, Values(['no_proxy', 'NO_PROXY'])]
   public function excludes_when_unset($env) {
     with (new Environment([$env => null]), function() {
-      $this->assertEquals([], (new EnvironmentSettings())->excludes());
+      Assert::equals([], (new EnvironmentSettings())->excludes());
     });
   }
 
   #[Test, Values(['no_proxy', 'NO_PROXY'])]
   public function excludes_when_empty($env) {
     with (new Environment([$env => '']), function() {
-      $this->assertEquals([], (new EnvironmentSettings())->excludes());
+      Assert::equals([], (new EnvironmentSettings())->excludes());
     });
   }
 
@@ -69,7 +72,7 @@ class EnvironmentSettingsTest extends \unittest\TestCase {
   public function http_proxy($env) {
     with (new Environment([$env => 'proxy.example.com:3128']), function() {
       $proxy= (new EnvironmentSettings())->proxy('http');
-      $this->assertEquals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
+      Assert::equals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
     });
   }
 
@@ -77,7 +80,7 @@ class EnvironmentSettingsTest extends \unittest\TestCase {
   public function https_proxy($env) {
     with (new Environment([$env => 'proxy.example.com:3128']), function() {
       $proxy= (new EnvironmentSettings())->proxy('https');
-      $this->assertEquals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
+      Assert::equals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
     });
   }
 
@@ -85,7 +88,7 @@ class EnvironmentSettingsTest extends \unittest\TestCase {
   public function all_proxy($env) {
     with (new Environment([$env => 'proxy.example.com:3128']), function() {
       $proxy= (new EnvironmentSettings())->proxy('http');
-      $this->assertEquals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
+      Assert::equals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
     });
   }
 
@@ -93,7 +96,7 @@ class EnvironmentSettingsTest extends \unittest\TestCase {
   public function proxy_formats($value) {
     with (new Environment(['http_proxy' => $value]), function() {
       $proxy= (new EnvironmentSettings())->proxy('http');
-      $this->assertEquals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
+      Assert::equals(['proxy.example.com', 3128], [$proxy->host(), $proxy->port()]);
     });
   }
 }

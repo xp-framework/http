@@ -5,32 +5,24 @@ use lang\{IllegalStateException, MethodNotImplementedException};
 use peer\URL;
 use peer\http\{Authorizations, DigestAuthorization, HttpConstants, HttpRequest, HttpResponse};
 use security\SecureString;
-use unittest\{Expect, Test};
+use unittest\{Assert, Before, Expect, Test};
 use util\Secret;
 
-class DigestAuthTest extends \unittest\TestCase {
+class DigestAuthTest {
   const USER = 'Mufasa';
   const PASS = 'Circle Of Life';
   const CNONCE = '0a4f113b';
 
-  private $http, $secret, $digest;
+  private $secret, $digest;
 
   /** @return void */
+  #[Before]
   public function setUp() {
     if (class_exists(Secret::class)) {
       $this->secret= new Secret(self::PASS);
     } else {
       $this->secret= new SecureString(self::PASS);
     }
-
-    $this->http= new MockHttpConnection(new URL('http://example.com:80/dir/index.html'));
-    $this->http->setResponse(new HttpResponse(new MemoryInputStream(
-      "HTTP/1.0 401 Unauthorized\r\n".
-      'WWW-Authenticate: Digest realm="testrealm@host.com", '.
-      'qop="auth,auth-int", '.
-      'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", '.
-      'opaque="5ccc069c403ebaf9f0171e9517f40e41"'."\r\n"
-    )));
 
     $this->digest= new DigestAuthorization(
       'testrealm@host.com',
@@ -41,6 +33,18 @@ class DigestAuthTest extends \unittest\TestCase {
     $this->digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
     $this->digest->setUsername(self::USER);
     $this->digest->setPassword($this->secret);
+  }
+
+  public function newConnection() {
+    $http= new MockHttpConnection(new URL('http://example.com:80/dir/index.html'));
+    $http->setResponse(new HttpResponse(new MemoryInputStream(
+      "HTTP/1.0 401 Unauthorized\r\n".
+      'WWW-Authenticate: Digest realm="testrealm@host.com", '.
+      'qop="auth,auth-int", '.
+      'nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", '.
+      'opaque="5ccc069c403ebaf9f0171e9517f40e41"'."\r\n"
+    )));
+    return $http;
   }
 
   /**
@@ -58,7 +62,7 @@ class DigestAuthTest extends \unittest\TestCase {
 
   #[Test]
   public function server_indicates_digest_auth() {
-    $this->assertEquals(HttpConstants::STATUS_AUTHORIZATION_REQUIRED, $this->http->get('/')->getStatusCode());
+    Assert::equals(401, $this->newConnection()->get('/')->getStatusCode());
   }
 
   #[Test, Expect(IllegalStateException::class)]
@@ -68,15 +72,16 @@ class DigestAuthTest extends \unittest\TestCase {
 
   #[Test]
   public function create_digest_authorization() {
-    $this->assertEquals(
+    Assert::equals(
       $this->digest,
-      Authorizations::fromResponse($this->http->get('/'), self::USER, $this->secret)
+      Authorizations::fromResponse($this->newConnection()->get('/'), self::USER, $this->secret)
     );
   }
 
   #[Test, Expect(MethodNotImplementedException::class)]
   public function only_md5_algorithm_supported() {
-    $this->http->setResponse(new HttpResponse(new MemoryInputStream(
+    $http= $this->newConnection();
+    $http->setResponse(new HttpResponse(new MemoryInputStream(
       "HTTP/1.0 401 Unauthorized\r\n".
       'WWW-Authenticate: Digest realm="testrealm@host.com", '.
       'qop="auth,auth-int", '.
@@ -85,12 +90,12 @@ class DigestAuthTest extends \unittest\TestCase {
       'algorithm="sha1"'."\r\n"
     )));
 
-    Authorizations::fromResponse($this->http->get('/'), self::USER, $this->secret);
+    Authorizations::fromResponse($http->get('/'), self::USER, $this->secret);
   }
 
   #[Test]
   public function calculate_digest() {
-    $this->assertEquals(
+    Assert::equals(
       '6629fae49393a05397450978507c4ef1',
       $this->digest->hashFor('GET', '/dir/index.html')
     );
@@ -101,7 +106,7 @@ class DigestAuthTest extends \unittest\TestCase {
     $req= new HttpRequest(new URL('http://example.com:80/dir/index.html'));
     $this->digest->sign($req);
 
-    $this->assertEquals(
+    Assert::equals(
       "GET /dir/index.html HTTP/1.1\r\n".
       "Connection: close\r\n".
       "Host: example.com:80\r\n".
@@ -113,17 +118,18 @@ class DigestAuthTest extends \unittest\TestCase {
 
   #[Test]
   public function challenge_digest() {
+    $http= $this->newConnection();
     $req= new HttpRequest(new URL('http://example.com:80/dir/index.html'));
-    $res= $this->http->send($req);
+    $res= $http->send($req);
 
     if (HttpConstants::STATUS_AUTHORIZATION_REQUIRED === $res->getStatusCode()) {
       $digest= Authorizations::fromResponse($res, self::USER, $this->secret);
       $digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
-      $req= $this->http->create($req);
+      $req= $http->create($req);
       $digest->sign($req);
     }
 
-    $this->assertEquals(
+    Assert::equals(
       "GET /dir/index.html HTTP/1.1\r\n".
       "Connection: close\r\n".
       "Host: example.com:80\r\n".
@@ -135,7 +141,7 @@ class DigestAuthTest extends \unittest\TestCase {
 
   #[Test]
   public function digest_hashes_path() {
-    $this->assertNotEquals(
+    Assert::notEquals(
       $this->digest->hashFor('GET', '/dir/index.html'),
       $this->digest->hashFor('GET', '/other/index.html')
     );
@@ -143,7 +149,7 @@ class DigestAuthTest extends \unittest\TestCase {
 
   #[Test]
   public function digest_hashes_querystring() {
-    $this->assertNotEquals(
+    Assert::notEquals(
       $this->digest->hashFor('GET', '/dir/index.html?one'),
       $this->digest->hashFor('GET', '/dir/index.html?two')
     );
@@ -160,7 +166,7 @@ class DigestAuthTest extends \unittest\TestCase {
     );
     $digest->cnonce(self::CNONCE); // Hardcode client nconce, so hashes will be static for the tests
 
-    $this->assertEquals(
+    Assert::equals(
       sprintf('Digest username="Mufasa", realm="testrealm@host.com", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", uri="/", qop="auth", nc=00000001, cnonce="%s", response="%s"',
         self::CNONCE, $digest->hashFor('GET', '/')
       ),

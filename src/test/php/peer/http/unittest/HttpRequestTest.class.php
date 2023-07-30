@@ -2,6 +2,7 @@
 
 use peer\URL;
 use peer\http\{FileUpload, FormData, FormRequestData, Header, HttpConstants, HttpRequest, RequestData};
+use unittest\Assert;
 use unittest\{Test, Values};
 
 /**
@@ -10,13 +11,13 @@ use unittest\{Test, Values};
  * @see   xp://peer.http.HttpRequest
  * @see   https://github.com/xp-framework/xp-framework/issues/335
  */
-class HttpRequestTest extends \unittest\TestCase {
+class HttpRequestTest {
 
   #[Test]
   public function get() {
     $r= new HttpRequest(new URL('http://example.com'));
     $r->setMethod(HttpConstants::GET);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -26,7 +27,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function get_url_with_non_port($port) {
     $r= new HttpRequest(new URL('http://example.com:'.$port));
     $r->setMethod(HttpConstants::GET);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com:".$port."\r\n\r\n",
       $r->getRequestString()
     );
@@ -36,7 +37,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function get_url_with_path() {
     $r= new HttpRequest(new URL('http://example.com/path/to/images/index.html'));
     $r->setMethod(HttpConstants::GET);
-    $this->assertEquals(
+    Assert::equals(
       "GET /path/to/images/index.html HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -46,7 +47,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function basic_auth_supported_by_default() {
     $r= new HttpRequest(new URL('http://user:pass@example.com/'));
     $r->setMethod(HttpConstants::GET);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nAuthorization: Basic dXNlcjpwYXNz\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -56,7 +57,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function get_url_with_file_only_path() {
     $r= new HttpRequest(new URL('http://example.com/index.html'));
     $r->setMethod(HttpConstants::GET);
-    $this->assertEquals(
+    Assert::equals(
       "GET /index.html HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -66,7 +67,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function get_url_with_empty_parameters() {
     $r= new HttpRequest(new URL('http://example.com/?'));
     $r->setMethod(HttpConstants::GET);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -76,7 +77,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function get_url_with_parameters_via_constructor($params) {
     $r= new HttpRequest(new URL('http://example.com/?'.$params));
     $r->setMethod(HttpConstants::GET);
-    $this->assertEquals(
+    Assert::equals(
       "GET /?".$params." HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -87,7 +88,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
     $r->setParameters($params);
-    $this->assertEquals(
+    Assert::equals(
       "GET /?".$params." HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -98,7 +99,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
     $r->setParameters([]);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -109,7 +110,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
     $r->setParameters($input);
-    $this->assertEquals(
+    Assert::equals(
       "GET /?".$representation." HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -119,7 +120,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function get_url_with_array_parameters_via_url() {
     $r= new HttpRequest(new URL('http://example.com/?data[color]=green&data[size]=S'));
     $r->setMethod(HttpConstants::GET);
-    $this->assertEquals(
+    Assert::equals(
       "GET /?data[color]=green&data[size]=S HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -136,7 +137,7 @@ class HttpRequestTest extends \unittest\TestCase {
 
     // Fetch randomly generated boundary
     $boundary= $r->parameters->getBoundary();
-    $this->assertEquals(
+    Assert::equals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Type: multipart/form-data; boundary=".$boundary."\r\nContent-Length: 265\r\n\r\n".
       "--".$boundary."\r\nContent-Disposition: form-data; name=\"key\"\r\n".
@@ -161,7 +162,7 @@ class HttpRequestTest extends \unittest\TestCase {
 
     // Fetch randomly generated boundary
     $boundary= $r->parameters->getBoundary();
-    $this->assertEquals(
+    Assert::equals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Type: multipart/form-data; boundary=".$boundary."\r\nContent-Length: 379\r\n\r\n".
       "--".$boundary."\r\nContent-Disposition: form-data; name=\"file\"; filename=\"image.jpeg\"\r\nContent-Type: image/jpeg\r\nContent-Length: 7\r\n".
@@ -179,7 +180,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/?a=b'));
     $r->setMethod(HttpConstants::GET);
     $r->setParameters($params);
-    $this->assertEquals(
+    Assert::equals(
       "GET /?a=b HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -190,7 +191,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
     $r->setParameters(['params' => ['target' => 'home', 'ssl' => 'true']]);
-    $this->assertEquals(
+    Assert::equals(
       "GET /?params[target]=home&params[ssl]=true HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -200,7 +201,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function getUrl_returns_url_passed_to_constructor() {
     $url= new URL('http://example.com/');
     $r= new HttpRequest($url);
-    $this->assertEquals($url, $r->getUrl());
+    Assert::equals($url, $r->getUrl());
   }
 
   #[Test]
@@ -208,14 +209,14 @@ class HttpRequestTest extends \unittest\TestCase {
     $url= new URL('http://example.com/');
     $r= new HttpRequest();
     $r->setUrl($url);
-    $this->assertEquals($url, $r->getUrl());
+    Assert::equals($url, $r->getUrl());
   }
 
   #[Test]
   public function setting_target_changes_url() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setTarget('/test');
-    $this->assertEquals(new URL('http://example.com/test'), $r->getUrl());
+    Assert::equals(new URL('http://example.com/test'), $r->getUrl());
   }
 
   #[Test]
@@ -223,7 +224,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
     $r->setParameters('a=b&c=d');
-    $this->assertEquals(
+    Assert::equals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Length: 7\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
       "a=b&c=d",
@@ -236,7 +237,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setParameters($params);
     $r->setMethod(HttpConstants::POST);
-    $this->assertEquals(
+    Assert::equals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Length: 30\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
       "data[color]=green&data[size]=S",
@@ -249,7 +250,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::PUT);
     $r->setParameters('a=b&c=d');
-    $this->assertEquals(
+    Assert::equals(
       "PUT / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Length: 7\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
       "a=b&c=d",
@@ -262,7 +263,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::TRACE);
     $r->setParameters('a=b&c=d');
-    $this->assertEquals(
+    Assert::equals(
       "TRACE / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n".
       "Content-Length: 7\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n".
       "a=b&c=d",
@@ -275,7 +276,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::HEAD);
     $r->setParameters('a=b&c=d');
-    $this->assertEquals(
+    Assert::equals(
       "HEAD /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -286,7 +287,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::DELETE);
     $r->setParameters('a=b&c=d');
-    $this->assertEquals(
+    Assert::equals(
       "DELETE /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -297,7 +298,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::OPTIONS);
     $r->setParameters('a=b&c=d');
-    $this->assertEquals(
+    Assert::equals(
       "OPTIONS /?a=b&c=d HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -307,7 +308,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function with_custom_header() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setHeader('X-Binford', 6100);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
       $r->getRequestString()
     );
@@ -317,7 +318,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function with_custom_header_object() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setHeader('X-Binford', new Header('X-Binford', 6100));
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
       $r->getRequestString()
     );
@@ -327,7 +328,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function with_custom_header_list() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setHeader('X-Binford', [6100, 'More Power']);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\nX-Binford: More Power\r\n\r\n",
       $r->getRequestString()
     );
@@ -337,7 +338,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function with_custom_headers() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->addHeaders(['X-Binford' => 6100]);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
       $r->getRequestString()
     );
@@ -347,7 +348,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function with_custom_headers_as_map() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->addHeaders(['X-Binford' => new Header('X-Binford', 6100)]);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
       $r->getRequestString()
     );
@@ -357,7 +358,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function with_custom_header_objects() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->addHeaders([new Header('X-Binford', 6100)]);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\n\r\n",
       $r->getRequestString()
     );
@@ -367,7 +368,7 @@ class HttpRequestTest extends \unittest\TestCase {
   public function with_custom_headers_list() {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->addHeaders(['X-Binford' => [6100, 'Even more power']]);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 6100\r\nX-Binford: Even more power\r\n\r\n",
       $r->getRequestString()
     );
@@ -378,7 +379,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setHeader('X-Binford', 6100);
     $r->setHeader('X-Binford', 61000);
-    $this->assertEquals(
+    Assert::equals(
       "GET / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nX-Binford: 61000\r\n\r\n",
       $r->getRequestString()
     );
@@ -389,7 +390,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
     $r->setParameters('a=b');
-    $this->assertEquals(
+    Assert::equals(
       "GET /?a=b HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getHeaderString()
     );
@@ -400,7 +401,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
     $r->setParameters('a=b');
-    $this->assertEquals(
+    Assert::equals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 3\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $r->getHeaderString()
     );
@@ -411,7 +412,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
     $r->setParameters('');
-    $this->assertEquals(
+    Assert::equals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 0\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $r->getHeaderString()
     );
@@ -422,7 +423,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::POST);
     $r->setParameters(new RequestData('1'));
-    $this->assertEquals(
+    Assert::equals(
       "POST / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 1\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $r->getHeaderString()
     );
@@ -433,7 +434,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::DELETE);
     $r->setParameters(new RequestData('1'));
-    $this->assertEquals(
+    Assert::equals(
       "DELETE / HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\nContent-Length: 1\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n",
       $r->getHeaderString()
     );
@@ -454,7 +455,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
     $r->setParameters(['10 EUR' => 'test 123']);
-    $this->assertEquals(
+    Assert::equals(
       "GET /?10+EUR=test+123 HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );
@@ -477,7 +478,7 @@ class HttpRequestTest extends \unittest\TestCase {
     $r= new HttpRequest(new URL('http://example.com/'));
     $r->setMethod(HttpConstants::GET);
     $r->setParameters(['test' => ['10 EUR' => 'test 123']]);
-    $this->assertEquals(
+    Assert::equals(
       "GET /?test[10+EUR]=test+123 HTTP/1.1\r\nConnection: close\r\nHost: example.com\r\n\r\n",
       $r->getRequestString()
     );

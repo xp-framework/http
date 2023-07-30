@@ -2,9 +2,10 @@
 
 use peer\Socket;
 use peer\http\ChunkedHttpOutputStream;
+use unittest\Assert;
 use unittest\{Before, Test, TestCase};
 
-class ChunkedHttpOutputStreamTest extends TestCase {
+class ChunkedHttpOutputStreamTest {
 
   /** Creates a socket for testing */
   private function socket(): Socket {
@@ -28,7 +29,7 @@ class ChunkedHttpOutputStreamTest extends TestCase {
     $stream= new ChunkedHttpOutputStream($socket);
     $stream->write('Test');
 
-    $this->assertEquals('', $socket->written);
+    Assert::equals('', $socket->written);
   }
 
   #[Test]
@@ -37,7 +38,7 @@ class ChunkedHttpOutputStreamTest extends TestCase {
     $stream= new ChunkedHttpOutputStream($socket, 4);
     $stream->write('Testing');
 
-    $this->assertEquals("7\r\nTesting\r\n", $socket->written);
+    Assert::equals("7\r\nTesting\r\n", $socket->written);
   }
 
   #[Test]
@@ -47,7 +48,7 @@ class ChunkedHttpOutputStreamTest extends TestCase {
     $stream->write('Testing');
     $stream->write('Two');
 
-    $this->assertEquals("7\r\nTesting\r\n", $socket->written);
+    Assert::equals("7\r\nTesting\r\n", $socket->written);
   }
 
   #[Test]
@@ -58,7 +59,7 @@ class ChunkedHttpOutputStreamTest extends TestCase {
     $stream->write('Two');
     $stream->flush();
 
-    $this->assertEquals("6\r\nOneTwo\r\n", $socket->written);
+    Assert::equals("6\r\nOneTwo\r\n", $socket->written);
   }
 
   #[Test]
@@ -67,7 +68,7 @@ class ChunkedHttpOutputStreamTest extends TestCase {
     $stream= new ChunkedHttpOutputStream($socket, 0);
     $stream->write('Test');
 
-    $this->assertEquals("4\r\nTest\r\n", $socket->written);
+    Assert::equals("4\r\nTest\r\n", $socket->written);
   }
 
   #[Test]
@@ -77,7 +78,7 @@ class ChunkedHttpOutputStreamTest extends TestCase {
     $stream->write('Test');
     $stream->flush();
 
-    $this->assertEquals("4\r\nTest\r\n", $socket->written);
+    Assert::equals("4\r\nTest\r\n", $socket->written);
   }
 
   #[Test]
@@ -86,7 +87,7 @@ class ChunkedHttpOutputStreamTest extends TestCase {
     $stream= new ChunkedHttpOutputStream($socket);
     $stream->close();
 
-    $this->assertEquals("0\r\n\r\n", $socket->written);
+    Assert::equals("0\r\n\r\n", $socket->written);
   }
 
   #[Test]
@@ -96,7 +97,7 @@ class ChunkedHttpOutputStreamTest extends TestCase {
     $stream->write('Test');
     $stream->close();
 
-    $this->assertEquals("4\r\nTest\r\n0\r\n\r\n", $socket->written);
+    Assert::equals("4\r\nTest\r\n0\r\n\r\n", $socket->written);
   }
 
   #[Test]
@@ -106,6 +107,6 @@ class ChunkedHttpOutputStreamTest extends TestCase {
     $stream->close();
     $stream->close();
 
-    $this->assertEquals("0\r\n\r\n", $socket->written);
+    Assert::equals("0\r\n\r\n", $socket->written);
   }
 }
