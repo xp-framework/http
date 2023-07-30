@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Refactored `peer.http.Authorizations` to use dynamic invocations instead
+  of reflection. See xp-framework/rfc#338
+  (@thekid)
+
 ## 10.1.0 / 2023-06-16
 
 * Merged PR #26: Implement flushing chunked output streams - @thekid
