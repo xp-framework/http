@@ -2,8 +2,8 @@
 
 use peer\http\HttpProxy;
 use peer\http\proxy\EnvironmentSettings;
-use unittest\Assert;
-use unittest\{Test, Values};
+use test\Assert;
+use test\{Test, Values};
 
 /**
  * Verifies inferring proxy settings from the environment

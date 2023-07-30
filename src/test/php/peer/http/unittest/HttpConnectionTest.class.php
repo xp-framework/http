@@ -2,24 +2,15 @@
 
 use peer\URL;
 use peer\http\{BasicAuthorization, HttpConstants, HttpProxy, HttpRequest, RequestData};
-use unittest\Assert;
-use unittest\{Test, TestCase};
+use test\{Assert, Before, Test};
 use util\log\layout\PatternLayout;
 use util\log\{BufferedAppender, LogCategory, Traceable};
 
-/**
- * TestCase for HTTP connection
- *
- * @see      xp://peer.http.HttpConnection
- */
 class HttpConnectionTest {
-  protected $fixture= null;
+  private $fixture;
 
-  /**
-   * Creates fixture member.
-   */
   #[Before]
-  public function setUp() {
+  public function fixture() {
     $this->fixture= new MockHttpConnection(new URL('http://example.com:80/path/of/file'));
   }
 

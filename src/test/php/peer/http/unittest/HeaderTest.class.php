@@ -1,8 +1,8 @@
 <?php namespace peer\http\unittest;
 
 use peer\http\Header;
-use unittest\Assert;
-use unittest\{Test, TestCase, Values};
+use test\Assert;
+use test\{Test, TestCase, Values};
 
 class HeaderTest {
 
@@ -34,7 +34,7 @@ class HeaderTest {
     Assert::equals('peer.http.Header(Name: Value)', (new Header('Name', 'Value'))->toString());
   }
 
-  #[Test, Values('comparison')]
+  #[Test, Values(from: 'comparison')]
   public function compare($a, $b, $expect) {
     Assert::equals($expect, $a->compareTo($b));
   }

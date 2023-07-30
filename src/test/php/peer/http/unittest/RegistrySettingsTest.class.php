@@ -4,7 +4,7 @@ use Exception;
 use lang\ClassLoader;
 use peer\http\HttpProxy;
 use peer\http\proxy\RegistrySettings;
-use unittest\{Assert, Before, Test, Values};
+use test\{Assert, Before, Test, Values};
 
 class RegistrySettingsTest {
   protected $shell;

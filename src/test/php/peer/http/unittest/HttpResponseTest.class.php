@@ -3,8 +3,8 @@
 use io\streams\MemoryInputStream;
 use lang\FormatException;
 use peer\http\HttpResponse;
-use unittest\Assert;
-use unittest\{Expect, Test};
+use test\Assert;
+use test\{Expect, Test};
 
 /**
  * TestCase for HTTP responses

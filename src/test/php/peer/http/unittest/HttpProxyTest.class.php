@@ -3,8 +3,8 @@
 use lang\IllegalArgumentException;
 use peer\URL;
 use peer\http\HttpProxy;
-use unittest\Assert;
-use unittest\{Expect, Test, Values};
+use test\Assert;
+use test\{Expect, Test, Values};
 
 /**
  * TestCase

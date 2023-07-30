@@ -3,6 +3,9 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Added PHP 8.3 to test matrix, migrated test suite to new testing library
+  `xp-framework/test`, see xp-framework/rfc#344
+  (@thekid)
 * Refactored `peer.http.Authorizations` to use dynamic invocations instead
   of reflection. See xp-framework/rfc#338
   (@thekid)

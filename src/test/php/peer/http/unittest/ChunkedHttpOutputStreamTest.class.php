@@ -2,8 +2,8 @@
 
 use peer\Socket;
 use peer\http\ChunkedHttpOutputStream;
-use unittest\Assert;
-use unittest\{Before, Test, TestCase};
+use test\Assert;
+use test\{Before, Test, TestCase};
 
 class ChunkedHttpOutputStreamTest {
 

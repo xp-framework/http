@@ -2,8 +2,8 @@
 
 use io\streams\MemoryInputStream;
 use peer\http\{HttpConstants, HttpInputStream, HttpResponse};
-use unittest\Assert;
-use unittest\Test;
+use test\Assert;
+use test\Test;
 
 /**
  * HTTP input stream tests

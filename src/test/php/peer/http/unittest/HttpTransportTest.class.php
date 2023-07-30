@@ -1,9 +1,9 @@
 <?php namespace peer\http\unittest;
 
-use lang\{IllegalArgumentException, ClassLoader};
+use lang\{ClassLoader, IllegalArgumentException};
 use peer\URL;
 use peer\http\{HttpProxy, HttpTransport};
-use unittest\{Assert, Before, Expect, Test};
+use test\{Assert, Before, Expect, Test};
 
 class HttpTransportTest {
 

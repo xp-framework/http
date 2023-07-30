@@ -5,7 +5,7 @@ use lang\{IllegalStateException, MethodNotImplementedException};
 use peer\URL;
 use peer\http\{Authorizations, DigestAuthorization, HttpConstants, HttpRequest, HttpResponse};
 use security\SecureString;
-use unittest\{Assert, Before, Expect, Test};
+use test\{Assert, Before, Expect, Test};
 use util\Secret;
 
 class DigestAuthTest {
