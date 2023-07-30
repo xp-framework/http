@@ -1,7 +1,7 @@
 <?php namespace peer\http\unittest;
 
 use io\streams\MemoryInputStream;
-use peer\http\{HttpConnection, HttpRequest, HttpResponse};
+use peer\http\{HttpConnection, HttpRequest, HttpResponse, HttpOutputStream};
 
 /**
  * Mock HTTP connection
@@ -64,7 +64,7 @@ class MockHttpConnection extends HttpConnection {
    * @param   peer.http.MockHttpOutputStream $output
    * @return  peer.http.HttpResponse
    */
-  public function finish($output) {
+  public function finish(HttpOutputStream  $output) {
     $this->lastRequest.= $output->bytes;
 
     $response= $this->response();
