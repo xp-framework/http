@@ -3,6 +3,8 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 10.2.0 / 2023-07-30
+
 * Added PHP 8.3 to test matrix, migrated test suite to new testing library
   `xp-framework/test`, see xp-framework/rfc#344
   (@thekid)
