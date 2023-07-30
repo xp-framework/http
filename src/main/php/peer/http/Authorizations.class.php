@@ -1,7 +1,6 @@
 <?php namespace peer\http;
 
-use lang\{IllegalStateException, XPClass};
-use lang\reflect\TargetInvocationException;
+use lang\IllegalStateException;
 use util\Secret;
 
 /**
@@ -12,8 +11,8 @@ use util\Secret;
 final class Authorizations {
   const AUTH_HEADER= 'WWW-Authenticate';
   protected $impl= [
-    ['startsWith' => 'Basic ', 'impl' => 'peer.http.BasicAuthorization'],
-    ['startsWith' => 'Digest ', 'impl' => 'peer.http.DigestAuthorization']
+    ['startsWith' => 'Basic ', 'class' => BasicAuthorization::class],
+    ['startsWith' => 'Digest ', 'class' => DigestAuthorization::class]
   ];
 
   public static $CONCEAL, $REVEAL;
@@ -56,12 +55,8 @@ final class Authorizations {
 
     $header= $response->header(self::AUTH_HEADER)[0];
     foreach ($this->impl as $impl) {
-      if (0 == strncmp($impl['startsWith'], $header, strlen($impl['startsWith']))) {
-        try {
-          return XPClass::forName($impl['impl'])->getMethod('fromChallenge')->invoke(null, [$header, $user, $pass]);
-        } catch (TargetInvocationException $e) {
-          throw $e->getCause();
-        }
+      if (0 === strncmp($impl['startsWith'], $header, strlen($impl['startsWith']))) {
+        return $impl['class']::fromChallenge($header, $user, $pass);
       }
     }
 
