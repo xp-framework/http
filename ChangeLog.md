@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 10.3.0 / 2024-03-24
+
+* Made compatible with XP 12 - @thekid
+
 * Added PHP 8.4 to the test matrix - @thekid
 
 ## 10.2.0 / 2023-07-30
