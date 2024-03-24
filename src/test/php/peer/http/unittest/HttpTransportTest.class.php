@@ -18,7 +18,7 @@ class HttpTransportTest {
         $this->arg= $arg;
       }
 
-      public function setProxy(\peer\http\HttpProxy $proxy= null) {
+      public function setProxy($proxy= null) {
         $this->proxy= $proxy;
       }
       

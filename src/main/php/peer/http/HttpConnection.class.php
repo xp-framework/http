@@ -44,9 +44,9 @@ class HttpConnection implements Traceable {
   /**
    * Set proxy
    *
-   * @param   peer.http.HttpProxy $proxy
+   * @param  ?peer.http.HttpProxy $proxy
    */
-  public function setProxy(HttpProxy $proxy= null) {
+  public function setProxy($proxy= null) {
     $this->transport->setProxy($proxy);
   }
 

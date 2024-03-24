@@ -38,9 +38,9 @@ class SocketHttpTransport extends HttpTransport {
   /**
    * Set proxy
    *
-   * @param   peer.http.HttpProxy proxy
+   * @param  ?peer.http.HttpProxy proxy
    */
-  public function setProxy(HttpProxy $proxy= null) {
+  public function setProxy($proxy= null) {
     parent::setProxy($proxy);
     $this->proxySocket= $proxy ? new Socket($proxy->host(), $proxy->port()) : null;
   }

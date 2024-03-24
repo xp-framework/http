@@ -25,7 +25,7 @@ class HttpRequest {
    *
    * @param   peer.URL url object
    */
-  public function __construct(URL $url= null) {
+  public function __construct($url= null) {
     if (null !== $url) $this->setUrl($url);
   }
 
