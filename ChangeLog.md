@@ -3,6 +3,10 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 11.0.0 / 2026-04-25
+
+* **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
+  (@thekid)
 * Added PHP 8.5 and 8.6 to the test matrix - @thekid
 
 ## 10.3.0 / 2024-03-24
