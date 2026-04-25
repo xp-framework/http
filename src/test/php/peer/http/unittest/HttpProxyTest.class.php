@@ -3,14 +3,8 @@
 use lang\IllegalArgumentException;
 use peer\URL;
 use peer\http\HttpProxy;
-use test\Assert;
-use test\{Expect, Test, Values};
+use test\{Assert, Expect, Test, Values};
 
-/**
- * TestCase
- *
- * @see      xp://peer.http.HttpProxy
- */
 class HttpProxyTest {
 
   #[Test]
@@ -102,34 +96,22 @@ class HttpProxyTest {
     Assert::true($proxy->excludes()->contains(new URL('http://127.0.0.1')));
   }
 
-  /** @return string */
-  protected function exampleIp() {
-    static $resolved= null;
-
-    if (!$resolved) {
-      if (!($resolved= dns_get_record('example.com', DNS_A))) {
-        $this->skip('Cannot resolve example.com (DNS_A)');
-      }
-    }
-    return $resolved[0]['ip'];
-  }
-
   #[Test]
   public function host_excludes_work_with_ips_in_urls() {
-    $proxy= new HttpProxy('proxy.example.com', 3128, ['example.com']);
-    Assert::true($proxy->excludes()->contains(new URL('http://'.$this->exampleIp())));
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['localhost']);
+    Assert::true($proxy->excludes()->contains(new URL('http://127.0.0.1')));
   }
 
   #[Test]
   public function ips_in_both_excludes_and_urls_work() {
-    $proxy= new HttpProxy('proxy.example.com', 3128, [$this->exampleIp()]);
-    Assert::true($proxy->excludes()->contains(new URL('http://'.$this->exampleIp())));
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['127.0.0.1']);
+    Assert::true($proxy->excludes()->contains(new URL('http://127.0.0.1')));
   }
 
   #[Test]
   public function ip_excludes_work_with_hosts_in_urls() {
-    $proxy= new HttpProxy('proxy.example.com', 3128, [$this->exampleIp()]);
-    Assert::true($proxy->excludes()->contains(new URL('http://example.com')));
+    $proxy= new HttpProxy('proxy.example.com', 3128, ['127.0.0.1']);
+    Assert::true($proxy->excludes()->contains(new URL('http://localhost')));
   }
 
   #[Test, Values([['https://192.168.2.6/', true], ['https://192.168.3.6/', false]])]
