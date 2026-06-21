@@ -148,7 +148,7 @@ class HttpResponse implements Value {
     if (!($indicator= $this->scanUntil("\n"))) return $this->closeStream();
     if (!(sscanf($indicator, "%x%s\r", $chunksize, $extension))) {
       $this->closeStream();
-      throw new \io\IOException(sprintf(
+      throw new \io\OperationFailed(sprintf(
         'Chunked transfer encoding: Indicator line "%s" invalid', 
         addcslashes($indicator, "\0..\17")
       ));
