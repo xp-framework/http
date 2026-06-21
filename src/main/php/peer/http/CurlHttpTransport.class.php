@@ -1,6 +1,6 @@
 <?php namespace peer\http;
 
-use io\IOException;
+use io\OperationFailed;
 use io\streams\MemoryInputStream;
 use peer\URL;
 
@@ -32,7 +32,7 @@ class CurlHttpTransport extends HttpTransport {
    * @param   float $connectTimeout default 2.0
    * @param   float $readTimeout default 60.0
    * @return  peer.http.HttpOutputStream
-   * @throws  io.IOException
+   * @throws  io.OperationFailed
    */
   public function open(HttpRequest $request, $connectTimeout= 2.0, $readTimeout= 60.0) {
     static $versions= [
@@ -85,7 +85,7 @@ class CurlHttpTransport extends HttpTransport {
    *
    * @param  peer.http.HttpOutputStream $stream
    * @return peer.http.HttpResponse
-   * @throws  io.IOException
+   * @throws  io.OperationFailed
    */
   public function finish($stream) {
     $stream->close();
@@ -98,7 +98,7 @@ class CurlHttpTransport extends HttpTransport {
       $error= curl_errno($stream->handle);
       $message= curl_error($stream->handle);
       curl_close($stream->handle);
-      throw new IOException($error.' '.$message);
+      throw new OperationFailed($error.' '.$message);
     }
 
     // Strip "HTTP/x.x 200 Connection established" which is followed by
@@ -120,7 +120,7 @@ class CurlHttpTransport extends HttpTransport {
    * @param   int $timeout default 60
    * @param   float $connecttimeout default 2.0
    * @return  peer.http.HttpResponse response object
-   * @throws  io.IOException
+   * @throws  io.OperationFailed
    */
   public function send(HttpRequest $request, $timeout= 60, $connecttimeout= 2.0) {
     static $versions= [
@@ -176,7 +176,7 @@ class CurlHttpTransport extends HttpTransport {
       $errno= curl_errno($handle);
       $error= curl_error($handle);
       curl_close($handle);
-      throw new \io\IOException(sprintf('%d: %s', $errno, $error));
+      throw new \io\OperationFailed(sprintf('%d: %s', $errno, $error));
     }
     // ensure handle is closed
     curl_close($handle);

@@ -177,7 +177,7 @@ class HttpConnection implements Traceable {
    * @param   var $parameters
    * @param   [:string] $headers default array()
    * @return  peer.http.HttpResponse response object
-   * @throws  io.IOException
+   * @throws  io.OperationFailed
    */
   public function request($method, $parameters= null, $headers= []) {
     $r= new HttpRequest($this->url);

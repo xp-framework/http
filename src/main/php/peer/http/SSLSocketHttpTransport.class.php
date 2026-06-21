@@ -1,6 +1,6 @@
 <?php namespace peer\http;
 
-use io\IOException;
+use io\OperationFailed;
 use peer\{CryptoSocket, URL};
 use util\Objects;
 
@@ -56,7 +56,7 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
    * @param  peer.http.HttpRequest $request
    * @param  peer.URL $url
    * @return void
-   * @throws io.IOException
+   * @throws io.OperationFailed
    */
   protected function proxy($s, $request, $url) {
     $connect= sprintf(
@@ -70,14 +70,14 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
     // Verify we are actually talking to a HTTP proxy
     $handshake= $s->read();
     if (4 !== ($r= sscanf($handshake, "HTTP/%*d.%*d %d %[^\r]", $status, $message))) {
-      throw new IOException('Proxy did not answer with valid HTTP: '.$handshake);
+      throw new OperationFailed('Proxy did not answer with valid HTTP: '.$handshake);
     }
 
     // Verify proxy answers with a 200 status code
     while ($line= $s->readLine()) $handshake.= $line."\n";
     $this->cat && $this->cat->info('<<<', $handshake);
     if (200 !== $status) {
-      throw new IOException('Cannot connect through proxy: #'.$status.' '.$message);
+      throw new OperationFailed('Cannot connect through proxy: #'.$status.' '.$message);
     }
 
     // Enable cryptography
@@ -87,7 +87,7 @@ class SSLSocketHttpTransport extends SocketHttpTransport {
       foreach (self::$crypto as $name => $flag) {
         if ($flag === $this->socket->cryptoImpl & $flag) $methods.= ', '.$name;
       }
-      throw new IOException('Cannot establish secure connection, tried '.substr($methods, 2));
+      throw new OperationFailed('Cannot establish secure connection, tried '.substr($methods, 2));
     }
 
     $this->cat && $this->cat->debug('@@@ Enabled cryptography: '.Objects::stringOf(stream_get_meta_data($s->getHandle())['crypto']));
