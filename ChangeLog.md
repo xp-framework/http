@@ -3,6 +3,13 @@ HTTP protocol support for the XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 11.1.0 / 2026-06-21
+
+* Merged PR #27: Refactor I/O exceptions, dropping XP 10 support in the
+  doing. See xp-framework/core#363 for a write-up on the reason behind
+  this and the plan to move forward.
+  (@thekid)
+
 ## 11.0.0 / 2026-04-25
 
 * **Heads up:** Dropped support for PHP < 7.4, see xp-framework/rfc#343
